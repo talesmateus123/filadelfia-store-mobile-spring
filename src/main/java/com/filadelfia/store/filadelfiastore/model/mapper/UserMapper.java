@@ -5,7 +5,10 @@ import org.springframework.stereotype.Component;
 import com.filadelfia.store.filadelfiastore.model.dto.UserDTO;
 import com.filadelfia.store.filadelfiastore.model.entity.User;
 
+import lombok.Builder;
+
 @Component
+@Builder
 public class UserMapper {
     
     public UserDTO toDTO(User user) {

@@ -13,18 +13,18 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
-import com.filadelfia.store.filadelfiastore.exception.custom.UserNotFoundException;
+import com.filadelfia.store.filadelfiastore.exception.custom.ResourceNotFoundException;
 import com.filadelfia.store.filadelfiastore.exception.model.ErrorResponse;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(
-            UserNotFoundException ex, WebRequest request) {
+            ResourceNotFoundException ex, WebRequest request) {
         
         ErrorResponse error = ErrorResponse.builder()
-                .code("USER_NOT_FOUND")
+                .code("RESOURCE_NOT_FOUND")
                 .message(ex.getMessage())
                 .path(getRequestPath(request))
                 .build();
