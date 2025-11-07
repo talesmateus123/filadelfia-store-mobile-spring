@@ -39,9 +39,14 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 ## TODO
 - [x] develop the project archtecture
 - [x] mysql data base setup
-- [ ] development of models, controllers, and views using thymeleaf
+- [x] develop products resource
+- [ ] development of Products CRUD
+- [ ] development of Category CRUD
+- [ ] development of User CRUD
 - [ ] to implement not found 
-- [ ] develop products resource
+- [ ] to implement security
+- [ ] exception handling
+- [ ] automated tests implementation
 
 ## Contribution
 Contributions from the church community are welcome. Open issues for desired features or tasks. Keep changes small and add tests for core logic when possible.
