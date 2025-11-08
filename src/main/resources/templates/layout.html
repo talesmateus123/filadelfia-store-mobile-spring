@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Filadelfia Store</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+</head>
+<body>
+    <header th:fragment="header">
+        <div class="container">
+            <h1>Sistema de Gerenciamento</h1>
+            <div class="tabs">
+                <div class="tab" th:classappend="${activePage == 'home'} ? 'active'" >
+                    <a th:href="@{/}">Início</a>
+                </div>
+                <div class="tab" th:classappend="${activePage == 'products'} ? 'active'" >
+                    <a th:href="@{/products}">Produtos</a>
+                </div>
+                <div class="tab">
+                    <a th:href="@{/categories}">Categorias</a>
+                </div>
+                <div class="tab">
+                    <a th:href="@{/users}">Usuários</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main th:fragment="content">
+        
+    </main>
+    
+    <footer th:fragment="footer">
+        <p>&copy; 2025 Filadelfia Store - Todos os direitos reservados</p>
+    </footer>
+</body>
+</html>

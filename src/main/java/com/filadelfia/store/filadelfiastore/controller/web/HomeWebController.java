@@ -28,6 +28,7 @@ public class HomeWebController {
         List<ProductDTO> featuredProducts = productService.getFeaturedProducts();
         model.addAttribute("featuredProducts", featuredProducts);
         
+        model.addAttribute("activePage", "home");
         return "index";
     }
 
