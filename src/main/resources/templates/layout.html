@@ -5,24 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle}">Filadelfia Store</title>
     <link th:href="@{/css/style.css}" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}"/>
 </head>
 <body>
     <header th:fragment="header">
         <div class="container">
             <h1>Sistema de Gerenciamento</h1>
             <div class="tabs">
-                <div class="tab" th:classappend="${activePage == 'home'} ? 'active'" >
-                    <a th:href="@{/}">Início</a>
-                </div>
-                <div class="tab" th:classappend="${activePage == 'products'} ? 'active'" >
-                    <a th:href="@{/products}">Produtos</a>
-                </div>
-                <div class="tab">
-                    <a th:href="@{/categories}">Categorias</a>
-                </div>
-                <div class="tab">
-                    <a th:href="@{/users}">Usuários</a>
-                </div>
+                <a class="tab" th:classappend="${activePage == 'home'} ? 'active'" th:href="@{/}">
+                    Início
+                </a>
+                <a class="tab" th:classappend="${activePage == 'products'} ? 'active'" th:href="@{/products}">
+                    Produtos
+                </a>
+                <a class="tab" th:classappend="${activePage == 'categories'} ? 'active'" th:href="@{/categories}">
+                    Categorias
+                </a>
+                <a class="tab" th:classappend="${activePage == 'users'} ? 'active'" th:href="@{/users}">
+                    Usuários
+                </a>
             </div>
         </div>
     </header>

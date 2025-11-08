@@ -10,40 +10,38 @@
         <div id="produtos" class="tab-content active">
             <div class="section-title">
                 <h2 th:text="${pageTitle}"></h2>
-                <a th:href="@{/products/create}" class="add-button">+</a>
+                <a th:href="@{/categories/create}" class="add-button">+</a>
             </div>
                                         
             <div class="search-container">
-                <input type="text" id="search-produtos" placeholder="Pesquisar produtos...">
+                <input type="text" id="search-produtos" placeholder="Pesquisar categorias...">
             </div>
             
-            <div th:if="${not #lists.isEmpty(products)}">
+            <div th:if="${not #lists.isEmpty(category)}">
                 <table id="tabela-produtos">
                     <thead>
                         <tr>
                             <th>Nome</th>
-                            <th>Categoria</th>
-                            <th>Preço</th>
-                            <th>Estoque</th>
+                            <th>Descrição</th>
+                            <th>Ativo</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="lista-produtos">
-                        <tr th:each="product : ${products}">
-                            <td>th:text="${product.name}"</td>
-                            <td>th:text="${product.description}"</td>
-                            <td>th:text="${product.price}"</td>
-                            <td>th:text="${product.stock}"</td>
+                        <tr th:each="category : ${categories}">
+                            <td>th:text="${category.name}"</td>
+                            <td>th:text="${category.description}"</td>
+                            <td>th:text="${category.active}"</td>
                             <td>
-                                <a th:href="@{'/products/' + ${product.id}}" class="view-button">Ver Detalhes</a>
+                                <a th:href="@{'/categories/' + ${category.id}}" class="view-button">Ver Detalhes</a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="not-found" th:if="${#lists.isEmpty(products)}">
-                <p>Nenhum produto encontrado.</p>
+            <div class="not-found" th:if="${#lists.isEmpty(category)}">
+                <p>Nenhuma categoria encontrada.</p>
             </div>
         </div>
     </div>

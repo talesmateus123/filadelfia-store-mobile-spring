@@ -64,6 +64,7 @@ header a {
     padding: 20px;
     background-color: white;
     border-radius: 5px;
+    border: 1px solid #ccc;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     margin-top: 20px;
 }
@@ -91,6 +92,14 @@ header a {
     margin-bottom: 15px;
 }
 
+div.form-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 label {
     display: block;
     margin-bottom: 5px;
@@ -103,6 +112,23 @@ input, select {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+}
+
+div.notification.error {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #ffefef;
+    border: 1px solid #ffcccc;
+    border-radius: 4px;
+    color: #cc0000;
+    font-weight: 600;
+}
+
+div.not-found {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin-top: 20px;
+    text-align: center;
 }
 
 button {
@@ -129,11 +155,11 @@ button.danger:hover {
 }
 
 button.success {
-    background-color: #2ecc71;
+    background-color: #2eaccc;
 }
 
 button.success:hover {
-    background-color: #27ae60;
+    background-color: #2893ad;
 }
 
 table {

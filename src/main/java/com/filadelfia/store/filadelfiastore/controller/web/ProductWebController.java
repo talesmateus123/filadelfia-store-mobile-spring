@@ -19,11 +19,10 @@ import java.util.Optional;
 public class ProductWebController {
 
     private final ProductService productService;
-    private final CategoryService categoryService;
+    private final String activePage = "products";
 
-    public ProductWebController(ProductService productService, CategoryService categoryService) {
+    public ProductWebController(ProductService productService) {
         this.productService = productService;
-        this.categoryService = categoryService;
     }
 
     @GetMapping
@@ -49,7 +48,7 @@ public class ProductWebController {
         model.addAttribute("products", products);
         // model.addAttribute("categories", categoryService.getAllCategories());
 
-        model.addAttribute("activePage", "products");
+        model.addAttribute("activePage", activePage);
         return "pages/product/products";
     }
 
@@ -62,7 +61,7 @@ public class ProductWebController {
 
         // model.addAttribute("categories", categoryService.getAllCategories());
 
-        model.addAttribute("activePage", "products");
+        model.addAttribute("activePage", activePage);
         return "pages/product/create_product";
     }
 
@@ -77,7 +76,8 @@ public class ProductWebController {
         model.addAttribute("pageTitle", product.get().getName());
         model.addAttribute("breadcrumb", "Detalhes do Produto");
         model.addAttribute("product", product.get());
-
-        return "products/detail";
+        
+        model.addAttribute("activePage", activePage);
+        return "pages/product/product_details";
     }
 }
