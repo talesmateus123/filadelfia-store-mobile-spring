@@ -13,7 +13,7 @@
                 <a th:href="@{/products/create}" class="add-button">+</a>
             </div>
                                         
-            <div class="search-container">
+            <div th:if="${not #lists.isEmpty(products)}" class="search-container">
                 <input type="text" id="search-produtos" placeholder="Pesquisar produtos...">
             </div>
             
@@ -23,6 +23,8 @@
                         <tr>
                             <th>Nome</th>
                             <th>Categoria</th>
+                            <th>Descrição</th>
+                            <th>Ativo</th>
                             <th>Preço</th>
                             <th>Estoque</th>
                             <th>Ações</th>
@@ -30,10 +32,12 @@
                     </thead>
                     <tbody id="lista-produtos">
                         <tr th:each="product : ${products}">
-                            <td>th:text="${product.name}"</td>
-                            <td>th:text="${product.description}"</td>
-                            <td>th:text="${product.price}"</td>
-                            <td>th:text="${product.stock}"</td>
+                            <td th:text="${product.name}"></td>
+                            <td th:text="${product.categoryName}"></td>
+                            <td th:text="${product.description}"></td>
+                            <td th:text="${product.active} ? 'Sim' : 'Não'"></td>
+                            <td th:text="${product.priceFormatted}"></td>
+                            <td th:text="${product.stock}"></td>
                             <td>
                                 <a th:href="@{'/products/' + ${product.id}}" class="view-button">Ver Detalhes</a>
                             </td>
@@ -42,7 +46,7 @@
                 </table>
             </div>
 
-            <div class="not-found" th:if="${#lists.isEmpty(products)}">
+            <div th:if="${#lists.isEmpty(products)}">
                 <p>Nenhum produto encontrado.</p>
             </div>
         </div>

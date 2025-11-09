@@ -13,11 +13,11 @@
                 <a th:href="@{/categories/create}" class="add-button">+</a>
             </div>
                                         
-            <div class="search-container">
+            <div th:if="${not #lists.isEmpty(categories)}" class="search-container">
                 <input type="text" id="search-produtos" placeholder="Pesquisar categorias...">
             </div>
             
-            <div th:if="${not #lists.isEmpty(category)}">
+            <div th:if="${not #lists.isEmpty(categories)}">
                 <table id="tabela-produtos">
                     <thead>
                         <tr>
@@ -29,9 +29,9 @@
                     </thead>
                     <tbody id="lista-produtos">
                         <tr th:each="category : ${categories}">
-                            <td>th:text="${category.name}"</td>
-                            <td>th:text="${category.description}"</td>
-                            <td>th:text="${category.active}"</td>
+                            <td th:text="${category.name}"></td>
+                            <td th:text="${category.description}"></td>
+                            <td th:text="${category.active} ? 'Sim' : 'Não'"></td>
                             <td>
                                 <a th:href="@{'/categories/' + ${category.id}}" class="view-button">Ver Detalhes</a>
                             </td>
@@ -40,7 +40,7 @@
                 </table>
             </div>
 
-            <div class="not-found" th:if="${#lists.isEmpty(category)}">
+            <div th:if="${#lists.isEmpty(categories)}">
                 <p>Nenhuma categoria encontrada.</p>
             </div>
         </div>
