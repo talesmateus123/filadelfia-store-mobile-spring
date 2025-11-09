@@ -12,7 +12,7 @@
             
             <div class="form-container" th:if="${categoryDTO != null}">
                 <form id="form-categoria" 
-                    th:action="@{/categories/create}" 
+                    th:action="${isEdit} ? @{/categories/edit} : @{/categories/create}"
                     th:object="${categoryDTO}" 
                     method="post">
                     <input type="hidden" id="categoria-id" name="id" th:field="*{id}">

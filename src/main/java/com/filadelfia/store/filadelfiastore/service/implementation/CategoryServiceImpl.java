@@ -81,19 +81,19 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
-    public CategoryDTO updateCategory(Long id, CategoryDTO request) {
-        Category existing = categoryRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-            
-        if (categoryRepository.existsByName(request.getName())) {
-            throw new DuplicateCategoryException("Já existe uma categoria com o nome: " + request.getName());
-        }
-
-        // Copy non-id properties from request to existing entity
-        BeanUtils.copyProperties(request, existing, "id");
-        Category updated = categoryRepository.save(existing);
-        return categoryMapper.toDTO(updated);
+public CategoryDTO updateCategory(Long id, CategoryDTO request) {
+    Category existing = categoryRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+    
+    // Verifica se existe outra categoria com o mesmo nome (excluindo a atual)
+    if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
+        throw new DuplicateCategoryException("Já existe uma categoria com o nome: " + request.getName());
     }
+
+    BeanUtils.copyProperties(request, existing, "id");
+    Category updated = categoryRepository.save(existing);
+    return categoryMapper.toDTO(updated);
+}
 
     @Override
     public void deleteCategory(Long id) {

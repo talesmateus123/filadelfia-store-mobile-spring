@@ -11,7 +11,7 @@
             <div class="section-title">
                 <h2 th:text="${pageTitle}"></h2>
                 <div>
-                    <a class="button" th:href="@{/categories/create}">
+                    <a class="button" th:href="@{/categories/edit/{id}(id=${category.id})}">
                         <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Editar">
                     </a>
                     <a class="button" onclick="deleteCategory()">

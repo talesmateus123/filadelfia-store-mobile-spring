@@ -88,11 +88,62 @@ public class CategoriesWebController {
                 
             model.addAttribute("success", "Sucesso!");
             model.addAttribute("successDescription", "Categoria '" + createdCategory.getName() + "' criada com sucesso!");
+            model.addAttribute("notificationMessage", "Voltar para a lista de categorias.");            
+            model.addAttribute("notificationHref", "/categories");
             
         } catch (Exception e) {
             // Trata erros (como categoria duplicada, etc)
             model.addAttribute("pageTitle", "Adicionar Categoria");
             model.addAttribute("error", "Erro ao criar categoria: ");
+            model.addAttribute("errorDescription", e.getMessage());
+            model.addAttribute("activePage", activePage);
+        }
+        return "pages/category/create_category";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String editCategory(@PathVariable Long id, Model model) {
+        Optional<CategoryDTO> category = categoryService.getCategoryById(id);
+
+        model.addAttribute("pageTitle", "Editar Categoria");
+        model.addAttribute("categoryDTO", category.orElseThrow(() -> new RuntimeException("Categoria não encontrada")));
+        model.addAttribute("isEdit", true);        
+
+        model.addAttribute("activePage", activePage);
+        return "pages/category/create_category";
+    }
+
+    @PostMapping("/edit")
+    public String editCategory(
+            @ModelAttribute("categoryDTO") @Valid CategoryDTO categoryDTO,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        
+        // Verifica se há erros de validação
+        if (result.hasErrors()) {
+            model.addAttribute("pageTitle", "Editar Categoria");
+            model.addAttribute("activePage", activePage);
+        }
+
+        try {
+            // Atualiza a categoria
+            CategoryDTO updatedCategory = categoryService.updateCategory(categoryDTO.getId(), categoryDTO);
+            
+            // Adiciona mensagem de sucesso
+            redirectAttributes.addFlashAttribute("success", 
+                "Categoria '" + updatedCategory.getName() + "' atualizada com sucesso!");
+
+                
+            model.addAttribute("success", "Sucesso!");
+            model.addAttribute("successDescription", "Categoria '" + updatedCategory.getName() + "' atualizada com sucesso!");
+            model.addAttribute("notificationMessage", "Voltar para a lista de categorias.");            
+            model.addAttribute("notificationHref", "/categories");
+            
+        } catch (Exception e) {
+            // Trata erros (como categoria duplicada, etc)
+            model.addAttribute("pageTitle", "Editar Categoria");
+            model.addAttribute("error", "Erro ao atualizar categoria: ");
             model.addAttribute("errorDescription", e.getMessage());
             model.addAttribute("activePage", activePage);
         }
@@ -123,6 +174,8 @@ public class CategoriesWebController {
             categoryService.deleteCategory(id);
             redirectAttributes.addAttribute("success", 
                 "Categoria excluída com sucesso!");
+            redirectAttributes.addAttribute("notificationMessage", "Voltar para a lista de categorias.");            
+            redirectAttributes.addAttribute("notificationHref", "/categories");
         } catch (Exception e) {
             redirectAttributes.addAttribute("error", 
                 "Erro ao excluir categoria: " + e.getMessage());
