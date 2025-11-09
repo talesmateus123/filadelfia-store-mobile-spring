@@ -8,17 +8,29 @@
     
     <div class="container">
         <div id="produtos" class="tab-content active">
-            <h2 class="section-title" th:text="${pageTitle}"></h2>
+            <div class="section-title">
+                <h2 th:text="${pageTitle}"></h2>
+                <a th:href="@{/products/create}" class="add-button">
+                    <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Adicionar">
+                </a>
+            </div>
             
             <div>
-                <span>
-                    <b>ID:</b>&nbsp;<pan>Valor</pan>
-                    <b>Nome:</b>&nbsp;<pan>Valor</pan>
-                    <b>Categoria:</b>&nbsp;<pan>Valor</pan>
-                    <b>Preço:</b>&nbsp;<pan>Valor</pan>
-                    <b>Estoque:</b>&nbsp;<pan>Valor</pan>
-                    <b>Ações:</b>&nbsp;<pan>Valor</pan>
-                </span>
+                <p>
+                    <b>Nome:</b>&nbsp;<span th:text="${product.name}"></span>
+                </p>
+                <p>
+                    <b>Descrição:</b>&nbsp;<span th:text="${product.description}"></span>
+                </p>
+                <p>
+                    <b>Preço:</b>&nbsp;<span th:text="${product.priceFormatted}"></span>
+                </p>
+                <p>
+                    <b>Estoque:</b>&nbsp;<span th:text="${product.stock}"></span>
+                </p>
+                <p>
+                    <b>Ativo:</b>&nbsp;<span th:text="${product.active} ? 'Sim' : 'Não'"></span>
+                </p>
             </div>
         </div>
     </div>

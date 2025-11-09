@@ -83,9 +83,11 @@ header a {
     justify-content: space-between;
 }
 
-.add-button {
-    font-size: 20px;
-    font-weight: bold;
+.add-button img {
+    filter: brightness(0) saturate(100%) invert(33%) sepia(13%) saturate(1203%) hue-rotate(173deg) brightness(92%) contrast(86%);
+    width: 24px;
+    height: 24px;
+    transition: filter 0.3s ease;
 }
 
 .form-group {
