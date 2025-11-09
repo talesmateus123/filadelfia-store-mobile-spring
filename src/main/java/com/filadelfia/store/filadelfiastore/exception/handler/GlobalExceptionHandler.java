@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
+import com.filadelfia.store.filadelfiastore.exception.custom.DuplicateCategoryException;
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
 import com.filadelfia.store.filadelfiastore.exception.custom.ResourceNotFoundException;
 import com.filadelfia.store.filadelfiastore.exception.model.ErrorResponse;
@@ -63,6 +64,19 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+     @ExceptionHandler(DuplicateCategoryException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCategoryException(
+            DuplicateCategoryException ex, WebRequest request) {
+        
+        ErrorResponse error = ErrorResponse.builder()
+                .code("DUPLICATE_CATEGORY")
+                .message(ex.getMessage())
+                .path(getRequestPath(request))
+                .build();
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(Exception.class)

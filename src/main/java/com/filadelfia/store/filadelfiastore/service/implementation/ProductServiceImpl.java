@@ -1,10 +1,13 @@
 package com.filadelfia.store.filadelfiastore.service.implementation;
 
 import com.filadelfia.store.filadelfiastore.exception.custom.ResourceNotFoundException;
+import com.filadelfia.store.filadelfiastore.model.dto.CategoryDTO;
 import com.filadelfia.store.filadelfiastore.model.dto.ProductDTO;
 import com.filadelfia.store.filadelfiastore.model.entity.Product;
+import com.filadelfia.store.filadelfiastore.model.mapper.CategoryMapper;
 import com.filadelfia.store.filadelfiastore.model.mapper.ProductMapper;
 import com.filadelfia.store.filadelfiastore.repository.ProductRepository;
+import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 
 import org.springframework.beans.BeanUtils;
@@ -18,11 +21,15 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService  {
 
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;      
-  
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
+    private final CategoryService categoryService;
+    private final ProductMapper productMapper;
+    private final CategoryMapper categoryMapper;
+
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper, CategoryMapper categoryMapper) {
         this.productRepository = productRepository;
+        this.categoryService = categoryService;
         this.productMapper = productMapper;
+        this.categoryMapper = categoryMapper;
     }
 
     @Override
@@ -72,8 +79,12 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
-    public ProductDTO createProduct(ProductDTO request) {        
-        Product savedProduct = productRepository.save(productMapper.toEntity(request));
+    public ProductDTO createProduct(ProductDTO request) {
+        CategoryDTO category = categoryService.getCategoryById(request.getCategoryId())
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        Product product = productMapper.toEntity(request);
+        product.setCategory(categoryMapper.toEntity(category));
+        Product savedProduct = productRepository.save(product);
         return productMapper.toDTO(savedProduct);
     }
 
@@ -89,6 +100,9 @@ public class ProductServiceImpl implements ProductService  {
     public ProductDTO updateProduct(Long id, ProductDTO request) {
         Product existing = productRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        CategoryDTO category = categoryService.getCategoryById(request.getCategoryId())
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        existing.setCategory(categoryMapper.toEntity(category));
 
         // Copy non-id properties from request to existing entity
         BeanUtils.copyProperties(request, existing, "id");
