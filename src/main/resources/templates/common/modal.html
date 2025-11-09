@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="modal">
+        <div th:if="${modalTitle}" id="dynamicModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalTitle" th:text="${modalTitle}"></h2>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-message" id="modalMessage" th:text="${modalMessage}"></p>
+                </div>
+                <div class="modal-footer" id="modalFooter">
+                    <button type="button" class="modal-btn modal-close-button" onclick="closeModal()">Fechar</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="hiddenModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-message" id="modalMessage"></p>
+                </div>
+                <div class="modal-footer" id="modalFooter">
+                    <button type="button" class="modal-btn modal-btn-danger" onclick="confirmAction && confirmAction() || closeModal()">Sim</button>
+                    <button type="button" class="modal-btn modal-close-button" onclick="closeModal()">Não</button>
+                </div>
+            </div>
+        </div>
+
+        <script th:src="@{/js/modal.js}"></script>
+    </div>
+</body>
+</html>

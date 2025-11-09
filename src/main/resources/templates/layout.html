@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle}">Filadelfia Store</title>
     <link th:href="@{/css/style.css}" rel="stylesheet"/>
+    <link th:fragment="modalStyles" th:href="@{/css/modal.css}" rel="stylesheet"/>
     <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}"/>
 </head>
 <body>
@@ -31,7 +32,24 @@
     <main th:fragment="content">
         
     </main>
-    
+
+    <div th:fragment="notifications">
+        <div class="notification-error" th:if="${error}">
+            <p class="notification-title" th:text="${error}"></p>
+            <p th:text="${errorDescription}"></p>
+        </div>
+
+        <div class="notification-info" th:if="${info}">
+            <p class="notification-title" th:text="${info}"></p>
+            <p th:text="${infoDescription}"></p>
+        </div>
+
+        <div class="notification-success" th:if="${success}">
+            <p class="notification-title" th:text="${success}"></p>
+            <p th:text="${successDescription}"></p>
+        </div>
+    </div>
+
     <footer th:fragment="footer">
         <p>&copy; 2025 Filadelfia Store - Todos os direitos reservados</p>
     </footer>
