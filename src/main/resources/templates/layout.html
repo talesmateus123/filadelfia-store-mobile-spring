@@ -37,19 +37,19 @@
         <div class="notification-error" th:if="${error}">
             <p class="notification-title" th:text="${error}"></p>
             <p th:text="${errorDescription}"></p>
-            <a class="danger" th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
+            <a th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
         </div>
 
         <div class="notification-info" th:if="${info}">
             <p class="notification-title" th:text="${info}"></p>
             <p th:text="${infoDescription}"></p>
-            <a class="info" th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
+            <a th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
         </div>
 
         <div class="notification-success" th:if="${success}">
             <p class="notification-title" th:text="${success}"></p>
             <p th:text="${successDescription}"></p>
-            <a class="success" th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
+            <a th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
         </div>
     </div>
 

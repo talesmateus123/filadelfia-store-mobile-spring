@@ -83,6 +83,16 @@ header a {
     justify-content: space-between;
 }
 
+/* unvisited link */
+a:link, a:visited {
+  color: unset;
+}
+
+/* mouse over link */
+a:active, a:hover {
+  color: blue;
+}
+
 .button {
     margin-left: 10px;
 }
