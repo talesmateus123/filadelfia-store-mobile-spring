@@ -40,12 +40,15 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - [x] develop the project archtecture
 - [x] mysql data base setup
 - [x] develop products resource
-- [ ] development of Products CRUD
-- [ ] development of Category CRUD
-- [ ] development of User CRUD
+- [x] development of Products CRUD
+- [x] development of Category CRUD
+- [x] development of User CRUD
+- [x] exception handling
+- [ ] to test Products CRUD
+- [ ] to test Category CRUD
+- [ ] to test User CRUD
 - [ ] to implement not found 
 - [ ] to implement security
-- [ ] exception handling
 - [ ] automated tests implementation
 
 ## Contribution

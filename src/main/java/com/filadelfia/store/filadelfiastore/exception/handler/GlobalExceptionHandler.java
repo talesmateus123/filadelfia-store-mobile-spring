@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.filadelfia.store.filadelfiastore.exception.custom.DuplicateCategoryException;
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
@@ -20,7 +21,28 @@ import com.filadelfia.store.filadelfiastore.exception.model.ErrorResponse;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    // Remove a exceção personalizada e usa a do Spring
+     @ExceptionHandler(NoResourceFoundException.class)
+    public Object handleNoHandlerFound(NoResourceFoundException ex, WebRequest request) {        
+        // Se for uma rota de API, retorna JSON
+        if (isApiRoute(ex.getResourcePath())) {
+            ErrorResponse error = ErrorResponse.builder()
+                    .code("ROUTE_NOT_FOUND")
+                    .message("The requested endpoint was not found")
+                    .path(ex.getResourcePath())
+                    .build();
+            
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+        
+        return "redirect:/error";
+    }
+
+    
+    private boolean isApiRoute(String path) {
+        return path != null && path.startsWith("api/");
+    }   
+
     public ResponseEntity<ErrorResponse> handleUserNotFound(
             ResourceNotFoundException ex, WebRequest request) {
         
@@ -113,4 +135,5 @@ public class GlobalExceptionHandler {
         }
         return null;
     }
+
 }
