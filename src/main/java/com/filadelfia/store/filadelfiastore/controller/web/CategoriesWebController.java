@@ -3,18 +3,12 @@ package com.filadelfia.store.filadelfiastore.controller.web;
 import com.filadelfia.store.filadelfiastore.model.dto.CategoryDTO;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 
-import jakarta.validation.Valid;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -89,78 +83,4 @@ public class CategoriesWebController {
         return "pages/category/category_details";
     }
 
-    @PostMapping("/create")
-    public String createCategory(
-            @ModelAttribute("categoryDTO") @Valid CategoryDTO categoryDTO,
-            BindingResult result,
-            Model model) {
-        
-        if (result.hasErrors()) {
-            model.addAttribute("pageTitle", "Nova Categoria");
-            model.addAttribute("activePage", activePage);
-        }
-
-        try {
-            CategoryDTO createdCategory = categoryService.createCategory(categoryDTO);
-                            
-            model.addAttribute("success", "Sucesso!");
-            model.addAttribute("successDescription", "Categoria '" + createdCategory.getName() + "' criada com sucesso!");
-            model.addAttribute("notificationMessage", "Voltar para a lista de categorias.");            
-            model.addAttribute("notificationHref", "/categories");
-            
-        } catch (Exception e) {
-            model.addAttribute("pageTitle", "Adicionar Categoria");
-            model.addAttribute("error", "Erro ao criar categoria: ");
-            model.addAttribute("errorDescription", e.getMessage());
-            model.addAttribute("activePage", activePage);
-        }
-        return "pages/category/create_category";
-    }
-
-    @PostMapping("/edit")
-    public String editCategory(
-            @ModelAttribute("categoryDTO") @Valid CategoryDTO categoryDTO,
-            BindingResult result,
-            Model model) {
-        
-        if (result.hasErrors()) {
-            model.addAttribute("pageTitle", "Editar Categoria");
-            model.addAttribute("activePage", activePage);
-        }
-
-        try {
-            CategoryDTO updatedCategory = categoryService.updateCategory(categoryDTO.getId(), categoryDTO);
-                
-            model.addAttribute("success", "Sucesso!");
-            model.addAttribute("successDescription", "Categoria '" + updatedCategory.getName() + "' atualizada com sucesso!");
-            model.addAttribute("notificationMessage", "Voltar para a lista de categorias.");            
-            model.addAttribute("notificationHref", "/categories");
-            
-        } catch (Exception e) {
-            model.addAttribute("pageTitle", "Editar Categoria");
-            model.addAttribute("error", "Erro ao atualizar categoria: ");
-            model.addAttribute("errorDescription", e.getMessage());
-            model.addAttribute("activePage", activePage);
-        }
-        return "pages/category/create_category";
-    }
-
-    @PostMapping("/{id}/delete")
-    public String deleteCategory(
-            @PathVariable Long id,
-            RedirectAttributes redirectAttributes) {
-        
-        try {
-            categoryService.deleteCategory(id);
-            redirectAttributes.addAttribute("success", 
-                "Categoria excluída com sucesso!");
-            redirectAttributes.addAttribute("notificationMessage", "Voltar para a lista de categorias.");            
-            redirectAttributes.addAttribute("notificationHref", "/categories");
-        } catch (Exception e) {
-            redirectAttributes.addAttribute("error", 
-                "Erro ao excluir categoria: " + e.getMessage());
-        }
-        
-        return "pages/category/create_category";
-    }
 }

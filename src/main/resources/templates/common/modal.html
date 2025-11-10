@@ -1,39 +1,99 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <body>
-    <div th:fragment="modal">
-        <div th:if="${modalTitle}" id="dynamicModal" class="modal">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
+    <div th:fragment="modal-manager">        
+        <div id="modal-manager-container" class="modal-manager-container">
+
+            <div id="confirm-modal" class="modal-manager modal-confirm" style="display: none;">
                 <div class="modal-header">
-                    <h2 class="modal-title" id="modalTitle" th:text="${modalTitle}"></h2>
+                    <div class="modal-title">
+                        <span class="modal-icon">❓</span>
+                        <span id="confirm-modal-title">Confirmar Ação</span>
+                    </div>
                 </div>
                 <div class="modal-body">
-                    <p class="modal-message" id="modalMessage" th:text="${modalMessage}"></p>
+                    <p id="confirm-modal-message">Tem certeza que deseja realizar esta ação?</p>
                 </div>
-                <div class="modal-footer" id="modalFooter">
-                    <button type="button" class="modal-btn modal-close-button" onclick="closeModal()">Fechar</button>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-cancel" id="confirm-modal-cancel">
+                        Cancelar
+                    </button>
+                    <button type="button" class="modal-btn modal-btn-confirm" id="confirm-modal-confirm">
+                        Confirmar
+                    </button>
                 </div>
             </div>
-        </div>
-        
-        <div id="hiddenModal" class="modal">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
+
+            <div id="info-modal" class="modal-manager modal-info" style="display: none;">
                 <div class="modal-header">
-                    <h2 class="modal-title" id="modalTitle"></h2>
+                    <div class="modal-title">
+                        <span class="modal-icon">ℹ️</span>
+                        <span id="info-modal-title">Informação</span>
+                    </div>
                 </div>
                 <div class="modal-body">
-                    <p class="modal-message" id="modalMessage"></p>
+                    <p id="info-modal-message">Mensagem de informação.</p>
                 </div>
-                <div class="modal-footer" id="modalFooter">
-                    <button type="button" class="modal-btn modal-btn-danger" onclick="confirmAction && confirmAction() || closeModal()">Sim</button>
-                    <button type="button" class="modal-btn modal-close-button" onclick="closeModal()">Não</button>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="info-modal-close">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+
+            <div id="success-modal" class="modal-manager modal-success" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">✅</span>
+                        <span id="success-modal-title">Sucesso</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="success-modal-message">Operação realizada com sucesso!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="success-modal-close">
+                        Ok
+                    </button>
+                </div>
+            </div>
+
+            <div id="error-modal" class="modal-manager modal-error" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">❌</span>
+                        <span id="error-modal-title">Erro</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="error-modal-message">Ocorreu um erro durante a operação.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="error-modal-close">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+
+            <div id="warning-modal" class="modal-manager modal-warning" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">⚠️</span>
+                        <span id="warning-modal-title">Aviso</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="warning-modal-message">Mensagem de aviso.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="warning-modal-close">
+                        Entendi
+                    </button>
                 </div>
             </div>
         </div>
 
-        <script th:src="@{/js/modal.js}"></script>
+        <script th:src="@{/js/core/modal.js}"></script>
     </div>
 </body>
 </html>

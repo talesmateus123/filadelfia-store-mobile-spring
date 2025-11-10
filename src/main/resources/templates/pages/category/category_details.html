@@ -14,7 +14,7 @@
                     <a class="button" th:href="@{/categories/edit/{id}(id=${category.id})}">
                         <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Editar">
                     </a>
-                    <a class="button" onclick="deleteCategory()">
+                    <a class="button" id="button_delete">
                         <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Remover">
                     </a>
                 </div>
@@ -38,9 +38,13 @@
     <div th:replace="~{layout :: footer}">
     </div>
     
-    <div th:replace="~{common/modal :: modal}">
+    <div th:replace="~{common/modal :: modal-manager}">
     </div>
 
+    <div th:replace="~{layout :: scripts}">
+    </div>
+    
+    <script th:src="@{/js/category/category_service.js}"></script>
     <script th:src="@{/js/category/category_details.js}"></script>
 </body>
 </html>
