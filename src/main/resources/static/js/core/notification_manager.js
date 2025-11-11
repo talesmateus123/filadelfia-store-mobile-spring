@@ -6,9 +6,9 @@ class NotificationManager {
 
     show(message, type = 'info', options = {}) {
         const {
-            duration = type === 'error' ? 0 : 5000, // Erros não fecham automaticamente
+            duration = 5000, // Erros não fecham automaticamente
             position = 'top-right',
-            closeable = true
+            closeable = true,
         } = options;
 
         const notification = this.createNotification(message, type, closeable);
