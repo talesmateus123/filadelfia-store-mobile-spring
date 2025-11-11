@@ -12,9 +12,7 @@
             
             <div class="form-container" th:if="${categoryDTO != null}">
                 <form id="form-categoria" 
-                    th:action="${isEdit} ? @{/categories/edit} : @{/categories/create}"
-                    th:object="${categoryDTO}" 
-                    method="post">
+                    th:object="${categoryDTO}">
                     <input type="hidden" id="categoria-id" name="id" th:field="*{id}">
                     
                     <div class="form-group">
@@ -54,7 +52,13 @@
     <div th:replace="~{layout :: footer}">
     </div>
     
-    <div th:replace="~{common/modal :: modal}">
+    <div th:replace="~{common/modal :: modal-manager}">
     </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+    
+    <script th:src="@{/js/category/category_service.js}"></script>
+    <script th:src="@{/js/category/create_category.js}"></script>
 </body>
 </html>
