@@ -47,9 +47,10 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - [x] to test Category CRUD
 - [x] to fix error messages are not dimissing within the create_category flow
 - [x] to test Products CRUD
-- [ ] to test User CRUD
+- [x] to test User CRUD
 - [ ] to implement not found 
 - [ ] to implement security
+- [ ] to implement search bar in all the flows
 - [ ] automated tests implementation
 
 ## Contribution

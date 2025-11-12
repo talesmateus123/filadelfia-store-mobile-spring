@@ -17,13 +17,13 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/products")
-public class ProductWebController {
+public class ProductsWebController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
     private final String activePage = "products";
 
-    public ProductWebController(ProductService productService, CategoryService categoryService) {
+    public ProductsWebController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
         this.categoryService = categoryService;
     }
