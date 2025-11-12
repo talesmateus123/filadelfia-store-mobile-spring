@@ -49,6 +49,10 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - [x] to test Products CRUD
 - [x] to test User CRUD
 - [x] to implement not found 
+- [ ] to implement holes within frontend crud
+- [ ] to implement security via bearer token
+- [ ] to implement holes to all the app endpoints
+- [ ] to check if created_at and updating_at is working
 - [ ] to implement search bar in all the flows
 - [ ] to implement security via bearer token
 - [ ] to implement login screen

@@ -104,8 +104,10 @@ public class ProductServiceImpl implements ProductService  {
             .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         existing.setCategory(categoryMapper.toEntity(category));
 
-        // Copy non-id properties from request to existing entity
-        BeanUtils.copyProperties(request, existing, "id");
+        existing.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+
+        // Copy properties from request to existing entity, ignoring id and password
+        BeanUtils.copyProperties(request, existing, "id", "createdAt");
         Product updated = productRepository.save(existing);
         return productMapper.toDTO(updated);
     }

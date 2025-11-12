@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.Locale;
 import java.text.NumberFormat;
 
@@ -19,6 +20,8 @@ import jakarta.validation.constraints.NotNull;
 
 public class ProductDTO {
     private Long id;
+    private Date createdAt;
+    private Date updatedAt;
     @NotNull
     private String name;
     @NotNull

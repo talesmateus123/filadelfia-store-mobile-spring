@@ -2,6 +2,8 @@ package com.filadelfia.store.filadelfiastore.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,6 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.sql.Date;
+
+import com.filadelfia.store.filadelfiastore.model.enums.UserRole;
 
 @Entity
 @Table(name = "users")
@@ -23,6 +29,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = true)
+    private Date createdAt = new Date(System.currentTimeMillis());
+
+    @Column(nullable = true)
+    private Date updatedAt = new Date(System.currentTimeMillis());
+
     @Column(nullable = false, unique = true)
     private String name;
 
@@ -31,6 +43,9 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+    
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @Column(nullable = true)
     private String phone;

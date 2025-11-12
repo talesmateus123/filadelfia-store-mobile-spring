@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 
 @Entity
 @Table(name = "products")
@@ -21,6 +22,12 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = true)
+    private Date createdAt = new Date(System.currentTimeMillis());
+
+    @Column(nullable = true)
+    private Date updatedAt = new Date(System.currentTimeMillis());
 
     @NotBlank(message = "Product name is required")
     @Column(nullable = false)

@@ -90,7 +90,10 @@ public CategoryDTO updateCategory(Long id, CategoryDTO request) {
         throw new DuplicateCategoryException("Já existe uma categoria com o nome: " + request.getName());
     }
 
-    BeanUtils.copyProperties(request, existing, "id");
+    existing.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+
+    // Copy properties from request to existing entity, ignoring id and password
+    BeanUtils.copyProperties(request, existing, "id", "createdAt");
     Category updated = categoryRepository.save(existing);
     return categoryMapper.toDTO(updated);
 }

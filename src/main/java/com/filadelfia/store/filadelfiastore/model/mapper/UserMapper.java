@@ -13,14 +13,17 @@ import lombok.Builder;
 public class UserMapper {
     
     public UserDTO toDTO(User user) {
-        return new UserDTO(user.getId(), WordUtils.capitalizeFully(user.getName()), user.getEmail().toLowerCase(), user.getPassword(), user.getPhone(), user.getActive());
+        return new UserDTO(user.getId(), user.getCreatedAt(), user.getUpdatedAt(), WordUtils.capitalizeFully(user.getName()), user.getEmail().toLowerCase(), user.getPassword(), user.getRole(), user.getPhone(), user.getActive());
     }
     
     public User toEntity(UserDTO userDTO) {
         User user = new User();
-        user.setEmail(userDTO.getEmail().toLowerCase());
+        user.setCreatedAt(user.getCreatedAt());
+        user.setUpdatedAt(user.getUpdatedAt());
         user.setName(WordUtils.capitalizeFully(userDTO.getName()));
+        user.setEmail(userDTO.getEmail().toLowerCase());
         user.setPassword(userDTO.getPassword());
+        user.setRole(userDTO.getRole());
         user.setPhone(userDTO.getPhone());
         user.setActive(userDTO.getActive());
         return user;
