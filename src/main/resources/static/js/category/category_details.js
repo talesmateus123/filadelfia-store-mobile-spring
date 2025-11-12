@@ -25,7 +25,10 @@ async function  handleDeleteCategory() {
                     modalManager.success({
                         title: "Sucesso",
                         message: "Categoria removida com sucesso!",
-                        onClose: () => window.location.href = '/categories'
+                        onClose: () => {
+                            window.onbeforeunload = null;
+                            window.location.href = '/categories'
+                        }
                     });
                 })
                 .catch(error => {

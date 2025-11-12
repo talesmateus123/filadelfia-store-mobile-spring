@@ -23,6 +23,7 @@ class ProductManager {
             );
 
             setTimeout(() => {
+                window.onbeforeunload = null;
                 window.location.href = '/products';
             }, 1000);
 

@@ -23,6 +23,7 @@ class UserManager {
             );
 
             setTimeout(() => {
+                window.onbeforeunload = null;
                 window.location.href = '/users';
             }, 1000);
 
