@@ -26,7 +26,6 @@ public class UserDTO {
     private String name;
     @NotNull
     private String email;
-    @NotNull
     private String password;    
     @Enumerated(EnumType.STRING)
     private UserRole role;

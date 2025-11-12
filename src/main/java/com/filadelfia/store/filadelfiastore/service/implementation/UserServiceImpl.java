@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(UserRole.ROLE_MANAGER);
         
         // TODO: user.setPassword(passwordEncoder.encode(newPassword));
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(userDTO.getEmail());
         
         return userMapper.toDTO(userRepository.save(user));
     }

@@ -37,15 +37,6 @@ class UserManager {
     }
 }
 
-function showPassword() {
-  var passwordInput = document.getElementById("user-password");
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-  } else {
-    passwordInput.type = "password";
-  }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     new UserManager();
 });
