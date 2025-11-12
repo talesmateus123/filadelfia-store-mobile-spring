@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
@@ -21,12 +20,10 @@ public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
     
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
     }
     
     @Override
@@ -36,7 +33,9 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(userDTO);
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        
+        // TODO: user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(userDTO.getPassword());
         
         return userMapper.toDTO(userRepository.save(user));
     }
@@ -99,7 +98,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // Considerar criptografar a senha antes de salvar
-        existing.setPassword(passwordEncoder.encode(newPassword));
+        // TODO: existing.setPassword(passwordEncoder.encode(newPassword));
+        existing.setPassword(newPassword);
         User updated = userRepository.save(existing);
         return userMapper.toDTO(updated);
     }

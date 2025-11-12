@@ -7,8 +7,7 @@ if (deleteBtn) {
 }
 
 async function  handleDeleteUser() {
-    const userId = document.getElementById('user-id')?.value || 
-                        document.getElementById('usuario-id')?.value;
+    const userId = document.getElementById('userId')?.value;
 
     if (!userId) {
         notificationManager.error('ID do usuário não encontrado');

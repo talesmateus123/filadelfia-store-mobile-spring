@@ -48,9 +48,13 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - [x] to fix error messages are not dimissing within the create_category flow
 - [x] to test Products CRUD
 - [x] to test User CRUD
-- [ ] to implement not found 
-- [ ] to implement security
+- [x] to implement not found 
 - [ ] to implement search bar in all the flows
+- [ ] to implement security via bearer token
+- [ ] to implement login screen
+- [ ] setup alowed and not allowed endpoints
+- [ ] to implement photoUrl to products and categories flow
+- [ ] to implements swagger api docs
 - [ ] automated tests implementation
 
 ## Contribution
