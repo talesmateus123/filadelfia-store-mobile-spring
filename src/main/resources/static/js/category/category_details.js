@@ -7,8 +7,7 @@ if (deleteBtn) {
 }
 
 async function  handleDeleteCategory() {
-    const categoryId = document.getElementById('categoryId')?.value || 
-                        document.getElementById('categoria-id')?.value;
+    const categoryId = document.getElementById('categoryId')?.value;
 
     if (!categoryId) {
         notificationManager.error('ID da categoria não encontrado');

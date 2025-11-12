@@ -7,8 +7,7 @@ if (deleteBtn) {
 }
 
 async function  handleDeleteProduct() {
-    const productId = document.getElementById('productId')?.value || 
-                        document.getElementById('produto-id')?.value;
+    const productId = document.getElementById('productId')?.value;
 
     if (!productId) {
         notificationManager.error('ID do produto não encontrado');
