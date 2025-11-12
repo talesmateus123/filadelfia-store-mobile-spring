@@ -30,6 +30,15 @@
                         <input type="password" id="user-password" th:field="*{password}" required>
                         <input type="checkbox" onclick="showPassword()">Mostrar Senha
                     </div>
+
+                    <div class="form-group">
+                        <label for="user-role">Permissões</label>
+                        <select id="user-role" th:field="*{role}" required>
+                            <option value="">Selecione uma permissão</option>
+                            <option value="ROLE_ADMIN">Administrador</option>
+                            <option value="ROLE_MANAGER">Gerenciador</option>
+                        </select>
+                    </div>
                     
                     <div class="form-group">
                         <label for="user-phone">Telefone:</label>
