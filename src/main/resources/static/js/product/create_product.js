@@ -1,7 +1,7 @@
-class CategoryManager {
+class ProductManager {
     constructor() {
-        this.form = document.getElementById('form-categoria');
-        this.isEdit = !!document.getElementById('categoria-id').value;
+        this.form = document.getElementById('form-produto');
+        this.isEdit = !!document.getElementById('produto-id').value;
         
         this.formManager = new FormManager(this.form, {
             onSubmit: (data) => this.handleFormSubmit(data)
@@ -10,26 +10,26 @@ class CategoryManager {
 
     async handleFormSubmit(formData) {
         const submitOperation = this.isEdit ? 
-            () => categoryService.update(formData.id, formData) :
-            () => categoryService.create(formData);
+            () => productService.update(formData.id, formData) :
+            () => productService.create(formData);
 
         try {
             const result = await loadingManager.wrapAsync(submitOperation, {
-                message: this.isEdit ? 'Atualizando categoria...' : 'Criando categoria...'
+                message: this.isEdit ? 'Atualizando produto...' : 'Criando produto...'
             })();
 
             notificationManager.success(
-                `Categoria ${this.isEdit ? 'atualizada' : 'criada'} com sucesso!`
+                `Produto ${this.isEdit ? 'atualizado' : 'criado'} com sucesso!`
             );
 
             setTimeout(() => {
-                window.location.href = '/categories';
+                window.location.href = '/products';
             }, 1000);
 
             return result;
         } catch (error) {
             notificationManager.error(
-                error.data?.message || `Erro ao ${this.isEdit ? 'atualizar' : 'criar'} categoria`
+                error.data?.details && error.data?.details.join(", ") || error.data?.message || `Erro ao ${this.isEdit ? 'atualizar' : 'criar'} produto`
             );
             throw error;
         }
@@ -37,5 +37,5 @@ class CategoryManager {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    new CategoryManager();
+    new ProductManager();
 });

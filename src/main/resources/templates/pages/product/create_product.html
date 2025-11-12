@@ -10,43 +10,46 @@
         <div id="produtos" class="tab-content active">
             <h2 class="section-title" th:text="${pageTitle}"></h2>
             
-            <div class="form-container">
-                <form id="form-produto">
-                    <input type="hidden" id="produto-id">
+            <div class="form-container" th:if="${productDTO != null}">
+                <form id="form-produto"
+                    th:object="${productDTO}">
+                    <input type="hidden" id="produto-id" name="id" th:field="*{id}">
                     <div class="form-group">
                         <label for="produto-nome">Nome do Produto</label>
-                        <input type="text" id="produto-nome" required>
+                        <input type="text" id="produto-nome" th:field="*{name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-descricao">Descrição:</label>
+                        <textarea id="produto-descricao" th:field="*{description}" rows="3" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="produto-categoria">Categoria</label>
-                        <select id="produto-categoria" required>
+                        <select id="produto-categoria" th:field="*{categoryId}" required>
                             <option value="">Selecione uma categoria</option>
-                            <option value="1">Eletrônicos</option>
-                            <option value="2">Roupas</option>
-                            <option value="3">Livros</option>
-                            <option value="4">Casa e Cozinha</option>
+                            <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="produto-preco">Preço (R$)</label>
-                        <input type="number" id="produto-preco" step="0.01" min="0" required>
+                        <input type="number" id="produto-preco" th:field="*{price}" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
                         <label for="produto-estoque">Quantidade em Estoque</label>
-                        <input type="number" id="produto-estoque" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="produto-descricao">Descrição</label>
-                        <input type="text" id="produto-descricao">
+                        <input type="number" id="produto-estoque" th:field="*{stock}" min="0" required>
                     </div>
                     <div class="form-group">
                         <label for="produto-ativo">Ativo</label>
-                        <input type="checkbox" id="produto-ativo" checked>
+                        <input type="checkbox" id="produto-ativo" th:field="*{active}" checked>
                     </div>
-                    <div class="form-group">
+                    
+                    <!-- TODO Further implementation: Implement bucket to save the images -->
+                    <!-- <div class="form-group">
                         <label for="produto-imagem">URL da Imagem</label>
-                        <input type="text" id="produto-imagem">
-                    </div>
+                        <input type="text" id="produto-imagem" name="imageUrl">
+                    </div> -->
+
+                   <div th:replace="~{layout :: notifications}"></div>
+
                     <div class="form-actions">
                         <button type="button" id="btn-cancelar" class="danger" onclick="history.back()">Cancelar</button>
                         <button type="submit" id="btn-salvar" class="success">Salvar Produto</button>
@@ -59,5 +62,14 @@
 
     <div th:replace="~{layout :: footer}">
     </div>
+    
+    <div th:replace="~{common/modal :: modal-manager}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+    
+    <script th:src="@{/js/product/product_service.js}"></script>
+    <script th:src="@{/js/product/create_product.js}"></script>
 </body>
 </html>

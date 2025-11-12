@@ -58,9 +58,8 @@ public class CategoriesWebController {
 
     @GetMapping("/edit/{id}")
     public String editCategoryForm(@PathVariable Long id, Model model) {
-        Optional<CategoryDTO> category = categoryService.getCategoryById(id);
-
         model.addAttribute("pageTitle", "Editar Categoria");
+        Optional<CategoryDTO> category = categoryService.getCategoryById(id);
         model.addAttribute("categoryDTO", category.orElseThrow(() -> new RuntimeException("Categoria não encontrada")));
         model.addAttribute("isEdit", true);        
 

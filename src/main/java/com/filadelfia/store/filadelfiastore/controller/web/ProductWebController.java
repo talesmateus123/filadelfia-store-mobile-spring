@@ -1,6 +1,8 @@
 package com.filadelfia.store.filadelfiastore.controller.web;
 
+import com.filadelfia.store.filadelfiastore.model.dto.CategoryDTO;
 import com.filadelfia.store.filadelfiastore.model.dto.ProductDTO;
+import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 
 import org.springframework.stereotype.Controller;
@@ -18,10 +20,12 @@ import java.util.Optional;
 public class ProductWebController {
 
     private final ProductService productService;
+    private final CategoryService categoryService;
     private final String activePage = "products";
 
-    public ProductWebController(ProductService productService) {
+    public ProductWebController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping
@@ -53,12 +57,23 @@ public class ProductWebController {
 
 
     @GetMapping("/create")
-    public String createProduct(Model model) {
+    public String createProduct(Model model) {        
+        model.addAttribute("pageTitle", "Novo Produto");          
+        model.addAttribute("productDTO", new ProductDTO()); // Objeto para o formulário
+        model.addAttribute("categories", categoryService.getAllCategories());
         
-        model.addAttribute("pageTitle", "Adicionar Produto");
-        // model.addAttribute("breadcrumb", "Produtos");
+        model.addAttribute("activePage", activePage);
+        return "pages/product/create_product";
+    }
 
-        // model.addAttribute("categories", categoryService.getAllCategories());
+    
+    @GetMapping("/edit/{id}")
+    public String editProductForm(@PathVariable Long id, Model model) {
+        model.addAttribute("pageTitle", "Editar Produto");
+        Optional<ProductDTO> product = productService.getProductById(id);
+        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("productDTO", product.orElseThrow(() -> new RuntimeException("Produto não encontrado")));
+        model.addAttribute("isEdit", true);        
 
         model.addAttribute("activePage", activePage);
         return "pages/product/create_product";

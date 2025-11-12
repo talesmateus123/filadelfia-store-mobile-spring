@@ -90,7 +90,7 @@ a:link, a:visited {
 
 /* mouse over link */
 a:active, a:hover {
-  color: blue;
+  color: unset;
 }
 
 .button {

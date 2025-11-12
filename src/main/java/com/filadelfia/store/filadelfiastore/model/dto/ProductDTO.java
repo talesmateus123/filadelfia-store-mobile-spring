@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Locale;
 import java.text.NumberFormat;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Getter
@@ -20,6 +21,8 @@ public class ProductDTO {
     private Long id;
     @NotNull
     private String name;
+    @NotNull
+    @NotEmpty
     private String description;
     @NotNull
     private BigDecimal price;

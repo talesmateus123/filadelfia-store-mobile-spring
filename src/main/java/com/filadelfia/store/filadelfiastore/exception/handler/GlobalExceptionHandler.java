@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = ErrorResponse.builder()
                 .code("VALIDATION_ERROR")
-                .message("Request validation failed")
+                .message("Request validation failed: " + String.join(", ", errors))
                 .path(getRequestPath(request))
                 .details(errors)
                 .build();
