@@ -1,6 +1,5 @@
 package com.filadelfia.store.filadelfiastore.model.dto;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +27,7 @@ public class UserDTO {
     @NotNull
     private String email;
     @JsonIgnore
-    private String password;    
+    private String password;
     @Enumerated(EnumType.STRING)
     private UserRole role;
     private String phone;

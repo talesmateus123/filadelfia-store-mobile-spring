@@ -11,6 +11,7 @@ import com.filadelfia.store.filadelfiastore.model.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+    Optional<User> getUserByEmail(String email);
     List<User> findByNameContainingIgnoreCaseAndActiveTrue(String name);
     boolean existsByEmail(String email);
     List<User> findByActiveTrue();

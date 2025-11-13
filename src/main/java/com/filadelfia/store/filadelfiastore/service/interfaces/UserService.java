@@ -9,6 +9,7 @@ import com.filadelfia.store.filadelfiastore.model.dto.UserNewDTO;
 public interface UserService {
     UserDTO createUser(UserNewDTO request);
     Optional<UserDTO> getUserById(Long id);
+    Optional<UserDTO> getUserByEmail(String email);
     List<UserDTO> getAllUsers();
     List<UserDTO> getAllActiveUsers();
     UserDTO updateUser(Long id, UserNewDTO request);
