@@ -81,7 +81,7 @@ public class ProductServiceImpl implements ProductService  {
     @Override
     public ProductDTO createProduct(ProductDTO request) {
         CategoryDTO category = categoryService.getCategoryById(request.getCategoryId())
-            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
         Product product = productMapper.toEntity(request);
         product.setCategory(categoryMapper.toEntity(category));
         Product savedProduct = productRepository.save(product);
@@ -99,11 +99,11 @@ public class ProductServiceImpl implements ProductService  {
     @Override
     public ProductDTO updateProduct(Long id, ProductDTO request) {
         Product existing = productRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
         CategoryDTO category = categoryService.getCategoryById(request.getCategoryId())
-            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-        existing.setCategory(categoryMapper.toEntity(category));
+            .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
 
+        existing.setCategory(categoryMapper.toEntity(category));
         existing.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
 
         // Copy properties from request to existing entity, ignoring id and password
@@ -115,7 +115,7 @@ public class ProductServiceImpl implements ProductService  {
     @Override
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Product not found");
+            throw new ResourceNotFoundException("Produto não encontrado");
         }
         productRepository.deleteById(id);
     }

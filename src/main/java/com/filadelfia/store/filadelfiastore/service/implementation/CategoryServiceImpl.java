@@ -83,7 +83,7 @@ public class CategoryServiceImpl implements CategoryService  {
     @Override
 public CategoryDTO updateCategory(Long id, CategoryDTO request) {
     Category existing = categoryRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
     
     // Verifica se existe outra categoria com o mesmo nome (excluindo a atual)
     if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
@@ -101,7 +101,7 @@ public CategoryDTO updateCategory(Long id, CategoryDTO request) {
     @Override
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Category not found");
+            throw new ResourceNotFoundException("Categoria não encontrada");
         }
         categoryRepository.deleteById(id);
     }
