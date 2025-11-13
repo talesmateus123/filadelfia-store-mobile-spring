@@ -24,13 +24,42 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 ## Getting started (developer notes)
 1. Clone the repository.
 2. Configure application properties (MySQL connection, port).
-3. Run with `mvn spring-boot:run` or the IDE run configuration.
-4. Seed initial data (products, admin user) or create via admin UI.
+3. Set up the following environment variables for local development:
+   ```env
+   DATABASE_URL=jdbc:mysql://localhost:3306/database
+   DATABASE_USERNAME=username
+   DATABASE_PASSWORD=password
+   DDL_AUTO=update
+   DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+   DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
+   ```
+4. Run with `mvn spring-boot:run` or the IDE run configuration.
+5. Seed initial data (products, admin user) or create via admin UI.
 
 ## TODO
-- [ ] develop the project archtecture
-- [ ] mysql data base setup
-- [ ] development of models, controllers, and views using thymeleaf
+- [x] develop the project archtecture
+- [x] mysql data base setup
+- [x] develop products resource
+- [x] development of Products CRUD
+- [x] development of Category CRUD
+- [x] development of User CRUD
+- [x] exception handling
+- [x] to test Category CRUD
+- [x] to fix error messages are not dimissing within the create_category flow
+- [x] to test Products CRUD
+- [x] to test User CRUD
+- [x] to implement not found 
+- [x] to implement holes within frontend crud
+- [ ] to implement security via bearer token
+- [ ] to implement holes to all the app endpoints
+- [ ] to check if created_at and updating_at is working
+- [ ] to implement search bar in all the flows
+- [ ] to implement security via bearer token
+- [ ] to implement login screen
+- [ ] setup alowed and not allowed endpoints
+- [ ] to implement photoUrl to products and categories flow
+- [ ] to implements swagger api docs
+- [ ] automated tests implementation
 
 ## Contribution
 Contributions from the church community are welcome. Open issues for desired features or tasks. Keep changes small and add tests for core logic when possible.

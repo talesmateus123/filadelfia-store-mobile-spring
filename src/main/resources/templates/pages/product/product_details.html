@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+    
+    <div class="container">
+        <div id="produtos" class="tab-content active">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}"></h2>
+                <div>
+                    <a class="button" th:href="@{/products/edit/{id}(id=${product.id})}">
+                        <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Editar">
+                    </a>
+                    <a class="button" id="button_delete">
+                        <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Remover">
+                    </a>
+                </div>
+            </div>
+            
+            <div>
+                <input type="hidden" id="productId" th:value="${product.id}"/>
+                <p>
+                    <b>Nome:</b>&nbsp;<span th:text="${product.name}"></span>
+                </p>
+                <p>
+                    <b>Descrição:</b>&nbsp;<span th:text="${product.description}"></span>
+                </p>
+                <p>
+                    <b>Preço:</b>&nbsp;<span th:text="${product.priceFormatted}"></span>
+                </p>
+                <p>
+                    <b>Estoque:</b>&nbsp;<span th:text="${product.stock}"></span>
+                </p>
+                <p>
+                    <b>Ativo:</b>&nbsp;<span th:text="${product.active} ? 'Sim' : 'Não'"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+    
+    <div th:replace="~{common/modal :: modal-manager}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+    
+    <script th:src="@{/js/product/product_service.js}"></script>
+    <script th:src="@{/js/product/product_details.js}"></script>
+</body>
+</html>

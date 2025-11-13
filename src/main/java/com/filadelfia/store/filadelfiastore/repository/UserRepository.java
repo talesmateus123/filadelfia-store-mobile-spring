@@ -1,5 +1,6 @@
 package com.filadelfia.store.filadelfiastore.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,5 +11,7 @@ import com.filadelfia.store.filadelfiastore.model.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+    List<User> findByNameContainingIgnoreCaseAndActiveTrue(String name);
     boolean existsByEmail(String email);
+    List<User> findByActiveTrue();
 }

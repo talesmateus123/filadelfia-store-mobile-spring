@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+    
+    <div class="container">
+        <div id="users" class="tab-content active">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}"></h2>
+                <div>
+                    <a class="button" th:href="@{/users/edit/{id}(id=${user.id})}">
+                        <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Editar">
+                    </a>
+                    <a class="button" id="button_delete">
+                        <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Remover">
+                    </a>
+                </div>
+            </div>
+            
+            <div>
+                <input type="hidden" id="userId" th:value="${user.id}"/>
+                <p>
+                    <b>Nome:</b>&nbsp;<span th:text="${user.name}"></span>
+                </p>
+                <p>
+                    <b>Email:</b>&nbsp;<span th:text="${user.email}"></span>
+                </p>
+                <p>
+                    <b>Permissões:</b>&nbsp;
+                    <span th:if="${user.role.name() == 'ROLE_ADMIN'}">Administrador</span>
+                    <span th:if="${user.role.name() == 'ROLE_MANAGER'}">Gerenciador</span>
+                </p>
+                <p>
+                    <b>Ativo:</b>&nbsp;<span th:text="${user.active} ? 'Sim' : 'Não'"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+    
+    <div th:replace="~{common/modal :: modal-manager}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+    
+    <script th:src="@{/js/user/user_service.js}"></script>
+    <script th:src="@{/js/user/user_details.js}"></script>
+</body>
+</html>

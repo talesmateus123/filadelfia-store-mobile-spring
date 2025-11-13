@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div id="categorias" class="tab-content active">
+            <h2 class="section-title" th:text="${pageTitle}"></h2>
+            
+            <div class="form-container" th:if="${categoryDTO != null}">
+                <form id="form-categoria" 
+                    th:object="${categoryDTO}">
+                    <input type="hidden" id="categoria-id" name="id" th:field="*{id}">
+                    
+                    <div class="form-group">
+                        <label for="categoria-nome">Nome da Categoria:</label>
+                        <input type="text" id="categoria-nome" th:field="*{name}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoria-descricao">Descrição:</label>
+                        <textarea id="categoria-descricao" th:field="*{description}" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label for="categoria-ativo">
+                            Ativo:
+                            <input type="checkbox" id="categoria-ativo" th:field="*{active}">
+                        </label>
+                    </div>
+
+                    <!-- TODO Further implementation: Implement bucket to save the images -->
+                    <!-- <div class="form-group">
+                        <label for="categoria-imagem">URL da Imagem</label>
+                        <input type="text" id="categoria-imagem" name="imageUrl">
+                    </div> -->
+
+                   <div th:replace="~{layout :: notifications}"></div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="btn-cancelar" class="danger" onclick="history.back()">Cancelar</button>
+                        <button type="submit" id="btn-salvar" class="success">Salvar Categoria</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+    
+    <div th:replace="~{common/modal :: modal-manager}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+    
+    <script th:src="@{/js/category/category_service.js}"></script>
+    <script th:src="@{/js/category/create_category.js}"></script>
+</body>
+</html>

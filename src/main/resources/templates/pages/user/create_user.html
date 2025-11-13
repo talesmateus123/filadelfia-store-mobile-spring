@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div id="users" class="tab-content active">
+            <h2 class="section-title" th:text="${pageTitle}"></h2>
+            
+            <div class="form-container" th:if="${userDTO != null}">
+                <form id="form-user" 
+                    th:object="${userDTO}">
+                    <input type="hidden" id="user-id" name="id" th:field="*{id}">
+                    
+                    <div class="form-group">
+                        <label for="user-name">Nome do Usuário:</label>
+                        <input type="text" id="user-name" th:field="*{name}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user-email">Email:</label>
+                        <input type="email" id="user-email" th:field="*{email}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="user-role">Permissões</label>
+                        <select id="user-role" th:field="*{role}" required>
+                            <option value="">Selecione uma permissão</option>
+                            <option value="ROLE_ADMIN">Administrador</option>
+                            <option value="ROLE_MANAGER">Gerenciador</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user-phone">Telefone:</label>
+                        <input type="number" id="user-phone" th:field="*{phone}" required>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label for="user-active">
+                            Ativo:
+                            <input type="checkbox" id="user-active" th:field="*{active}">
+                        </label>
+                    </div>
+
+                    <!-- TODO Further implementation: Implement bucket to save the images -->
+                    <!-- <div class="form-group">
+                        <label for="categoria-imagem">URL da Imagem</label>
+                        <input type="text" id="categoria-imagem" name="imageUrl">
+                    </div> -->
+
+                   <div th:replace="~{layout :: notifications}"></div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="btn-cancelar" class="danger" onclick="history.back()">Cancelar</button>
+                        <button type="submit" id="btn-salvar" class="success">Salvar Usuário</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+    
+    <div th:replace="~{common/modal :: modal-manager}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+    
+    <script th:src="@{/js/user/user_service.js}"></script>
+    <script th:src="@{/js/user/create_user.js}"></script>
+</body>
+</html>
