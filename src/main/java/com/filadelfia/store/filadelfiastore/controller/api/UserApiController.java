@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.filadelfia.store.filadelfiastore.model.dto.UserDTO;
+import com.filadelfia.store.filadelfiastore.model.dto.UserNewDTO;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
 
 import jakarta.validation.Valid;
@@ -30,7 +31,7 @@ public class UserApiController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO request) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserNewDTO request) {
         UserDTO user = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -49,7 +50,7 @@ public class UserApiController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
-            @Valid @RequestBody UserDTO request) {
+            @Valid @RequestBody UserNewDTO request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 

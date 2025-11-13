@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -12,19 +13,18 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_MATCHERS = {
-        "/css/**",
-        "/js/**",
-        "/images/**",
-        "/webjars/**",
     };
 
     
     private static final String[] PUBLIC_MATCHERS_GET = {
+        "/css/**",
+        "/js/**",
+        "/images/**",
+        "/webjars/**",
         "/",
-        "/categories/**",
-        "/error/**",
-        "/products/**",
-        "/users/**",
+        "/categories",
+        "/error",
+        "/products",
     };
 
     @Bean
@@ -44,5 +44,9 @@ public class SecurityConfig {
             );
         
         return http.build();
+    }
+
+    @Bean BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

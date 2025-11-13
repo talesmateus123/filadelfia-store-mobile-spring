@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import com.filadelfia.store.filadelfiastore.model.dto.UserDTO;
+import com.filadelfia.store.filadelfiastore.model.dto.UserNewDTO;
 
 public interface UserService {
-    UserDTO createUser(UserDTO request);
+    UserDTO createUser(UserNewDTO request);
     Optional<UserDTO> getUserById(Long id);
     List<UserDTO> getAllUsers();
     List<UserDTO> getAllActiveUsers();
-    UserDTO updateUser(Long id, UserDTO request);
-    UserDTO updateUserPassword(Long id, String password);
+    UserDTO updateUser(Long id, UserNewDTO request);
     void deleteUser(Long id);
     List<UserDTO> searchUsers(String searchTerm);
 }

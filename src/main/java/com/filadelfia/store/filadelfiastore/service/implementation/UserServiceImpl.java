@@ -5,22 +5,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
 import com.filadelfia.store.filadelfiastore.exception.custom.ResourceNotFoundException;
 import com.filadelfia.store.filadelfiastore.model.dto.UserDTO;
+import com.filadelfia.store.filadelfiastore.model.dto.UserNewDTO;
 import com.filadelfia.store.filadelfiastore.model.entity.User;
 import com.filadelfia.store.filadelfiastore.model.mapper.UserMapper;
 import com.filadelfia.store.filadelfiastore.repository.UserRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
-import com.filadelfia.store.filadelfiastore.model.enums.UserRole;
 
 @Service
 public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
@@ -28,16 +30,13 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public UserDTO createUser(UserDTO userDTO) {
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new EmailAlreadyExistsException("Email already exists");
+    public UserDTO createUser(UserNewDTO userNewDTO) {
+        if (userRepository.existsByEmail(userNewDTO.getEmail())) {
+            throw new EmailAlreadyExistsException("E-mail já existe");
         }
 
-        User user = userMapper.toEntity(userDTO);
-        user.setRole(UserRole.ROLE_MANAGER);
-        
-        // TODO: user.setPassword(passwordEncoder.encode(newPassword));
-        user.setPassword(userDTO.getEmail());
+        User user = userMapper.toEntity(userNewDTO);
+        user.setPassword(passwordEncoder.encode(userNewDTO.getPassword()));
         
         return userMapper.toDTO(userRepository.save(user));
     }
@@ -73,38 +72,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(Long id, UserDTO request) {
+    public UserDTO updateUser(Long id, UserNewDTO request) {
         User existing = userRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         // If email is being changed, ensure uniqueness
         String newEmail = request.getEmail();
         if (newEmail != null && !newEmail.equals(existing.getEmail()) && userRepository.existsByEmail(newEmail)) {
-            throw new EmailAlreadyExistsException("Email already exists");
+            throw new EmailAlreadyExistsException("E-mail já existe");
         }
 
         existing.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+        existing.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Copy properties from request to existing entity, ignoring id and password
-        BeanUtils.copyProperties(request, existing, "id", "password", "createdAt");
-        User updated = userRepository.save(existing);
-        return userMapper.toDTO(updated);
-    }
-
-    // TODO: Implement controller method to call this service method
-    @Override
-    public UserDTO updateUserPassword(Long id, String newPassword) {
-        User existing = userRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Aqui você pode adicionar validações da senha se necessário
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be null or empty");
-        }
-
-        // Considerar criptografar a senha antes de salvar
-        // TODO: existing.setPassword(passwordEncoder.encode(newPassword));
-        existing.setPassword(newPassword);
+        // Copy properties from request to existing entity, ignoring id and createdAt
+        BeanUtils.copyProperties(request, existing, "id", "createdAt");
         User updated = userRepository.save(existing);
         return userMapper.toDTO(updated);
     }
