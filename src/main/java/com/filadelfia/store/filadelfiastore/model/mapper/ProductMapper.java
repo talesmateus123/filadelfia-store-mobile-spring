@@ -12,16 +12,12 @@ import lombok.Builder;
 @Component
 @Builder
 public class ProductMapper {
-
-    private final CategoryMapper categoryMapper;
-
-    ProductMapper(CategoryMapper categoryMapper) {
-        this.categoryMapper = categoryMapper;
-    }
     
     public ProductDTO toDTO(Product product) {
         ProductDTO dto = new ProductDTO();
          dto.setId(product.getId());
+        dto.setCreatedAt(product.getCreatedAt());
+        dto.setUpdatedAt(product.getUpdatedAt());
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
@@ -36,6 +32,8 @@ public class ProductMapper {
     public Product toEntity(ProductDTO productDTO) {
         Product product = new Product();
         product.setId(productDTO.getId());
+        product.setCreatedAt(productDTO.getCreatedAt());
+        product.setUpdatedAt(productDTO.getUpdatedAt());
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());

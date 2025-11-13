@@ -23,6 +23,7 @@ class CategoryManager {
             );
 
             setTimeout(() => {
+                window.onbeforeunload = null;
                 window.location.href = '/categories';
             }, 1000);
 

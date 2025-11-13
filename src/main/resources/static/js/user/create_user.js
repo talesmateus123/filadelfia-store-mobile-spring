@@ -23,6 +23,7 @@ class UserManager {
             );
 
             setTimeout(() => {
+                window.onbeforeunload = null;
                 window.location.href = '/users';
             }, 1000);
 
@@ -34,15 +35,6 @@ class UserManager {
             throw error;
         }
     }
-}
-
-function showPassword() {
-  var passwordInput = document.getElementById("user-password");
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-  } else {
-    passwordInput.type = "password";
-  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

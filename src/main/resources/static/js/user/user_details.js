@@ -25,7 +25,10 @@ async function  handleDeleteUser() {
                     modalManager.success({
                         title: "Sucesso",
                         message: "Usuário removido com sucesso!",
-                        onClose: () => window.location.href = '/users'
+                        onClose: () => {
+                            window.onbeforeunload = null;
+                            window.location.href = '/users'
+                        }
                     });
                 })
                 .catch(error => {
@@ -52,6 +55,7 @@ async function executeDelete(userId) {
             closeMessage: "Ok",
             onClose: () => {
                 // Redireciona para a lista de usuários
+                window.onbeforeunload = null;
                 window.location.href = '/users';
             }
         });

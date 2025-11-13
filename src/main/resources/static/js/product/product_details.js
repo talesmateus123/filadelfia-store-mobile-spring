@@ -25,7 +25,10 @@ async function  handleDeleteProduct() {
                     modalManager.success({
                         title: "Sucesso",
                         message: "Produto removido com sucesso!",
-                        onClose: () => window.location.href = '/products'
+                        onClose: () => {
+                            window.onbeforeunload = null;
+                            window.location.href = '/products'
+                        }
                     });
                 })
                 .catch(error => {
@@ -52,6 +55,7 @@ async function executeDelete(categoryId) {
             closeMessage: "Ok",
             onClose: () => {
                 // Redireciona para a lista de produtos
+                window.onbeforeunload = null;
                 window.location.href = '/products';
             }
         });

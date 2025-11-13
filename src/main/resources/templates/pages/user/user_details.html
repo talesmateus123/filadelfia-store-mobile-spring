@@ -29,6 +29,11 @@
                     <b>Email:</b>&nbsp;<span th:text="${user.email}"></span>
                 </p>
                 <p>
+                    <b>Permissões:</b>&nbsp;
+                    <span th:if="${user.role.name() == 'ROLE_ADMIN'}">Administrador</span>
+                    <span th:if="${user.role.name() == 'ROLE_MANAGER'}">Gerenciador</span>
+                </p>
+                <p>
                     <b>Ativo:</b>&nbsp;<span th:text="${user.active} ? 'Sim' : 'Não'"></span>
                 </p>
             </div>

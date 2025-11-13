@@ -14,6 +14,7 @@ import com.filadelfia.store.filadelfiastore.model.entity.User;
 import com.filadelfia.store.filadelfiastore.model.mapper.UserMapper;
 import com.filadelfia.store.filadelfiastore.repository.UserRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
+import com.filadelfia.store.filadelfiastore.model.enums.UserRole;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -33,9 +34,10 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(userDTO);
+        user.setRole(UserRole.ROLE_MANAGER);
         
         // TODO: user.setPassword(passwordEncoder.encode(newPassword));
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(userDTO.getEmail());
         
         return userMapper.toDTO(userRepository.save(user));
     }
@@ -81,12 +83,15 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
+        existing.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+
         // Copy properties from request to existing entity, ignoring id and password
-        BeanUtils.copyProperties(request, existing, "id", "password");
+        BeanUtils.copyProperties(request, existing, "id", "password", "createdAt");
         User updated = userRepository.save(existing);
         return userMapper.toDTO(updated);
     }
 
+    // TODO: Implement controller method to call this service method
     @Override
     public UserDTO updateUserPassword(Long id, String newPassword) {
         User existing = userRepository.findById(id)

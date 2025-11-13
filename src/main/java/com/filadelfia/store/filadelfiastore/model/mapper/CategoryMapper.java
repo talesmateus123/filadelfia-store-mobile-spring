@@ -15,6 +15,8 @@ public class CategoryMapper {
         
         CategoryDTO dto = new CategoryDTO();
         dto.setId(category.getId());
+        dto.setCreatedAt(category.getCreatedAt());
+        dto.setUpdatedAt(category.getUpdatedAt());
         dto.setName(category.getName());
         dto.setDescription(category.getDescription());
         dto.setActive(category.getActive());
@@ -28,6 +30,8 @@ public class CategoryMapper {
         }
         
         Category category = new Category();
+        category.setCreatedAt(categoryDTO.getCreatedAt());
+        category.setUpdatedAt(categoryDTO.getUpdatedAt());
         category.setId(categoryDTO.getId());
         category.setName(categoryDTO.getName());
         category.setDescription(categoryDTO.getDescription());
