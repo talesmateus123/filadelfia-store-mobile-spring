@@ -20,7 +20,7 @@ public class HomeWebController {
         this.productService = productService;
     }
 
-    @GetMapping("/")
+    @GetMapping()
     public String home(Model model) {
         model.addAttribute("pageTitle", "Bem-vindo à Filadelfia Store");
                 
