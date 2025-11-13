@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div id="produtos" class="tab-content active">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}"></h2>
+                <a th:href="@{/users/create}" class="button">
+                    <img th:src="@{/images/ion-icons/svg/add-sharp.svg}" alt="Adicionar">
+                </a>
+            </div>
+
+            <div th:if="${not #lists.isEmpty(users)}" class="search-container">
+                <input type="text" id="search-users" placeholder="Pesquisar usuários...">
+            </div>
+            
+            <div th:if="${not #lists.isEmpty(users)}">
+                <table id="tabela-usuarios">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Ativo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-usuarios">
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.name}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td th:text="${user.active} ? 'Sim' : 'Não'"></td>
+                            <td>
+                                <a th:href="@{'/users/' + ${user.id}}" class="view-button">Ver Detalhes</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${#lists.isEmpty(users)}">
+                <p>Nenhum usuário encontrado.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{layout :: footer}">
+    </div>
+</body>
+</html>

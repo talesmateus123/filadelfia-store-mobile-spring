@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div class="tab-content active">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}"></h2>
+            </div>
+
+            <div>
+                <p>Essa página está em desenvolvimento.</p>
+            </div>
+         </div>
+    </div>
+    
+    <div th:replace="~{layout :: footer}">
+    </div>
+</body>
+</html>

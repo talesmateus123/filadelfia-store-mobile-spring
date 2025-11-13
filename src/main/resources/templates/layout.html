@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Filadelfia Store</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+    <link th:fragment="modalStyles" th:href="@{/css/modal.css}" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}"/>
+</head>
+<body>
+    <header th:fragment="header">
+        <div class="container">
+            <h1>Sistema de Gerenciamento</h1>
+            <div class="tabs">
+                <a class="tab" th:classappend="${activePage == 'home'} ? 'active'" th:href="@{/}">
+                    Início
+                </a>
+                <a class="tab" th:classappend="${activePage == 'products'} ? 'active'" th:href="@{/products}">
+                    Produtos
+                </a>
+                <a class="tab" th:classappend="${activePage == 'categories'} ? 'active'" th:href="@{/categories}">
+                    Categorias
+                </a>
+                <a class="tab" th:classappend="${activePage == 'users'} ? 'active'" th:href="@{/users}">
+                    Usuários
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main th:fragment="content">
+        
+    </main>
+
+    <div th:fragment="notifications">
+        <div class="notification-error" th:if="${error}">
+            <p class="notification-title" th:text="${error}"></p>
+            <p th:text="${errorDescription}"></p>
+            <a th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
+        </div>
+
+        <div class="notification-info" th:if="${info}">
+            <p class="notification-title" th:text="${info}"></p>
+            <p th:text="${infoDescription}"></p>
+            <a th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
+        </div>
+
+        <div class="notification-success" th:if="${success}">
+            <p class="notification-title" th:text="${success}"></p>
+            <p th:text="${successDescription}"></p>
+            <a th:if="${notificationMessage}" th:href="${notificationHref}" th:text="${notificationMessage}"></a>
+        </div>
+    </div>
+
+    <div th:fragment="scripts">
+        <script th:src="@{/js/core/form_manager.js}"></script>
+        <script th:src="@{/js/core/http_client.js}"></script>
+        <script th:src="@{/js/core/loading_manager.js}"></script>
+        <script th:src="@{/js/core/notification_manager.js}"></script>
+    </div>
+
+    <footer th:fragment="footer">
+        <p>&copy; 2025 Filadelfia Store - Todos os direitos reservados</p>
+    </footer>
+</body>
+</html>

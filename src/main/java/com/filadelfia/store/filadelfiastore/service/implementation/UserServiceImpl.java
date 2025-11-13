@@ -1,14 +1,14 @@
 package com.filadelfia.store.filadelfiastore.service.implementation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
-import com.filadelfia.store.filadelfiastore.exception.custom.UserNotFoundException;
+import com.filadelfia.store.filadelfiastore.exception.custom.ResourceNotFoundException;
 import com.filadelfia.store.filadelfiastore.model.dto.UserDTO;
 import com.filadelfia.store.filadelfiastore.model.entity.User;
 import com.filadelfia.store.filadelfiastore.model.mapper.UserMapper;
@@ -16,7 +16,6 @@ import com.filadelfia.store.filadelfiastore.repository.UserRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
@@ -28,20 +27,31 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public UserDTO createUser(UserDTO user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+    public UserDTO createUser(UserDTO userDTO) {
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        User savedUser = userRepository.save(userMapper.toEntity(user));
-        return userMapper.toDTO(savedUser);
+        User user = userMapper.toEntity(userDTO);
+        
+        // TODO: user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(userDTO.getPassword());
+        
+        return userMapper.toDTO(userRepository.save(user));
+    }
+
+    @Override
+    public List<UserDTO> searchUsers(String searchTerm) {
+        return userRepository.findByNameContainingIgnoreCaseAndActiveTrue(searchTerm)
+            .stream()
+            .map(userMapper::toDTO)
+            .collect(Collectors.toList());
     }
     
     @Override
-    public UserDTO getUserById(Long id) {
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException("User not found"));
-        return userMapper.toDTO(user);
+    public Optional<UserDTO> getUserById(Long id) {
+        return userRepository.findById(id)
+            .map(userMapper::toDTO);
     }
 
     @Override
@@ -53,9 +63,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserDTO> getAllActiveUsers() {
+        return userRepository.findByActiveTrue()
+            .stream()
+            .map(userMapper::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public UserDTO updateUser(Long id, UserDTO request) {
         User existing = userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // If email is being changed, ensure uniqueness
         String newEmail = request.getEmail();
@@ -63,8 +81,25 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        // Copy non-id properties from request to existing entity
-        BeanUtils.copyProperties(request, existing, "id");
+        // Copy properties from request to existing entity, ignoring id and password
+        BeanUtils.copyProperties(request, existing, "id", "password");
+        User updated = userRepository.save(existing);
+        return userMapper.toDTO(updated);
+    }
+
+    @Override
+    public UserDTO updateUserPassword(Long id, String newPassword) {
+        User existing = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Aqui você pode adicionar validações da senha se necessário
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+
+        // Considerar criptografar a senha antes de salvar
+        // TODO: existing.setPassword(passwordEncoder.encode(newPassword));
+        existing.setPassword(newPassword);
         User updated = userRepository.save(existing);
         return userMapper.toDTO(updated);
     }
@@ -72,7 +107,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
         userRepository.deleteById(id);
     }

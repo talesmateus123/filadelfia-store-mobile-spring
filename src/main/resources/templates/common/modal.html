@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="modal-manager">        
+        <div id="modal-manager-container" class="modal-manager-container">
+
+            <div id="confirm-modal" class="modal-manager modal-confirm" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">❓</span>
+                        <span id="confirm-modal-title">Confirmar Ação</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="confirm-modal-message">Tem certeza que deseja realizar esta ação?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-cancel" id="confirm-modal-cancel">
+                        Cancelar
+                    </button>
+                    <button type="button" class="modal-btn modal-btn-confirm" id="confirm-modal-confirm">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+
+            <div id="info-modal" class="modal-manager modal-info" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">ℹ️</span>
+                        <span id="info-modal-title">Informação</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="info-modal-message">Mensagem de informação.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="info-modal-close">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+
+            <div id="success-modal" class="modal-manager modal-success" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">✅</span>
+                        <span id="success-modal-title">Sucesso</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="success-modal-message">Operação realizada com sucesso!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="success-modal-close">
+                        Ok
+                    </button>
+                </div>
+            </div>
+
+            <div id="error-modal" class="modal-manager modal-error" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">❌</span>
+                        <span id="error-modal-title">Erro</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="error-modal-message">Ocorreu um erro durante a operação.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="error-modal-close">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+
+            <div id="warning-modal" class="modal-manager modal-warning" style="display: none;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <span class="modal-icon">⚠️</span>
+                        <span id="warning-modal-title">Aviso</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p id="warning-modal-message">Mensagem de aviso.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-btn modal-btn-close" id="warning-modal-close">
+                        Entendi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script th:src="@{/js/core/modal.js}"></script>
+    </div>
+</body>
+</html>

@@ -11,20 +11,43 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import com.filadelfia.store.filadelfiastore.exception.custom.DuplicateCategoryException;
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
-import com.filadelfia.store.filadelfiastore.exception.custom.UserNotFoundException;
+import com.filadelfia.store.filadelfiastore.exception.custom.ResourceNotFoundException;
 import com.filadelfia.store.filadelfiastore.exception.model.ErrorResponse;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
+    // Remove a exceção personalizada e usa a do Spring
+     @ExceptionHandler(NoResourceFoundException.class)
+    public Object handleNoHandlerFound(NoResourceFoundException ex, WebRequest request) {        
+        // Se for uma rota de API, retorna JSON
+        if (isApiRoute(ex.getResourcePath())) {
+            ErrorResponse error = ErrorResponse.builder()
+                    .code("ROUTE_NOT_FOUND")
+                    .message("The requested endpoint was not found")
+                    .path(ex.getResourcePath())
+                    .build();
+            
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+        
+        return "redirect:/error";
+    }
+
+    
+    private boolean isApiRoute(String path) {
+        return path != null && path.startsWith("api/");
+    }   
+
     public ResponseEntity<ErrorResponse> handleUserNotFound(
-            UserNotFoundException ex, WebRequest request) {
+            ResourceNotFoundException ex, WebRequest request) {
         
         ErrorResponse error = ErrorResponse.builder()
-                .code("USER_NOT_FOUND")
+                .code("RESOURCE_NOT_FOUND")
                 .message(ex.getMessage())
                 .path(getRequestPath(request))
                 .build();
@@ -57,12 +80,25 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = ErrorResponse.builder()
                 .code("VALIDATION_ERROR")
-                .message("Request validation failed")
+                .message("Request validation failed: " + String.join(", ", errors))
                 .path(getRequestPath(request))
                 .details(errors)
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+     @ExceptionHandler(DuplicateCategoryException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCategoryException(
+            DuplicateCategoryException ex, WebRequest request) {
+        
+        ErrorResponse error = ErrorResponse.builder()
+                .code("DUPLICATE_CATEGORY")
+                .message(ex.getMessage())
+                .path(getRequestPath(request))
+                .build();
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(Exception.class)
@@ -99,4 +135,5 @@ public class GlobalExceptionHandler {
         }
         return null;
     }
+
 }
