@@ -27,8 +27,7 @@ public class UsersWebController {
     }
 
     @GetMapping
-    public String listCategories(
-            @RequestParam(value = "category", required = false) String category,
+    public String listUsers(
             @RequestParam(value = "search", required = false) String search,
             Model model) {
         
@@ -43,7 +42,6 @@ public class UsersWebController {
         }
 
         model.addAttribute("users", users);
-        // model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("activePage", activePage);
         return "pages/user/users";
     }
