@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         if (isApiRoute(ex.getResourcePath())) {
             ErrorResponse error = ErrorResponse.builder()
                     .code("ROUTE_NOT_FOUND")
-                    .message("The requested endpoint was not found")
+                    .message("O endpoint solicitado não foi encontrado")
                     .path(ex.getResourcePath())
                     .build();
             
@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = ErrorResponse.builder()
                 .code("VALIDATION_ERROR")
-                .message("Request validation failed: " + String.join(", ", errors))
+                .message("Falha na validação: " + String.join(", ", errors))
                 .path(getRequestPath(request))
                 .details(errors)
                 .build();
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
         
         ErrorResponse error = ErrorResponse.builder()
                 .code("INTERNAL_SERVER_ERROR")
-                .message("An unexpected error occurred")
+                .message("Ocorreu um erro inesperado")
                 .path(getRequestPath(request))
                 .build();
 
@@ -119,12 +119,12 @@ public class GlobalExceptionHandler {
 
     private String formatFieldError(FieldError fieldError) {
         if (fieldError.getRejectedValue() != null) {
-            return String.format("Field '%s' %s. Rejected value: '%s'", 
+            return String.format("Campo '%s' %s. Valor rejeitado: '%s'", 
                 fieldError.getField(), 
                 fieldError.getDefaultMessage(),
                 fieldError.getRejectedValue());
         }
-        return String.format("Field '%s' %s", 
+        return String.format("Campo '%s' %s", 
             fieldError.getField(), 
             fieldError.getDefaultMessage());
     }
