@@ -10,6 +10,7 @@ import com.filadelfia.store.filadelfiastore.model.mapper.CategoryMapper;
 import com.filadelfia.store.filadelfiastore.model.mapper.ProductMapper;
 import com.filadelfia.store.filadelfiastore.repository.CategoryRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
+import com.filadelfia.store.filadelfiastore.util.PageableValidator;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,11 +31,17 @@ public class CategoryServiceImpl implements CategoryService  {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final PageableValidator pageableValidator;
+
+    private final Set<String> ALLOWED_SORT_PROPERTIES = Set.of(
+        "id", "name", "description", "createdAt", "updatedAt"
+    );
   
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, ProductMapper productMapper) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, ProductMapper productMapper, PageableValidator pageableValidator) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
         this.productMapper = productMapper;
+        this.pageableValidator = pageableValidator;
     }
 
     @Override
@@ -103,7 +111,12 @@ public class CategoryServiceImpl implements CategoryService  {
     @Override
     @Transactional(readOnly = true)
     public Page<CategoryDTO> getAllCategories(Pageable pageable) {
-        return categoryRepository.findAll(pageable)
+        Pageable safePageable = pageableValidator.validateAndSanitize(
+            pageable, 
+            ALLOWED_SORT_PROPERTIES,
+            "name"
+        );
+        return categoryRepository.findAll(safePageable)
             .map(categoryMapper::toDTO);
     }
 

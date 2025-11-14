@@ -2,6 +2,7 @@ package com.filadelfia.store.filadelfiastore.service.implementation;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -19,6 +20,7 @@ import com.filadelfia.store.filadelfiastore.model.entity.User;
 import com.filadelfia.store.filadelfiastore.model.mapper.UserMapper;
 import com.filadelfia.store.filadelfiastore.repository.UserRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
+import com.filadelfia.store.filadelfiastore.util.PageableValidator;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,11 +28,17 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PageableValidator pageableValidator;
+
+    private final Set<String> ALLOWED_SORT_PROPERTIES = Set.of(
+        "id", "name", "description", "createdAt", "updatedAt"
+    );
     
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, PageableValidator pageableValidator) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.pageableValidator = pageableValidator;
     }
     
     @Override
@@ -92,7 +100,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
+        Pageable safePageable = pageableValidator.validateAndSanitize(
+            pageable, 
+            ALLOWED_SORT_PROPERTIES,
+            "name"
+        );
+        return userRepository.findAll(safePageable)
             .map(userMapper::toDTO);
     }
 

@@ -9,6 +9,7 @@ import com.filadelfia.store.filadelfiastore.model.mapper.ProductMapper;
 import com.filadelfia.store.filadelfiastore.repository.ProductRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
+import com.filadelfia.store.filadelfiastore.util.PageableValidator;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,12 +29,18 @@ public class ProductServiceImpl implements ProductService  {
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
     private final CategoryMapper categoryMapper;
+    private final PageableValidator pageableValidator;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper, CategoryMapper categoryMapper) {
+    private final Set<String> ALLOWED_SORT_PROPERTIES = Set.of(
+        "id", "name", "price", "createdAt", "updatedAt", "category"
+    );
+
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper, CategoryMapper categoryMapper, PageableValidator pageableValidator) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
         this.categoryMapper = categoryMapper;
+        this.pageableValidator = pageableValidator;
     }
 
     @Override
@@ -121,7 +129,13 @@ public class ProductServiceImpl implements ProductService  {
     @Override
     @Transactional(readOnly = true)
     public Page<ProductDTO> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable)
+        Pageable safePageable = pageableValidator.validateAndSanitize(
+            pageable, 
+            ALLOWED_SORT_PROPERTIES,
+            "name"
+        );
+        
+        return productRepository.findAll(safePageable)
             .map(productMapper::toDTO);
     }
 
