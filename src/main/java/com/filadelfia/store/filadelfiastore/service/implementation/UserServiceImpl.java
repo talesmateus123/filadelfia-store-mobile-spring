@@ -90,20 +90,36 @@ public class UserServiceImpl implements UserService {
         }
 
         existing.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
-        existing.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Copy properties from request to existing entity, ignoring id and createdAt
-        BeanUtils.copyProperties(request, existing, "id", "createdAt");
+        // Only encode password if it's provided and different from existing
+        String newPassword = request.getPassword();
+        if (newPassword != null && !newPassword.isEmpty()) {
+            // Check if password is already encoded (BCrypt hashes start with $2a$, $2b$, or $2y$)
+            // If not encoded, encode it. If already encoded, don't double-encode.
+            if (!newPassword.startsWith("$2a$") && !newPassword.startsWith("$2b$") && !newPassword.startsWith("$2y$")) {
+                existing.setPassword(passwordEncoder.encode(newPassword));
+            } else {
+                // Password appears to be already encoded, use as-is (though this shouldn't happen in normal flow)
+                existing.setPassword(newPassword);
+            }
+        }
+        // If password is null or empty, keep the existing password
+
+        // Copy properties from request to existing entity, ignoring id, createdAt, and password
+        BeanUtils.copyProperties(request, existing, "id", "createdAt", "password");
         User updated = userRepository.save(existing);
         return userMapper.toDTO(updated);
     }
 
     @Override
     public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        
+        // Soft delete: set active to false instead of hard delete
+        user.setActive(false);
+        user.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+        userRepository.save(user);
     }
     
 }

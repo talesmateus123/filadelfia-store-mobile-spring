@@ -49,7 +49,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                // TODO: For production, implement JWT/Bearer token authentication
+                // For now, making API endpoints public. In production, uncomment the line below
+                // and implement JWT filter: .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .anyRequest().permitAll() // Temporarily public - should be authenticated with JWT in production
             )
             // Adicione seu filtro JWT ou Bearer Token aqui se necessário
             // .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

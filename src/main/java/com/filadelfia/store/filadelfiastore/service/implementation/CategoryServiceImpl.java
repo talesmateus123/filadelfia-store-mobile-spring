@@ -100,10 +100,12 @@ public CategoryDTO updateCategory(Long id, CategoryDTO request) {
 
     @Override
     public void deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Categoria não encontrada");
-        }
-        categoryRepository.deleteById(id);
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+                
+        category.setActive(false);
+        category.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+        categoryRepository.save(category);
     }
 
 

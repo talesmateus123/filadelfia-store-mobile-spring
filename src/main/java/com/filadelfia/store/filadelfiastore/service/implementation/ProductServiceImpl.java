@@ -114,10 +114,12 @@ public class ProductServiceImpl implements ProductService  {
 
     @Override
     public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Produto não encontrado");
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        
+        product.setActive(false);
+        product.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+        productRepository.save(product);
     }
 
 }
