@@ -224,8 +224,10 @@ private String password;
 
 ## 🟡 MEDIUM PRIORITY ISSUES
 
-### 10. **UserMapper Date Handling Bug (MEDIUM - Logic Bug)**
+### 10. **UserMapper Date Handling Bug (MEDIUM - Logic Bug)** ✅ **FIXED**
 **Location:** `UserMapper.java:22-23, 35-36`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `7998960`
 
 **Problem:**
 ```java
@@ -239,15 +241,17 @@ user.setUpdatedAt(user.getUpdatedAt());  // This is null!
 - Created/Updated timestamps may be null
 - Data integrity issues
 
-**Fix Required:**
-Set dates appropriately:
-- `createdAt`: new Date() when creating, preserve when updating
-- `updatedAt`: always new Date() on updates
+**Fix Applied:**
+- ✅ When creating from `UserNewDTO`: always set new `createdAt` and `updatedAt`
+- ✅ When creating from `UserDTO`: preserve `createdAt` if provided, otherwise set new; always set new `updatedAt`
+- ✅ Proper date handling ensures data integrity
 
 ---
 
-### 11. **Missing Search Endpoints in API Controllers (MEDIUM - Missing Feature)**
+### 11. **Missing Search Endpoints in API Controllers (MEDIUM - Missing Feature)** ✅ **FIXED**
 **Location:** `UserApiController.java`, `CategoryApiController.java`, `ProductApiController.java`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `7998960`
 
 **Problem:**
 - Services have `searchUsers()`, `searchCategories()`, `searchProducts()` methods
@@ -257,17 +261,18 @@ Set dates appropriately:
 - Search functionality not available via API
 - Incomplete API implementation
 
-**Fix Required:**
-Add search endpoints:
-```java
-@GetMapping("/search")
-public ResponseEntity<List<XxxDTO>> search(@RequestParam String q) { ... }
-```
+**Fix Applied:**
+- ✅ Added `GET /api/v1/users/search?q=term` endpoint
+- ✅ Added `GET /api/v1/categories/search?q=term` endpoint
+- ✅ Added `GET /api/v1/products/search?q=term` endpoint
+- ✅ Empty search returns all active items for better UX
 
 ---
 
-### 12. **Incorrect Route Path (MEDIUM - Bug)**
+### 12. **Incorrect Route Path (MEDIUM - Bug)** ✅ **FIXED**
 **Location:** `SessionController.java:27`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `7998960`
 
 **Problem:**
 ```java
@@ -280,10 +285,16 @@ public ResponseEntity<List<XxxDTO>> search(@RequestParam String q) { ... }
 - Route may not work as expected
 - Confusing API design
 
+**Fix Applied:**
+- ✅ Changed route from `/session/session/set-theme` to `/session/set-theme`
+- ✅ Fixed commented route path as well
+
 ---
 
-### 13. **Missing Pagination (MEDIUM - Performance)**
+### 13. **Missing Pagination (MEDIUM - Performance)** ✅ **FIXED**
 **Location:** All list endpoints in API controllers
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `7998960`
 
 **Problem:**
 - All `getAll*()` methods return complete lists without pagination
@@ -294,8 +305,11 @@ public ResponseEntity<List<XxxDTO>> search(@RequestParam String q) { ... }
 - Memory consumption
 - Poor API design
 
-**Fix Required:**
-Add pagination using Spring Data's `Pageable`
+**Fix Applied:**
+- ✅ Added `Page<T>` methods to all service interfaces (User, Category, Product)
+- ✅ Updated API controllers to accept `Pageable` parameter with `@PageableDefault(size = 20, sort = "id")`
+- ✅ Returns `Page<T>` instead of `List<T>` for paginated responses
+- ✅ Kept original `List` methods for backward compatibility
 
 ---
 
@@ -322,17 +336,24 @@ private boolean isApiRoute(String path) {
 
 ---
 
-### 15. **Unused Dependencies/Imports (LOW - Code Quality)**
+### 15. **Unused Dependencies/Imports (MEDIUM - Code Quality)** ✅ **FIXED**
 **Location:** Multiple files
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `7998960`
 
 **Issues:**
 - `LoginWebController.userService` field is unused
 - Unused imports in `ProductsWebController`, `UsersWebController`
-- Unused import in `ProductMapper`
+- Unused import in `ProductMapper` (already fixed in previous commit)
 
 **Impact:**
 - Code clutter
 - Minor performance impact
+
+**Fix Applied:**
+- ✅ Removed unused `userService` field and import from `LoginWebController`
+- ✅ Removed unused `CategoryDTO` import from `ProductsWebController`
+- ✅ Removed unused `CategoryService` and `CategoryDTO` imports from `UsersWebController`
 
 ---
 
@@ -430,11 +451,16 @@ Make it configurable via environment variable
 - ✅ Implemented in User, Category, and Product services
 - ✅ All soft deletes update `updatedAt` timestamp
 
-### 6. **Search API Endpoints**
-- Add search endpoints to all API controllers
+### 6. **Search API Endpoints** ✅ **IMPLEMENTED**
+- ✅ Added search endpoints to all API controllers
+- ✅ `GET /api/v1/users/search?q=term`
+- ✅ `GET /api/v1/categories/search?q=term`
+- ✅ `GET /api/v1/products/search?q=term`
 
-### 7. **Pagination Support**
-- Add `Pageable` to list endpoints
+### 7. **Pagination Support** ✅ **IMPLEMENTED**
+- ✅ Added `Pageable` support to all list endpoints
+- ✅ Returns `Page<T>` with pagination metadata
+- ✅ Default page size: 20, sorted by id
 
 ### 8. **Transaction Management**
 - Add `@Transactional` to service methods
@@ -456,8 +482,13 @@ Make it configurable via environment variable
    - ✅ Fix #8: Configure API authentication
    - ✅ Fix #9: Implement soft delete
 
-3. **MEDIUM PRIORITY (Features/Bugs):**
-   - Fix #10-15: Various logic and feature bugs
+3. **MEDIUM PRIORITY (Features/Bugs):** ✅ **COMPLETED**
+   - ✅ Fix #10: Fix UserMapper date handling bug
+   - ✅ Fix #11: Add search endpoints to API controllers
+   - ✅ Fix #12: Fix incorrect route path
+   - ✅ Fix #13: Add pagination support
+   - ✅ Fix #14: Exception Handler Missing for API Routes (already fixed)
+   - ✅ Fix #15: Remove unused dependencies/imports
 
 4. **LOW PRIORITY (Code Quality):**
    - Fix #16-20: Code quality improvements
@@ -468,13 +499,13 @@ Make it configurable via environment variable
 
 - **Critical Issues:** 4 (✅ **4 FIXED**)
 - **High Priority Issues:** 5 (✅ **5 FIXED**)
-- **Medium Priority Issues:** 6 (✅ **1 FIXED**, 5 remaining)
+- **Medium Priority Issues:** 6 (✅ **6 FIXED**)
 - **Low Priority Issues:** 5 (0 fixed)
-- **Missing Implementations:** 8 (✅ **5 IMPLEMENTED**, 3 remaining)
+- **Missing Implementations:** 8 (✅ **6 IMPLEMENTED**, 2 remaining)
 
 **Total Issues Found:** 28
-**Issues Fixed:** 10
-**Issues Remaining:** 18
+**Issues Fixed:** 15
+**Issues Remaining:** 13
 
 ---
 
@@ -516,6 +547,18 @@ Make it configurable via environment variable
 2. ✅ Invalid Validation Annotation - Changed `@Min` to `@Size` for password validation
 3. ✅ API Authentication Required But Not Configured - Made API endpoints public with TODO for JWT implementation
 4. ✅ Hard Delete Instead of Soft Delete - Implemented soft delete for User, Category, and Product services
+
+---
+
+### Commit: `7998960` - "fix: MEDIUM priority issues - date handling, search endpoints, route path, pagination, and unused imports"
+**Date:** 2025-11-14
+
+**Fixed Issues:**
+1. ✅ UserMapper Date Handling Bug - Set dates appropriately on create/update
+2. ✅ Missing Search Endpoints - Added search endpoints to all API controllers
+3. ✅ Incorrect Route Path - Fixed duplicate "session" segment in route
+4. ✅ Missing Pagination - Added Pageable support to all API list endpoints
+5. ✅ Unused Dependencies/Imports - Removed unused imports and fields
 
 ---
 
