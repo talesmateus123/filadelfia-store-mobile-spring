@@ -29,7 +29,11 @@ public class SecurityConfig {
         "/login",
         "/error",
         "/favicon.ico",
-        "/"
+        "/",
+        // Swagger/OpenAPI documentation endpoints
+        "/swagger-ui.html",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
     };
 
     private static final String[] API_MATCHERS = {
