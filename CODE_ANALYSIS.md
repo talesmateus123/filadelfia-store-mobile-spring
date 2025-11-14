@@ -125,8 +125,10 @@ private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(
 
 ---
 
-### 6. **Password Always Encoded on Update (HIGH - Logic Bug)**
+### 6. **Password Always Encoded on Update (HIGH - Logic Bug)** ✅ **FIXED**
 **Location:** `UserServiceImpl.java:92`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `ce8dd72`
 
 **Problem:**
 ```java
@@ -140,13 +142,18 @@ existing.setPassword(passwordEncoder.encode(request.getPassword()));
 - Users cannot update other fields without providing a new password
 - If password is already encoded, it becomes unusable
 
-**Fix Required:**
-Only encode if password is provided and is different/new
+**Fix Applied:**
+- ✅ Only encode password if it's provided and not empty
+- ✅ Added check to prevent double-encoding of BCrypt hashes
+- ✅ If password is null/empty, keep existing password unchanged
+- ✅ Updated BeanUtils.copyProperties to exclude password field
 
 ---
 
-### 7. **Invalid Validation Annotation (HIGH - Validation Bug)**
+### 7. **Invalid Validation Annotation (HIGH - Validation Bug)** ✅ **FIXED**
 **Location:** `UserNewDTO.java:30`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `ce8dd72`
 
 **Problem:**
 ```java
@@ -159,13 +166,17 @@ private String password;
 - Password length validation **doesn't work**
 - Security risk - short passwords can be accepted
 
-**Fix Required:**
-Change to `@Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")`
+**Fix Applied:**
+- ✅ Changed `@Min` to `@Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")`
+- ✅ Password length validation now works correctly
+- ✅ Removed unused `@Min` import, added `@Size` import
 
 ---
 
-### 8. **API Authentication Required But Not Configured (HIGH - Security)**
+### 8. **API Authentication Required But Not Configured (HIGH - Security)** ✅ **FIXED**
 **Location:** `SecurityConfig.java:44`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `ce8dd72`
 
 **Problem:**
 ```java
@@ -180,15 +191,17 @@ Change to `@Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")`
 - **All API endpoints are inaccessible** (401 Unauthorized)
 - API is effectively broken
 
-**Fix Required:**
-- Either make API endpoints public (if intended)
-- Or implement JWT/Bearer token authentication
-- Or configure basic authentication
+**Fix Applied:**
+- ✅ Made API endpoints public temporarily with `.anyRequest().permitAll()`
+- ✅ Added TODO comment indicating JWT/Bearer token should be implemented for production
+- ✅ API endpoints are now accessible while maintaining clear path for future authentication
 
 ---
 
-### 9. **Hard Delete Instead of Soft Delete (HIGH - Data Integrity)**
+### 9. **Hard Delete Instead of Soft Delete (HIGH - Data Integrity)** ✅ **FIXED**
 **Location:** `UserServiceImpl.java:105`, `CategoryServiceImpl.java:106`, `ProductServiceImpl.java:120`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `ce8dd72`
 
 **Problem:**
 - All delete methods use `repository.deleteById(id)` (hard delete)
@@ -200,8 +213,12 @@ Change to `@Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")`
 - Data loss risk
 - Inconsistent with having `active` field
 
-**Fix Required:**
-Implement soft delete by setting `active = false` instead of deleting
+**Fix Applied:**
+- ✅ Implemented soft delete in `UserServiceImpl.deleteUser()` - sets `active = false`
+- ✅ Implemented soft delete in `CategoryServiceImpl.deleteCategory()` - sets `active = false`
+- ✅ Implemented soft delete in `ProductServiceImpl.deleteProduct()` - sets `active = false`
+- ✅ All soft deletes update `updatedAt` timestamp
+- ✅ Data is now preserved and can be recovered if needed
 
 ---
 
@@ -403,13 +420,15 @@ Make it configurable via environment variable
 - ✅ Integrated with layout system
 - ✅ Displays username from Spring Security context
 
-### 4. **API Authentication Mechanism**
-- JWT tokens OR
-- Basic authentication OR
-- Make endpoints public
+### 4. **API Authentication Mechanism** ✅ **CONFIGURED**
+- ✅ Made API endpoints public temporarily
+- ✅ Added TODO for JWT/Bearer token implementation in production
+- ⚠️ **Note:** For production, JWT/Bearer token authentication should be implemented
 
-### 5. **Soft Delete Implementation**
-- Update all delete methods to set `active = false`
+### 5. **Soft Delete Implementation** ✅ **IMPLEMENTED**
+- ✅ Updated all delete methods to set `active = false`
+- ✅ Implemented in User, Category, and Product services
+- ✅ All soft deletes update `updatedAt` timestamp
 
 ### 6. **Search API Endpoints**
 - Add search endpoints to all API controllers
@@ -430,12 +449,12 @@ Make it configurable via environment variable
    - ✅ Fix #3: Add @ExceptionHandler annotation
    - ✅ Fix #4: Fix ProductMapper null check
 
-2. **HIGH PRIORITY (Security/Data):**
+2. **HIGH PRIORITY (Security/Data):** ✅ **COMPLETED**
    - ✅ Fix #5: Configure PasswordEncoder as bean
-   - Fix #6: Fix password update logic
-   - Fix #7: Fix password validation annotation
-   - Fix #8: Configure API authentication
-   - Fix #9: Implement soft delete
+   - ✅ Fix #6: Fix password update logic
+   - ✅ Fix #7: Fix password validation annotation
+   - ✅ Fix #8: Configure API authentication
+   - ✅ Fix #9: Implement soft delete
 
 3. **MEDIUM PRIORITY (Features/Bugs):**
    - Fix #10-15: Various logic and feature bugs
@@ -448,14 +467,14 @@ Make it configurable via environment variable
 ## 📊 SUMMARY STATISTICS
 
 - **Critical Issues:** 4 (✅ **4 FIXED**)
-- **High Priority Issues:** 5 (✅ **1 FIXED**, 4 remaining)
+- **High Priority Issues:** 5 (✅ **5 FIXED**)
 - **Medium Priority Issues:** 6 (✅ **1 FIXED**, 5 remaining)
 - **Low Priority Issues:** 5 (0 fixed)
-- **Missing Implementations:** 8 (✅ **3 IMPLEMENTED**, 5 remaining)
+- **Missing Implementations:** 8 (✅ **5 IMPLEMENTED**, 3 remaining)
 
 **Total Issues Found:** 28
-**Issues Fixed:** 6
-**Issues Remaining:** 22
+**Issues Fixed:** 10
+**Issues Remaining:** 18
 
 ---
 
@@ -476,8 +495,7 @@ Make it configurable via environment variable
 
 ## ✅ FIXES APPLIED
 
-**Commit:** `775b1b2` - "fix: critical issues: Add authentication, dashboard template, exception handler, and null checks"
-
+### Commit: `775b1b2` - "fix: critical issues: Add authentication, dashboard template, exception handler, and null checks"
 **Date:** 2025-11-14
 
 **Fixed Issues:**
@@ -487,6 +505,17 @@ Make it configurable via environment variable
 4. ✅ Potential NullPointerException in ProductMapper - Added null checks
 5. ✅ PasswordEncoder Not Configured as Bean - Created bean and updated injection
 6. ✅ Exception Handler Missing for API Routes - Fixed route detection
+
+---
+
+### Commit: `ce8dd72` - "fix: HIGH priority issues - password logic, validation, API auth, and soft delete"
+**Date:** 2025-11-14
+
+**Fixed Issues:**
+1. ✅ Password Always Encoded on Update - Only encode if password is new/changed, prevent double-encoding
+2. ✅ Invalid Validation Annotation - Changed `@Min` to `@Size` for password validation
+3. ✅ API Authentication Required But Not Configured - Made API endpoints public with TODO for JWT implementation
+4. ✅ Hard Delete Instead of Soft Delete - Implemented soft delete for User, Category, and Product services
 
 ---
 
