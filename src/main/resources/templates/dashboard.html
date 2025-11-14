@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div class="tab-content active">
+            <div class="section-title">
+                <h2>Dashboard</h2>
+            </div>
+
+            <div>
+                <p>Bem-vindo, <span th:text="${username}">Usuário</span>!</p>
+                <p>Você está logado no sistema de gerenciamento da Filadelfia Store.</p>
+                
+                <div style="margin-top: 20px;">
+                    <h3>Navegação Rápida</h3>
+                    <ul>
+                        <li><a th:href="@{/products}">Gerenciar Produtos</a></li>
+                        <li><a th:href="@{/categories}">Gerenciar Categorias</a></li>
+                        <li><a th:href="@{/users}">Gerenciar Usuários</a></li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-primary">Sair</button>
+                    </form>
+                </div>
+            </div>
+         </div>
+    </div>
+    
+    <div th:replace="~{layout :: footer}">
+    </div>
+</body>
+</html>
+

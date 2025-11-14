@@ -40,9 +40,10 @@ public class GlobalExceptionHandler {
 
     
     private boolean isApiRoute(String path) {
-        return path != null && path.startsWith("api/");
+        return path != null && path.startsWith("/api/");
     }   
 
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(
             ResourceNotFoundException ex, WebRequest request) {
         

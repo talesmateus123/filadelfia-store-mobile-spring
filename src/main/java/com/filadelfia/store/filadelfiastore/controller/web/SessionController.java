@@ -1,5 +1,7 @@
 package com.filadelfia.store.filadelfiastore.controller.web;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,15 +14,21 @@ public class SessionController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        // Adicionar atributos à sessão
-        String username = (String) session.getAttribute("username");
-        if (username == null) {
-            // Recuperar do contexto de segurança
-            username = "Usuário";
+        // Recuperar do contexto de segurança
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = "Usuário";
+        
+        if (authentication != null && authentication.isAuthenticated() 
+            && !authentication.getName().equals("anonymousUser")) {
+            username = authentication.getName();
+            session.setAttribute("username", username);
+        } else {
             session.setAttribute("username", username);
         }
         
         model.addAttribute("username", username);
+        model.addAttribute("pageTitle", "Dashboard");
+        model.addAttribute("activePage", "dashboard");
         return "dashboard";
     }
 
