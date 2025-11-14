@@ -1,11 +1,4 @@
-git commit -m "feat: upgrade Spring Boot to 3.4.0 (includes Spring Framework 6.2.0)
-
-- updated Spring Boot from 3.2.0 to 3.4.0
-- spring Framework automatically upgraded to 6.2.0
-- updated Hibernate ORM to 6.6.2.Final
-- updated Spring Data JPA to 3.4.0
-- all tests passing and application starts successfully
-- added comprehensive upgrade summary documentation# Spring Framework Upgrade Summary
+# Spring Framework Upgrade Summary
 
 ## Upgrade Details
 **Date:** November 14, 2025
