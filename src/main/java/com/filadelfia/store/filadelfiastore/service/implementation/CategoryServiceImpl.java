@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDTO> getAllActiveCategories() {
         return categoryRepository.findByActiveTrue()
             .stream()
@@ -44,8 +46,20 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDTO> searchCategories(String searchTerm) {
-        return categoryRepository.findByNameContainingIgnoreCaseAndActiveTrue(searchTerm)
+        // Validate and sanitize search term
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getAllActiveCategories();
+        }
+        
+        // Limit search term length to prevent abuse
+        String sanitizedTerm = searchTerm.trim();
+        if (sanitizedTerm.length() > 100) {
+            sanitizedTerm = sanitizedTerm.substring(0, 100);
+        }
+        
+        return categoryRepository.findByNameContainingIgnoreCaseAndActiveTrue(sanitizedTerm)
             .stream()
             .map(categoryMapper::toDTO)
             .collect(Collectors.toList());
@@ -53,18 +67,21 @@ public class CategoryServiceImpl implements CategoryService  {
 
     
     @Override
+    @Transactional(readOnly = true)
     public Optional<CategoryDetailedDTO> getCategoryDetailedById(Long id) {
         return categoryRepository.findById(id)
             .map(this::toDetailedDTO);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<CategoryDTO> getCategoryById(Long id) {
         return categoryRepository.findById(id)
             .map(categoryMapper::toDTO);
     }
 
     @Override
+    @Transactional
     public CategoryDTO createCategory(CategoryDTO request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new DuplicateCategoryException("Já existe uma categoria com o nome: " + request.getName());
@@ -75,6 +92,7 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll()
             .stream()
@@ -83,13 +101,15 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<CategoryDTO> getAllCategories(Pageable pageable) {
         return categoryRepository.findAll(pageable)
             .map(categoryMapper::toDTO);
     }
 
     @Override
-public CategoryDTO updateCategory(Long id, CategoryDTO request) {
+    @Transactional
+    public CategoryDTO updateCategory(Long id, CategoryDTO request) {
     Category existing = categoryRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
     
@@ -107,6 +127,7 @@ public CategoryDTO updateCategory(Long id, CategoryDTO request) {
 }
 
     @Override
+    @Transactional
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));

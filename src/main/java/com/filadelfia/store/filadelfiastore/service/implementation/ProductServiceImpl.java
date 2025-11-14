@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getAllActiveProducts() {
         return productRepository.findByActiveTrue()
             .stream()
@@ -43,6 +45,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getFeaturedProducts() {
         return productRepository.findTop4ByActiveTrueOrderByIdDesc()
             .stream()
@@ -51,6 +54,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getProductsByCategory(String categoryName) {
         return productRepository.findByCategoryNameAndActiveTrue(categoryName)
             .stream()
@@ -59,20 +63,34 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> searchProducts(String searchTerm) {
-        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(searchTerm)
+        // Validate and sanitize search term
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getAllActiveProducts();
+        }
+        
+        // Limit search term length to prevent abuse
+        String sanitizedTerm = searchTerm.trim();
+        if (sanitizedTerm.length() > 100) {
+            sanitizedTerm = sanitizedTerm.substring(0, 100);
+        }
+        
+        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(sanitizedTerm)
             .stream()
             .map(productMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ProductDTO> getProductById(Long id) {
         return productRepository.findById(id)
             .map(productMapper::toDTO);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getAllByCategoryName(String categoryName) {
         return productRepository.findByCategoryNameAndActiveTrue(categoryName)
             .stream()
@@ -81,6 +99,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional
     public ProductDTO createProduct(ProductDTO request) {
         CategoryDTO category = categoryService.getCategoryById(request.getCategoryId())
             .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
@@ -91,6 +110,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getAllProducts() {
         return productRepository.findAll()
             .stream()
@@ -99,12 +119,14 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProductDTO> getAllProducts(Pageable pageable) {
         return productRepository.findAll(pageable)
             .map(productMapper::toDTO);
     }
 
     @Override
+    @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO request) {
         Product existing = productRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
@@ -121,6 +143,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));

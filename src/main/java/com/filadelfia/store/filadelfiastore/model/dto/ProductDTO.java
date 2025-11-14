@@ -41,7 +41,7 @@ public class ProductDTO {
             return "R$ 0,00";
         }
         
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR"));
         return currencyFormat.format(price);
     }
 

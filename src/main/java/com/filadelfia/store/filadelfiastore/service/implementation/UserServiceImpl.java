@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.filadelfia.store.filadelfiastore.exception.custom.EmailAlreadyExistsException;
 import com.filadelfia.store.filadelfiastore.exception.custom.ResourceNotFoundException;
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
+    @Transactional
     public UserDTO createUser(UserNewDTO userNewDTO) {
         if (userRepository.existsByEmail(userNewDTO.getEmail())) {
             throw new EmailAlreadyExistsException("E-mail já existe");
@@ -45,26 +47,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDTO> searchUsers(String searchTerm) {
-        return userRepository.findByNameContainingIgnoreCaseAndActiveTrue(searchTerm)
+        // Validate and sanitize search term
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getAllActiveUsers();
+        }
+        
+        // Limit search term length to prevent abuse
+        String sanitizedTerm = searchTerm.trim();
+        if (sanitizedTerm.length() > 100) {
+            sanitizedTerm = sanitizedTerm.substring(0, 100);
+        }
+        
+        return userRepository.findByNameContainingIgnoreCaseAndActiveTrue(sanitizedTerm)
             .stream()
             .map(userMapper::toDTO)
             .collect(Collectors.toList());
     }
     
     @Override
+    @Transactional(readOnly = true)
     public Optional<UserDTO> getUserById(Long id) {
         return userRepository.findById(id)
             .map(userMapper::toDTO);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<UserDTO> getUserByEmail(String email) {
         return userRepository.getUserByEmail(email)
             .map(userMapper::toDTO);
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
             .stream()
@@ -73,12 +90,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<UserDTO> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable)
             .map(userMapper::toDTO);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDTO> getAllActiveUsers() {
         return userRepository.findByActiveTrue()
             .stream()
@@ -87,6 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDTO updateUser(Long id, UserNewDTO request) {
         User existing = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
@@ -120,6 +140,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
