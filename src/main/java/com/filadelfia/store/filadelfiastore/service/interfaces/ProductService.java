@@ -3,6 +3,9 @@ package com.filadelfia.store.filadelfiastore.service.interfaces;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.filadelfia.store.filadelfiastore.model.dto.ProductDTO;
 
 public interface ProductService {    
@@ -10,6 +13,7 @@ public interface ProductService {
     Optional<ProductDTO> getProductById(Long id);
     List<ProductDTO> getAllByCategoryName(String categoryName);
     List<ProductDTO> getAllProducts();
+    Page<ProductDTO> getAllProducts(Pageable pageable);
     ProductDTO updateProduct(Long id, ProductDTO request);
     void deleteProduct(Long id);
 

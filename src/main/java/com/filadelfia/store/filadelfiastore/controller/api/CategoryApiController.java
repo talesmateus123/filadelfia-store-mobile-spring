@@ -2,6 +2,9 @@ package com.filadelfia.store.filadelfiastore.controller.api;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.filadelfia.store.filadelfiastore.model.dto.CategoryDTO;
@@ -37,8 +41,17 @@ public class CategoryApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<Page<CategoryDTO>> getAllCategories(
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(categoryService.getAllCategories(pageable));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CategoryDTO>> searchCategories(@RequestParam(required = false, defaultValue = "") String q) {
+        if (q == null || q.trim().isEmpty()) {
+            return ResponseEntity.ok(categoryService.getAllActiveCategories());
+        }
+        return ResponseEntity.ok(categoryService.searchCategories(q));
     }
 
     @GetMapping("/{id}")

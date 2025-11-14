@@ -12,6 +12,8 @@ import com.filadelfia.store.filadelfiastore.repository.CategoryRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -78,6 +80,12 @@ public class CategoryServiceImpl implements CategoryService  {
             .stream()
             .map(categoryMapper::toDTO)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<CategoryDTO> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable)
+            .map(categoryMapper::toDTO);
     }
 
     @Override

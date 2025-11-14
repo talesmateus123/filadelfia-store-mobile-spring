@@ -11,6 +11,8 @@ import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -94,6 +96,12 @@ public class ProductServiceImpl implements ProductService  {
             .stream()
             .map(productMapper::toDTO)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ProductDTO> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable)
+            .map(productMapper::toDTO);
     }
 
     @Override

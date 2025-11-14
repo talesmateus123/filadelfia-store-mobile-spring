@@ -32,13 +32,13 @@ public class SessionController {
         return "dashboard";
     }
 
-    @PostMapping("/session/session/set-theme")
+    @PostMapping("/session/set-theme")
     public String setTheme(@RequestParam String theme, HttpSession session) {
         session.setAttribute("theme", theme);
         return "redirect:/dashboard";
     }
 
-    // @GetMapping("/session/session/info")
+    // @GetMapping("/session/info")
     // public String sessionInfo(HttpSession session, Model model) {
     //     model.addAttribute("sessionId", session.getId());
     //     model.addAttribute("creationTime", session.getCreationTime());
