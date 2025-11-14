@@ -359,8 +359,10 @@ private boolean isApiRoute(String path) {
 
 ## 🔵 LOW PRIORITY / CODE QUALITY
 
-### 16. **Deprecated Locale Constructor (LOW - Deprecation Warning)**
+### 16. **Deprecated Locale Constructor (LOW - Deprecation Warning)** ✅ **FIXED**
 **Location:** `ProductDTO.java:44`
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `b76da2a`
 
 **Problem:**
 ```java
@@ -368,25 +370,34 @@ new Locale("pt", "BR")
 ```
 - Constructor deprecated in Java 19+
 
-**Fix:**
-Use `Locale.forLanguageTag("pt-BR")` or `Locale.of("pt", "BR")`
+**Fix Applied:**
+- ✅ Changed to `Locale.forLanguageTag("pt-BR")` to use modern API
+- ✅ Removes deprecation warning
 
 ---
 
-### 17. **Missing Input Validation on Search (LOW - Security)**
+### 17. **Missing Input Validation on Search (LOW - Security)** ✅ **FIXED**
 **Location:** Search methods in services
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `b76da2a`
 
 **Problem:**
 - No validation on search terms
 - Could be vulnerable to injection if used in raw queries (though JPA methods are safe)
 
-**Recommendation:**
-Add basic validation (max length, sanitization)
+**Fix Applied:**
+- ✅ Added validation to all search methods (User, Category, Product)
+- ✅ Trim whitespace from search terms
+- ✅ Limit search term length to 100 characters to prevent abuse
+- ✅ Handle null/empty search terms gracefully (return all active items)
+- ✅ JPA methods are already safe from SQL injection, but validation adds extra protection
 
 ---
 
-### 18. **No Transaction Management Annotations (LOW - Best Practice)**
+### 18. **No Transaction Management Annotations (LOW - Best Practice)** ✅ **FIXED**
 **Location:** Service implementations
+
+**Status:** ✅ **RESOLVED** - Fixed in commit `b76da2a`
 
 **Problem:**
 - Service methods don't have `@Transactional` annotations
@@ -395,6 +406,13 @@ Add basic validation (max length, sanitization)
 **Impact:**
 - Potential data inconsistency
 - Not following Spring best practices
+
+**Fix Applied:**
+- ✅ Added `@Transactional` to all write operations (create, update, delete) in all services
+- ✅ Added `@Transactional(readOnly = true)` to all read operations (get, search, list) for performance
+- ✅ Ensures atomicity of multiple repository operations
+- ✅ Improves performance for read-only operations
+- ✅ Follows Spring best practices
 
 ---
 
@@ -467,8 +485,10 @@ server.servlet.session.cookie.secure=true
 - ✅ Returns `Page<T>` with pagination metadata
 - ✅ Default page size: 20, sorted by id
 
-### 8. **Transaction Management**
-- Add `@Transactional` to service methods
+### 8. **Transaction Management** ✅ **IMPLEMENTED**
+- ✅ Added `@Transactional` to all service methods
+- ✅ Write operations use `@Transactional`
+- ✅ Read operations use `@Transactional(readOnly = true)` for performance
 
 ---
 
@@ -495,9 +515,12 @@ server.servlet.session.cookie.secure=true
    - ✅ Fix #14: Exception Handler Missing for API Routes (already fixed)
    - ✅ Fix #15: Remove unused dependencies/imports
 
-4. **LOW PRIORITY (Code Quality):**
+4. **LOW PRIORITY (Code Quality):** ✅ **COMPLETED**
+   - ✅ Fix #16: Fix deprecated Locale constructor
+   - ✅ Fix #17: Add input validation on search methods
+   - ✅ Fix #18: Add @Transactional annotations to service methods
    - ✅ Fix #20: Session Cookie Secure Flag for development mode
-   - Fix #16-19: Code quality improvements
+   - ⚠️ Fix #19: Missing API Documentation (recommendation - requires adding SpringDoc dependency)
 
 ---
 
@@ -506,12 +529,12 @@ server.servlet.session.cookie.secure=true
 - **Critical Issues:** 4 (✅ **4 FIXED**)
 - **High Priority Issues:** 5 (✅ **5 FIXED**)
 - **Medium Priority Issues:** 6 (✅ **6 FIXED**)
-- **Low Priority Issues:** 5 (✅ **1 FIXED**, 4 remaining)
-- **Missing Implementations:** 8 (✅ **6 IMPLEMENTED**, 2 remaining)
+- **Low Priority Issues:** 5 (✅ **4 FIXED**, 1 remaining - API Documentation)
+- **Missing Implementations:** 8 (✅ **7 IMPLEMENTED**, 1 remaining)
 
 **Total Issues Found:** 28
-**Issues Fixed:** 16
-**Issues Remaining:** 12
+**Issues Fixed:** 19
+**Issues Remaining:** 9 (1 LOW priority + 8 recommendations)
 
 ---
 
@@ -573,6 +596,16 @@ server.servlet.session.cookie.secure=true
 
 **Fixed Issues:**
 1. ✅ Session Cookie Secure Flag in Development - Made configurable via environment variable with default `false` for development
+
+---
+
+### Commit: `b76da2a` - "fix: LOW priority issues - deprecated Locale, input validation, and transaction management"
+**Date:** 2025-11-14
+
+**Fixed Issues:**
+1. ✅ Deprecated Locale Constructor - Changed to `Locale.forLanguageTag("pt-BR")`
+2. ✅ Missing Input Validation on Search - Added validation (trim, max length 100 chars) to all search methods
+3. ✅ No Transaction Management Annotations - Added `@Transactional` to all service methods (read-only for reads, full for writes)
 
 ---
 
