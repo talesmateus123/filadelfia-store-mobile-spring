@@ -52,6 +52,7 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [ ] Display user-friendly error messages
   - [ ] Add Thymeleaf conditionals for error alerts
   - [ ] Style error messages consistently
+  - [ ] Hide unaccessible tabs wheen user is not logged in
 
 - [ ] **1.3 Bearer Token Security (JWT Implementation)** (8-12 hours)
   - [ ] Add JWT dependencies (jjwt-api, jjwt-impl, jjwt-jackson)
