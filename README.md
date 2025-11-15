@@ -46,13 +46,22 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Clear session and security context
   - [x] Add CSRF token handling for logout form
 
-- [ ] **1.2 MVC Login Failure Feedback** (2-3 hours)
-  - [ ] Configure custom authentication failure handler
-  - [ ] Pass error messages to login view
-  - [ ] Display user-friendly error messages
-  - [ ] Add Thymeleaf conditionals for error alerts
-  - [ ] Style error messages consistently
-  - [ ] Hide unaccessible tabs wheen user is not logged in
+- [x] **1.2 MVC Login Failure Feedback** (2-3 hours)
+  - [x] Configure custom authentication failure handler
+  - [x] Pass error messages to login view
+  - [x] Display user-friendly error messages
+  - [x] Add Thymeleaf conditionals for error alerts
+  - [x] Style error messages consistently
+  - [x] Hide unaccessible tabs when user is not logged in
+
+  - [ ] **1.2.1 Login/Register flow issues** (1 hour)
+  - [ ] Implement register flow
+  - [ ] Add forgot password flow
+  - [ ] Update user permissions in "users/create" flow
+  - [ ] All the tags "<a class="btn btn-primary"></a>" are breaking the style, the're above the other elements
+
+  - [ ] **1.2.2 Product, Category and User creation ant updating flow iw not working more** (1 hour)
+  - [ ] See what is happening and solve
 
 - [ ] **1.3 Bearer Token Security (JWT Implementation)** (8-12 hours)
   - [ ] Add JWT dependencies (jjwt-api, jjwt-impl, jjwt-jackson)

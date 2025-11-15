@@ -8,24 +8,64 @@
     <div th:replace="~{layout :: header}"></div>
     
     <main>
-        
-    <div class="container">
-        <div id="categorias" class="tab-content active">
-            <h2 class="section-title" th:text="${pageTitle}"></h2>        
+        <div class="container">
+            <div th:replace="~{layout :: notifications}"></div>
             
-            <div sec:authorize="isAuthenticated()">
-                <p>Olá, <span sec:authentication="name"></span>!</p>
-                <p>Escolha uma opção no menu acima para começar.</p>
-            </div>
-            
-            <div sec:authorize="!isAuthenticated()">
-                <p>Por favor, <a th:href="@{/login}">faça login</a> para acessar o sistema.</p>
+            <div id="home-content" class="tab-content active">
+                <h2 class="section-title" th:text="${pageTitle}"></h2>        
+                
+                <!-- Content for authenticated users -->
+                <div sec:authorize="isAuthenticated()" class="welcome-authenticated">
+                    <p class="welcome-message">
+                        Olá, <strong><span th:text="${#authentication.principal.name}">Usuário</span></strong>! 
+                        Bem-vindo ao sistema de gerenciamento.
+                    </p>
+                    <p class="instructions">Escolha uma das opções no menu acima para começar:</p>
+                    
+                    <div class="quick-actions">
+                        <div class="action-card">
+                            <h3>Produtos</h3>
+                            <p>Gerencie o catálogo de produtos da loja</p>
+                            <a th:href="@{/products}" class="btn btn-primary">Acessar Produtos</a>
+                        </div>
+                        
+                        <div class="action-card">
+                            <h3>Categorias</h3>
+                            <p>Organize os produtos em categorias</p>
+                            <a th:href="@{/categories}" class="btn btn-primary">Acessar Categorias</a>
+                        </div>
+                        
+                        <div class="action-card" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
+                            <h3>Usuários</h3>
+                            <p>Administre os usuários do sistema</p>
+                            <a th:href="@{/users}" class="btn btn-primary">Acessar Usuários</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content for non-authenticated users -->
+                <div sec:authorize="!isAuthenticated()" class="welcome-guest">
+                    <div class="guest-content">
+                        <h3>🔒 Acesso Restrito</h3>
+                        <p class="guest-message">
+                            Este é um sistema de gerenciamento interno da Filadelfia Store.
+                        </p>
+                        <p class="guest-instructions">
+                            Para acessar o sistema, você precisa fazer login com suas credenciais.
+                        </p>
+                        <div class="guest-actions">
+                            <a th:href="@{/login}" class="btn btn-primary btn-large">
+                                <span>🔑</span> Fazer Login
+                            </a>
+                        </div>
+                        <p class="guest-register">
+                            Não tem uma conta? 
+                            <a th:href="@{/register}" class="link-primary">Cadastre-se aqui</a>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div th:replace="~{layout :: notifications}"></div>
-    </div>
-        
     </main>
     
     <div th:replace="~{layout :: footer}"></div>

@@ -15,20 +15,27 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomAuthenticationFailureHandler authenticationFailureHandler;
+
+    public SecurityConfig(CustomAuthenticationFailureHandler authenticationFailureHandler) {
+        this.authenticationFailureHandler = authenticationFailureHandler;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/api/**").permitAll() // For now, will secure later with JWT
-                .requestMatchers("/products/**", "/categories/**", "/users/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/users/**").hasAnyRole("ADMIN", "MANAGER") // Only admins/managers can manage users
+                .requestMatchers("/products/**", "/categories/**").hasAnyRole("USER", "ADMIN", "MANAGER") // All authenticated users
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/", true)
-                .failureUrl("/login?error=true")
+                .failureHandler(authenticationFailureHandler)
                 .permitAll()
             )
             .logout(logout -> logout

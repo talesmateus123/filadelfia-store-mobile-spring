@@ -23,35 +23,69 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Spring Security uses 'username' but we authenticate by email
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.getUserByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
 
-        // Check if user is active
-        if (user.getActive() == null || !user.getActive()) {
-            throw new UsernameNotFoundException("User is not active: " + username);
-        }
-
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getName())
-                .password(user.getPassword())
-                .authorities(getAuthorities(user))
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(!user.getActive())
-                .build();
+        return new CustomUserDetails(user);
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(User user) {
-        if (user.getRole() == null) {
-            return Collections.emptyList();
+    public static class CustomUserDetails implements UserDetails {
+        private final User user;
+
+        public CustomUserDetails(User user) {
+            this.user = user;
         }
-        
-        // Convert UserRole enum to Spring Security authority
-        String authority = user.getRole().getDescription(); // Returns "ROLE_ADMIN" or "ROLE_MANAGER"
-        return Collections.singletonList(new SimpleGrantedAuthority(authority));
+
+        public String getName() {
+            return user.getName();
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            // Get the single role from user
+            if (user.getRole() != null) {
+                return Collections.singletonList(
+                    new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                );
+            }
+            // Default role if no role is defined
+            return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+
+        @Override
+        public String getPassword() {
+            return user.getPassword();
+        }
+
+        @Override
+        public String getUsername() {
+            return user.getEmail();
+        }
+
+        @Override
+        public boolean isAccountNonExpired() {
+            return true;
+        }
+
+        @Override
+        public boolean isAccountNonLocked() {
+            return user.getActive() != null ? user.getActive() : false;
+        }
+
+        @Override
+        public boolean isCredentialsNonExpired() {
+            return true;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return user.getActive() != null ? user.getActive() : false;
+        }
     }
 }
 
