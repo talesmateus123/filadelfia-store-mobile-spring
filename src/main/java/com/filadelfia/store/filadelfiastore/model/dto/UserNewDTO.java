@@ -3,7 +3,6 @@ package com.filadelfia.store.filadelfiastore.model.dto;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,8 +25,7 @@ public class UserNewDTO {
     private String name;
     @NotEmpty(message = "Email não pode estar vazio")
     private String email;
-    @NotEmpty(message = "Senha não pode estar vazia")
-    @Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")
+    // Password validation is handled conditionally in the controller
     private String password;
     @Enumerated(EnumType.STRING)
     private UserRole role;

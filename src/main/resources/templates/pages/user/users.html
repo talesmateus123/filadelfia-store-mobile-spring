@@ -15,6 +15,10 @@
                 </a>
             </div>
 
+            <!-- Display flash messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
             <div th:if="${not #lists.isEmpty(users)}" class="search-container">
                 <input type="text" id="search-users" placeholder="Pesquisar usuários...">
             </div>
@@ -35,8 +39,9 @@
                             <td th:text="${user.name}"></td>
                             <td th:text="${user.email}"></td>
                             <td>
-                                <span th:if="${user.role.name() == 'ROLE_ADMIN'}">Administrador</span>
-                                <span th:if="${user.role.name() == 'ROLE_MANAGER'}">Gerenciador</span>
+                                <span th:if="${user.role.name() == 'USER'}">Usuário</span>
+                                <span th:if="${user.role.name() == 'ADMIN'}">Administrador</span>
+                                <span th:if="${user.role.name() == 'MANAGER'}">Gerenciador</span>
                             </td>
                             <td th:text="${user.active} ? 'Sim' : 'Não'"></td>
                             <td>

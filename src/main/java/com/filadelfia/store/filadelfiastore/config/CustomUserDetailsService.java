@@ -50,7 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             // Get the single role from user
             if (user.getRole() != null) {
                 return Collections.singletonList(
-                    new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                    new SimpleGrantedAuthority(user.getRole().getRoleName())
                 );
             }
             // Default role if no role is defined
