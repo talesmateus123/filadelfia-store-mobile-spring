@@ -25,10 +25,24 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/api/**").permitAll() // For now, will secure later with JWT
-                .requestMatchers("/users/**").hasAnyRole("ADMIN", "MANAGER") // Only admins/managers can manage users
-                .requestMatchers("/products/**", "/categories/**").hasAnyRole("USER", "ADMIN", "MANAGER") // All authenticated users
+                // Public pages and static resources
+                .requestMatchers(
+                    "/",
+                    "/login",
+                    "/register",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/favicon.ico",
+                    "/error"
+                ).permitAll()
+                // API endpoints
+                .requestMatchers("/api/**").permitAll()
+                // Admin/Manager only pages
+                .requestMatchers("/users/**").hasAnyRole("ADMIN", "MANAGER")
+                // Authenticated user pages
+                .requestMatchers("/products/**", "/categories/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                // All other requests require authentication
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -48,6 +62,9 @@ public class SecurityConfig {
             )
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            )
+            .exceptionHandling(exceptions -> exceptions
+                .accessDeniedPage("/error")
             );
 
         return http.build();

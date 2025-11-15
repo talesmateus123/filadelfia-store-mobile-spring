@@ -12,6 +12,15 @@
                 <p>Faça login para acessar o sistema</p>
             </div>
             
+            <!-- Registration success message -->
+            <div th:if="${registeredSuccess}" class="alert alert-success">
+                <span class="alert-icon">✓</span>
+                <div class="alert-content">
+                    <div class="alert-title">Cadastro concluído!</div>
+                    <a class="alert-message" th:href="@{/login}" th:text="${successMessage}">Cadastro realizado com sucesso!</a>
+                </div>
+            </div>
+            
             <!-- Logout success message -->
             <div th:if="${logoutSuccess}" class="alert alert-success">
                 <span class="alert-icon">✓</span>
@@ -73,7 +82,7 @@
             </div>
         </div>
     </div>
-    <script th:src="@{/js/core/login/login.js}"></script>
+    <script th:src="@{/js/login/login.js}"></script>
     
     <div th:replace="~{layout :: footer}"></div>
 </body>

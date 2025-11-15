@@ -55,10 +55,10 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Hide unaccessible tabs when user is not logged in
 
   - [ ] **1.2.1 Login/Register flow issues** (1 hour)
-  - [ ] Implement register flow
+  - [x] Implement register flow
   - [ ] Add forgot password flow
   - [ ] Update user permissions in "users/create" flow
-  - [ ] All the tags "<a class="btn btn-primary"></a>" are breaking the style, the're above the other elements
+  - [x] All the tags "<a class="btn btn-primary"></a>" are breaking the style, the're above the other elements
 
   - [ ] **1.2.2 Product, Category and User creation ant updating flow iw not working more** (1 hour)
   - [ ] See what is happening and solve

@@ -163,5 +163,10 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
         userRepository.save(user);
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.getUserByEmail(email).isPresent();
+    }
     
 }
