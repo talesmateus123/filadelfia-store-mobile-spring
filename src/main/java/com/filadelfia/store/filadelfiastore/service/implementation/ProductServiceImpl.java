@@ -9,11 +9,16 @@ import com.filadelfia.store.filadelfiastore.model.mapper.ProductMapper;
 import com.filadelfia.store.filadelfiastore.repository.ProductRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
+import com.filadelfia.store.filadelfiastore.util.PageableValidator;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,15 +29,22 @@ public class ProductServiceImpl implements ProductService  {
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
     private final CategoryMapper categoryMapper;
+    private final PageableValidator pageableValidator;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper, CategoryMapper categoryMapper) {
+    private final Set<String> ALLOWED_SORT_PROPERTIES = Set.of(
+        "id", "name", "price", "createdAt", "updatedAt", "category"
+    );
+
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper, CategoryMapper categoryMapper, PageableValidator pageableValidator) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
         this.categoryMapper = categoryMapper;
+        this.pageableValidator = pageableValidator;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getAllActiveProducts() {
         return productRepository.findByActiveTrue()
             .stream()
@@ -41,6 +53,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getFeaturedProducts() {
         return productRepository.findTop4ByActiveTrueOrderByIdDesc()
             .stream()
@@ -49,6 +62,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getProductsByCategory(String categoryName) {
         return productRepository.findByCategoryNameAndActiveTrue(categoryName)
             .stream()
@@ -57,20 +71,34 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> searchProducts(String searchTerm) {
-        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(searchTerm)
+        // Validate and sanitize search term
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getAllActiveProducts();
+        }
+        
+        // Limit search term length to prevent abuse
+        String sanitizedTerm = searchTerm.trim();
+        if (sanitizedTerm.length() > 100) {
+            sanitizedTerm = sanitizedTerm.substring(0, 100);
+        }
+        
+        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(sanitizedTerm)
             .stream()
             .map(productMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ProductDTO> getProductById(Long id) {
         return productRepository.findById(id)
             .map(productMapper::toDTO);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getAllByCategoryName(String categoryName) {
         return productRepository.findByCategoryNameAndActiveTrue(categoryName)
             .stream()
@@ -79,6 +107,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional
     public ProductDTO createProduct(ProductDTO request) {
         CategoryDTO category = categoryService.getCategoryById(request.getCategoryId())
             .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
@@ -89,6 +118,7 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> getAllProducts() {
         return productRepository.findAll()
             .stream()
@@ -97,6 +127,20 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getAllProducts(Pageable pageable) {
+        Pageable safePageable = pageableValidator.validateAndSanitize(
+            pageable, 
+            ALLOWED_SORT_PROPERTIES,
+            "name"
+        );
+        
+        return productRepository.findAll(safePageable)
+            .map(productMapper::toDTO);
+    }
+
+    @Override
+    @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO request) {
         Product existing = productRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
@@ -113,11 +157,14 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Produto não encontrado");
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        
+        product.setActive(false);
+        product.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+        productRepository.save(product);
     }
 
 }

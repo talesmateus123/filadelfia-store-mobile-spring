@@ -1,8 +1,6 @@
 package com.filadelfia.store.filadelfiastore.controller.web;
 
-import com.filadelfia.store.filadelfiastore.model.dto.CategoryDTO;
 import com.filadelfia.store.filadelfiastore.model.dto.UserDTO;
-import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
 
 import org.springframework.stereotype.Controller;

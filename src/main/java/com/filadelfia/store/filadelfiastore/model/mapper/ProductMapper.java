@@ -1,7 +1,5 @@
 package com.filadelfia.store.filadelfiastore.model.mapper;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Component;
 
 import com.filadelfia.store.filadelfiastore.model.dto.ProductDTO;
@@ -14,8 +12,12 @@ import lombok.Builder;
 public class ProductMapper {
     
     public ProductDTO toDTO(Product product) {
+        if (product == null) {
+            return null;
+        }
+        
         ProductDTO dto = new ProductDTO();
-         dto.setId(product.getId());
+        dto.setId(product.getId());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
         dto.setName(product.getName());
@@ -24,8 +26,13 @@ public class ProductMapper {
         dto.setStock(product.getStock());
         dto.setImageUrl(product.getImageUrl());
         dto.setActive(product.getActive());
-        dto.setCategoryId(product.getCategory().getId());
-        dto.setCategoryName(product.getCategory().getName());
+        
+        // Null check for category to prevent NullPointerException
+        if (product.getCategory() != null) {
+            dto.setCategoryId(product.getCategory().getId());
+            dto.setCategoryName(product.getCategory().getName());
+        }
+        
         return dto;
     }
     
