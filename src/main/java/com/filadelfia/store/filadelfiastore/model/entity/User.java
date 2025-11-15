@@ -35,7 +35,7 @@ public class User {
     @Column(nullable = true)
     private Date updatedAt = new Date(System.currentTimeMillis());
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false, unique = true)
@@ -45,6 +45,7 @@ public class User {
     private String password;
     
     @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20)
     private UserRole role;
 
     @Column(nullable = true)
