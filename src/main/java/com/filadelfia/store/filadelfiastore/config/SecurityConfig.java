@@ -38,12 +38,12 @@ public class SecurityConfig {
                     "/favicon.ico",
                     "/error"
                 ).permitAll()
-                // API endpoints
-                .requestMatchers("/api/**").permitAll()
-                // Admin/Manager only pages
+                // API endpoints - Authenticated users
+                .requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/api/v1/products/**", "/api/v1/categories/**").authenticated()
+                // Web controller pages
                 .requestMatchers("/users/**").hasAnyRole("ADMIN", "MANAGER")
-                // Authenticated user pages
-                .requestMatchers("/products/**", "/categories/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                .requestMatchers("/products/**", "/categories/**").authenticated()
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )
