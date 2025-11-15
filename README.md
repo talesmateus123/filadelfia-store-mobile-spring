@@ -8,11 +8,15 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - Keep tech simple and easy to maintain by volunteers.
 
 ## Key features (MVP)
-- Product catalog with categories and images
-- Shopping cart and checkout
-- Order management for administrators
-- Basic authentication for admin tasks
-- Responsive UI using server-side rendering (Thymeleaf)
+- **Multi-role user system** (Admin, Manager, Customer)
+- **Product catalog** with categories and image management
+- **Shopping cart** with session and database persistence
+- **Complete checkout process** with multiple payment methods
+- **Order management** with status tracking and notifications
+- **Invoice generation** (Nota Fiscal) with PDF export
+- **Payment integration** (Credit Card, Boleto bancário, PIX)
+- **Role-based dashboards** and access control
+- **Responsive UI** using server-side rendering (Thymeleaf)
 
 ## Technology stack
 - Backend: Spring Boot (Java)
@@ -50,156 +54,215 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 
 ## TODO
 
-### Phase 1: Authentication & Security Enhancements (Priority: High)
-- [x] **1.1 MVC Logout Implementation** (2-4 hours)
-  - [x] Create logout endpoint in SecurityConfig
-  - [x] Add logout button to navigation/header template
-  - [x] Configure logout success URL
-  - [x] Clear session and security context
-  - [x] Add CSRF token handling for logout form
+### Phase 1: MVC User Management & Role-Based Access (Priority: High)
+- [x] **1.1 Authentication System** (COMPLETED)
+  - [x] MVC Login/Logout Implementation
+  - [x] User registration flow
+  - [x] Forgot password with email verification
+  - [x] Spring Security configuration
 
-- [x] **1.2 MVC Login Failure Feedback** (2-3 hours)
-  - [x] Configure custom authentication failure handler
-  - [x] Pass error messages to login view
-  - [x] Display user-friendly error messages
-  - [x] Add Thymeleaf conditionals for error alerts
-  - [x] Style error messages consistently
-  - [x] Hide unaccessible tabs when user is not logged in
+- [ ] **1.2 Role-Based Access Control** (6-8 hours)
+  - [ ] Update UserRole enum (ADMIN, MANAGER, USER)
+  - [ ] Implement role-based navigation menus
+  - [ ] ADMIN: Full access to users, categories, products, orders
+  - [ ] MANAGER: Access to categories, products, order management (no user management)
+  - [ ] USER: Access to shopping cart, orders, profile management
+  - [ ] Add method-level security annotations (@PreAuthorize)
+  - [ ] Create role-specific dashboards
 
-  - [x] **1.2.1 Login/Register flow issues** (1 hour)
-  - [x] Implement register flow
-  - [x] Add forgot password flow
-  - [x] Implement email service to seng token for forgot password flow
-  - [x] Update user permissions in "users/create" flow
-  - [x] All the tags "<a class="btn btn-primary"></a>" are breaking the style, the're above the other elements
+- [ ] **1.3 Complete User Management (MVC)** (4-6 hours)
+  - [ ] Migrate User CRUD from API to MVC controllers
+  - [ ] Add proper validation and error handling
+  - [ ] Implement user profile management for all roles
 
-  - [x] **1.2.2 Product, Category and User creation ant updating flow iw not working more** (1 hour)
-  - [x] See what is happening and solve
+### Phase 2: E-Commerce Core Entities (Priority: High)
+- [ ] **2.1 Shopping Cart System** (8-10 hours)
+  - [ ] Create Cart and CartItem entities
+  - [ ] Implement session-based cart for guests
+  - [ ] Implement database cart for logged users
+  - [ ] Add/remove/update cart items (MVC controllers)
+  - [ ] Cart persistence and synchronization
+  - [ ] Cart summary and total calculations
 
-- [ ] **1.3 Bearer Token Security (JWT Implementation)** (8-12 hours)
-  - [ ] Add JWT dependencies (jjwt-api, jjwt-impl, jjwt-jackson)
-  - [ ] Create JWT utility class (generate, validate, parse)
-  - [ ] Implement JWT authentication filter
-  - [ ] Create token-based login endpoint `/api/auth/login`
-  - [ ] Implement refresh token mechanism
-  - [ ] Configure SecurityFilterChain for stateless API
-  - [ ] Add JwtTokenProvider class
-  - [ ] Add JwtAuthenticationFilter class
-  - [ ] Add AuthController for API authentication
+- [ ] **2.2 Order Management System** (12-15 hours)
+  - [ ] Create Order, OrderItem, OrderStatus entities
+  - [ ] Implement checkout process (MVC)
+  - [ ] Order status workflow (PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
+  - [ ] Order history for customers
+  - [ ] Order management dashboard for ADMIN/MANAGER
+  - [ ] Stock management and validation
 
-- [ ] **1.4 Endpoint Security Configuration** (4-6 hours)
-  - [ ] Define public endpoints (home, products, login, register)
-  - [ ] Define authenticated endpoints (cart, checkout, profile)
-  - [ ] Define admin-only endpoints (admin panels)
-  - [ ] Configure role-based access control (ROLE_USER, ROLE_ADMIN)
-  - [ ] Add method-level security annotations
-  - [ ] Test unauthorized access scenarios
+- [ ] **2.3 Customer Information** (4-6 hours)
+  - [ ] Create Customer entity (extends User)
+  - [ ] Add shipping address management
+  - [ ] Customer profile with order history
+  - [ ] Address validation and formatting
 
-### Phase 2: Data & Timestamp Validation (Priority: Medium)
-- [ ] **2.1 Verify created_at and updated_at Functionality** (2-3 hours)
-  - [ ] Add @EntityListeners(AuditingEntityListener.class) to entities
-  - [ ] Enable JPA Auditing with @EnableJpaAuditing
-  - [ ] Add @CreatedDate and @LastModifiedDate annotations
-  - [ ] Test timestamp behavior on create/update
-  - [ ] Fix timezone issues (ensure UTC storage)
-  - [ ] Verify timestamps display correctly in UI
+### Phase 3: Payment System (Priority: High)
+- [ ] **3.1 Payment Methods Implementation** (15-20 hours)
+  - [ ] Create Payment, PaymentMethod entities
+  - [ ] Credit Card payment integration
+  - [ ] Boleto bancário integration
+  - [ ] PIX payment integration
+  - [ ] Payment status tracking
+  - [ ] Payment confirmation handling
 
-### Phase 3: Search Functionality (Priority: Medium)
-- [ ] **3.1 Implement Search Bar in All Flows** (6-8 hours)
-  - [ ] Implement imageUrl treatment, handling and saving these files 
-  - [ ] Add search endpoints for Products
-  - [ ] Add search endpoints for Categories
-  - [ ] Add search endpoints for Users
-  - [ ] Implement repository LIKE queries or full-text search
-  - [ ] Create reusable search form fragment
-  - [ ] Add search results page/section
-  - [ ] Implement pagination for search results
-  - [ ] Add search filters (category, price range)
-  - [ ] Handle empty search results gracefully
+- [ ] **3.2 Invoice Generation (Nota Fiscal)** (10-12 hours)
+  - [ ] Create Invoice entity
+  - [ ] Generate PDF invoices
+  - [ ] Tax calculations (if applicable)
+  - [ ] Invoice numbering system
+  - [ ] Email invoice to customers
+  - [ ] Invoice management for ADMIN/MANAGER
 
-### Phase 4: Media Management (Priority: Medium)
-- [ ] **4.1 Implement photoUrl for Products and Categories** (10-15 hours)
-  - [ ] Add photoUrl field to Product entity
-  - [ ] Add photoUrl field to Category entity
-  - [ ] Implement file upload controller endpoint
-  - [ ] Configure file storage (local or cloud)
-  - [ ] Add image validation (type, size limits)
-  - [ ] Create image upload UI component
-  - [ ] Implement image preview before upload
-  - [ ] Add default placeholder images
-  - [ ] Implement image deletion on entity delete
-  - [ ] Optimize image storage (thumbnails, compression)
-  - [ ] Create FileStorageService
-  - [ ] Create FileUploadController
-  - [ ] Add FileStorageProperties configuration
+### Phase 4: Product Management Enhancement (Priority: Medium)
+- [ ] **4.1 Image Management** (8-10 hours)
+  - [ ] Implement file upload for product images
+  - [ ] Configure local/cloud storage
+  - [ ] Image validation and processing
+  - [ ] Multiple images per product
+  - [ ] Image galleries in product views
 
-### Phase 5: Testing (Priority: High - Continuous)
-- [ ] **5.1 Automated Tests Implementation** (15-20 hours ongoing)
-  - [ ] Unit tests for UserService
-  - [ ] Unit tests for ProductService
-  - [ ] Unit tests for CategoryService
-  - [ ] Integration tests for UserRepository
-  - [ ] Integration tests for ProductRepository
-  - [ ] Integration tests for CategoryRepository
-  - [ ] Controller tests for ProductController (MockMvc)
-  - [ ] Controller tests for CategoryController (MockMvc)
-  - [ ] Controller tests for UserController (MockMvc)
+- [ ] **4.2 Product Features** (6-8 hours)
+  - [ ] Product variants (size, color, etc.)
+  - [ ] Stock management and alerts
+  - [ ] Product reviews and ratings
+  - [ ] Featured products
+  - [ ] Product search and filtering
+
+### Phase 5: Search & Navigation (Priority: Medium)
+- [ ] **5.1 Search System** (6-8 hours)
+  - [ ] Global product search
+  - [ ] Category-based filtering
+  - [ ] Price range filtering
+  - [ ] Search suggestions and autocomplete
+  - [ ] Search results pagination
+
+- [ ] **5.2 Category Management** (4-6 hours)
+  - [ ] Migrate Category CRUD to pure MVC
+  - [ ] Category hierarchy (if needed)
+  - [ ] Category-based product listing
+  - [ ] Category image management
+
+### Phase 6: Reporting & Analytics (Priority: Low)
+- [ ] **6.1 Admin Reports** (8-10 hours)
+  - [ ] Sales reports
+  - [ ] Product performance
+  - [ ] Customer statistics
+  - [ ] Revenue analytics
+  - [ ] Export to PDF/Excel
+
+### Phase 7: Testing & Quality Assurance (Priority: High - Continuous)
+- [ ] **7.1 MVC Testing** (15-20 hours ongoing)
+  - [ ] Controller integration tests
+  - [ ] Service layer unit tests
+  - [ ] Repository tests
   - [ ] Security configuration tests
-  - [ ] JWT authentication integration tests
-  - [ ] API endpoint tests
+  - [ ] Form validation tests
+  - [ ] End-to-end workflow tests
   - [ ] Aim for 70%+ test coverage
 
+### Standby Features (Future Implementation)
+- [ ] **REST API Implementation** (On Hold)
+  - [ ] JWT authentication
+  - [ ] API endpoints for mobile app
+  - [ ] API documentation with Swagger
+  - [ ] Rate limiting and security
+
+### Technical Improvements
+- [ ] **Performance & Infrastructure** (Ongoing)
+  - [ ] Database query optimization
+  - [ ] Caching strategy
+  - [ ] Image optimization
+  - [ ] Email template improvements
+  - [ ] Error handling and logging
+
 ### Completed Tasks ✓
-- [x] Develop the project architecture
-- [x] MySQL database setup
-- [x] Develop products resource
-- [x] Development of Products CRUD
-- [x] Development of Category CRUD
-- [x] Development of User CRUD
-- [x] Exception handling
-- [x] Test Category CRUD
-- [x] Fix error messages not dismissing in create_category flow
-- [x] Test Products CRUD
-- [x] Test User CRUD
-- [x] Implement not found handling
-- [x] Implement holes within frontend CRUD
-- [x] Implement Swagger/OpenAPI documentation
+- [x] Project architecture setup
+- [x] MySQL database configuration
+- [x] Spring Security authentication system
+- [x] User registration and login flows
+- [x] Password reset with email verification
+- [x] Basic User, Product, and Category entities
+- [x] Initial CRUD operations (API-based)
+- [x] Swagger/OpenAPI documentation
+- [x] Exception handling framework
+- [x] Thymeleaf template structure
 
-### Future Enhancements (Not in Current Scope)
-- Password reset flow with email verification
-- Shopping cart persistence (database + session)
-- Order management system with status workflow
-- Email notifications (order confirmation, password reset)
-- Logging and monitoring setup
+### Architecture Decision: MVC-First Approach
+The project has pivoted to prioritize **Server-Side MVC architecture** with Thymeleaf templates over REST API implementation. This approach provides:
+- Better SEO optimization
+- Simpler state management
+- Reduced complexity for volunteer maintainers
+- Traditional web application user experience
+- Built-in CSRF protection
+
+**REST API implementation is on standby** for future mobile application needs.
+
+## User Roles & Permissions
+
+### 🔴 ADMIN Role
+- **Full system access**
+- Manage users (create, update, delete)
+- Manage categories and products
+- View and manage all orders
+- Access to reports and analytics
+- System configuration
+
+### 🟡 MANAGER Role
+- **Limited administrative access**
+- Manage categories and products
+- Process and manage customer orders
+- View sales reports
+- **Cannot manage users**
+
+### 🟢 USER Role (Customers)
+- **Customer-facing features**
+- Browse products and categories
+- Add items to shopping cart
+- Place orders and make payments
+- View order history
+- Manage personal profile
+
+## Development Roadmap (Sprints)
+
+### Sprint 1 (Weeks 1-2): User Management & Security
+1. Complete MVC migration for User CRUD
+2. Implement role-based access control
+3. Create role-specific dashboards
+4. Add comprehensive form validation
+
+### Sprint 2 (Weeks 3-4): E-Commerce Foundation
+1. Shopping cart system (session + database)
+2. Order management entities and workflows
+3. Customer information management
+4. Basic checkout process
+
+### Sprint 3 (Weeks 5-6): Payment Integration
+1. Payment methods (Credit Card, Boleto, PIX)
+2. Invoice generation (Nota Fiscal)
+3. Payment status tracking
+4. Email notifications
+
+### Sprint 4 (Weeks 7-8): Product Enhancement
+1. Image upload and management
+2. Product search and filtering
+3. Category hierarchy
+4. Inventory management
+
+### Sprint 5 (Weeks 9-10): Testing & Polish
+1. Comprehensive testing suite
+2. Performance optimization
+3. Security hardening
+4. Documentation and deployment guides
+
+### Future Enhancements (Post-MVP)
+- REST API implementation for mobile apps
+- Advanced reporting and analytics
+- Multi-language support
 - Docker containerization
-- CI/CD pipeline (GitHub Actions)
-- Database migration strategy (Flyway/Liquibase)
-
-## Development Order (Sprints)
-
-### Sprint 1 (Week 1-2): Core Security
-1. MVC Logout Implementation
-2. MVC Login Failure Feedback
-3. Verify created_at/updated_at timestamps
-4. Basic unit tests for existing services
-
-### Sprint 2 (Week 3-4): API Security
-1. Bearer Token (JWT) Implementation
-2. Endpoint Security Configuration
-3. Auth controller tests
-4. JWT integration tests
-
-### Sprint 3 (Week 5-6): Search & Media
-1. Search functionality across all entities
-2. Photo upload implementation
-3. Image management tests
-4. Search integration tests
-
-### Sprint 4 (Week 7): Testing & Polish
-1. Complete test coverage (aim for 70%+)
-2. Bug fixes and refinements
-3. Documentation review
-4. Performance optimization
+- CI/CD pipeline
+- Third-party integrations (shipping, payment gateways)
 
 ## Contribution
 Contributions from the church community are welcome. Open issues for desired features or tasks. Keep changes small and add tests for core logic when possible.
