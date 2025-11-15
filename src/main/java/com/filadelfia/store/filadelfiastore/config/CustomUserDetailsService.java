@@ -34,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
+                .username(user.getName())
                 .password(user.getPassword())
                 .authorities(getAuthorities(user))
                 .accountExpired(false)
