@@ -39,12 +39,12 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 ## TODO
 
 ### Phase 1: Authentication & Security Enhancements (Priority: High)
-- [ ] **1.1 MVC Logout Implementation** (2-4 hours)
-  - [ ] Create logout endpoint in SecurityConfig
-  - [ ] Add logout button to navigation/header template
-  - [ ] Configure logout success URL
-  - [ ] Clear session and security context
-  - [ ] Add CSRF token handling for logout form
+- [x] **1.1 MVC Logout Implementation** (2-4 hours)
+  - [x] Create logout endpoint in SecurityConfig
+  - [x] Add logout button to navigation/header template
+  - [x] Configure logout success URL
+  - [x] Clear session and security context
+  - [x] Add CSRF token handling for logout form
 
 - [ ] **1.2 MVC Login Failure Feedback** (2-3 hours)
   - [ ] Configure custom authentication failure handler
