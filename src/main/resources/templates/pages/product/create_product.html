@@ -12,8 +12,10 @@
             
             <div class="form-container" th:if="${productDTO != null}">
                 <form id="form-produto"
-                    th:object="${productDTO}">
-                    <input type="hidden" id="produto-id" name="id" th:field="*{id}">
+                    th:object="${productDTO}"
+                    th:action="${isEdit} ? @{/products/edit/{id}(id=*{id})} : @{/products/create}"
+                    method="post">
+                    <input type="hidden" id="produto-id" name="id" th:field="*{id}" th:if="${isEdit}">
                     <div class="form-group">
                         <label for="produto-nome">Nome do Produto</label>
                         <input type="text" id="produto-nome" th:field="*{name}" required>
@@ -49,6 +51,16 @@
                     </div> -->
 
                    <div th:replace="~{layout :: notifications}"></div>
+                   
+                   <!-- Display validation errors -->
+                   <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
+                       <ul>
+                           <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                       </ul>
+                   </div>
+                   
+                   <!-- Display error message -->
+                   <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
                     <div class="form-actions">
                         <button type="button" id="btn-cancelar" class="danger" onclick="history.back()">Cancelar</button>
@@ -69,7 +81,5 @@
     <div th:replace="~{layout :: scripts}">
     </div>
     
-    <script th:src="@{/js/product/product_service.js}"></script>
-    <script th:src="@{/js/product/create_product.js}"></script>
 </body>
 </html>

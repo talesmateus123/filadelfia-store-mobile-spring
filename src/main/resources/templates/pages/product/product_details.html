@@ -14,14 +14,20 @@
                     <a class="button" th:href="@{/products/edit/{id}(id=${product.id})}">
                         <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Editar">
                     </a>
-                    <a class="button" id="button_delete">
-                        <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Remover">
-                    </a>
+                    <form style="display: inline;" th:action="@{/products/delete/{id}(id=${product.id})}" method="post" 
+                          onsubmit="return confirm('Tem certeza que deseja remover este produto?')">
+                        <button type="submit" class="button" style="border: none; background: none; padding: 0;">
+                            <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Remover">
+                        </button>
+                    </form>
                 </div>
             </div>
             
+            <!-- Display flash messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+            
             <div>
-                <input type="hidden" id="productId" th:value="${product.id}"/>
                 <p>
                     <b>Nome:</b>&nbsp;<span th:text="${product.name}"></span>
                 </p>
@@ -50,7 +56,5 @@
     <div th:replace="~{layout :: scripts}">
     </div>
     
-    <script th:src="@{/js/product/product_service.js}"></script>
-    <script th:src="@{/js/product/product_details.js}"></script>
 </body>
 </html>

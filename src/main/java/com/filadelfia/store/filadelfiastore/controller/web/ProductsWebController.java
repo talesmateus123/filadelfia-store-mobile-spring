@@ -6,10 +6,16 @@ import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,17 +71,79 @@ public class ProductsWebController {
         return "pages/product/create_product";
     }
 
+    @PostMapping("/create")
+    public String createProduct(
+            @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("pageTitle", "Novo Produto");
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("activePage", activePage);
+            return "pages/product/create_product";
+        }
+        
+        try {
+            ProductDTO createdProduct = productService.createProduct(productDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Produto criado com sucesso!");
+            return "redirect:/products/" + createdProduct.getId();
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Erro ao criar produto: " + e.getMessage());
+            model.addAttribute("pageTitle", "Novo Produto");
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("activePage", activePage);
+            return "pages/product/create_product";
+        }
+    }
+
     
     @GetMapping("/edit/{id}")
     public String editProductForm(@PathVariable Long id, Model model) {
+        Optional<ProductDTO> productOpt = productService.getProductById(id);
+        
+        if (productOpt.isEmpty() || !productOpt.get().getActive()) {
+            return "redirect:/products";
+        }
+        
         model.addAttribute("pageTitle", "Editar Produto");
-        Optional<ProductDTO> product = productService.getProductById(id);
         model.addAttribute("categories", categoryService.getAllCategories());
-        model.addAttribute("productDTO", product.orElseThrow(() -> new RuntimeException("Produto não encontrado")));
+        model.addAttribute("productDTO", productOpt.get());
         model.addAttribute("isEdit", true);        
-
         model.addAttribute("activePage", activePage);
+        
         return "pages/product/create_product";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String updateProduct(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("pageTitle", "Editar Produto");
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("activePage", activePage);
+            return "pages/product/create_product";
+        }
+        
+        try {
+            productService.updateProduct(id, productDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Produto atualizado com sucesso!");
+            return "redirect:/products/" + id;
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Erro ao atualizar produto: " + e.getMessage());
+            model.addAttribute("pageTitle", "Editar Produto");
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("activePage", activePage);
+            return "pages/product/create_product";
+        }
     }
 
     @GetMapping("/{id}")
@@ -92,5 +160,20 @@ public class ProductsWebController {
         
         model.addAttribute("activePage", activePage);
         return "pages/product/product_details";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteProduct(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            productService.deleteProduct(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Produto removido com sucesso!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao remover produto: " + e.getMessage());
+        }
+        
+        return "redirect:/products";
     }
 }

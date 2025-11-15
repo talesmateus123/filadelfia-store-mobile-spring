@@ -73,8 +73,8 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Update user permissions in "users/create" flow
   - [x] All the tags "<a class="btn btn-primary"></a>" are breaking the style, the're above the other elements
 
-  - [ ] **1.2.2 Product, Category and User creation ant updating flow iw not working more** (1 hour)
-  - [ ] See what is happening and solve
+  - [x] **1.2.2 Product, Category and User creation ant updating flow iw not working more** (1 hour)
+  - [x] See what is happening and solve
 
 - [ ] **1.3 Bearer Token Security (JWT Implementation)** (8-12 hours)
   - [ ] Add JWT dependencies (jjwt-api, jjwt-impl, jjwt-jackson)
@@ -106,6 +106,7 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 
 ### Phase 3: Search Functionality (Priority: Medium)
 - [ ] **3.1 Implement Search Bar in All Flows** (6-8 hours)
+  - [ ] Implement imageUrl treatment, handling and saving these files 
   - [ ] Add search endpoints for Products
   - [ ] Add search endpoints for Categories
   - [ ] Add search endpoints for Users

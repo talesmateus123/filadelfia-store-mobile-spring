@@ -5,10 +5,16 @@ import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,15 +62,73 @@ public class CategoriesWebController {
         return "pages/category/create_category";
     }
 
+    @PostMapping("/create")
+    public String createCategory(
+            @Valid @ModelAttribute("categoryDTO") CategoryDTO categoryDTO,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("pageTitle", "Nova Categoria");
+            model.addAttribute("activePage", activePage);
+            return "pages/category/create_category";
+        }
+        
+        try {
+            CategoryDTO createdCategory = categoryService.createCategory(categoryDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Categoria criada com sucesso!");
+            return "redirect:/categories/" + createdCategory.getId();
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Erro ao criar categoria: " + e.getMessage());
+            model.addAttribute("pageTitle", "Nova Categoria");
+            model.addAttribute("activePage", activePage);
+            return "pages/category/create_category";
+        }
+    }
+
     @GetMapping("/edit/{id}")
     public String editCategoryForm(@PathVariable Long id, Model model) {
+        Optional<CategoryDTO> categoryOpt = categoryService.getCategoryById(id);
+        
+        if (categoryOpt.isEmpty() || !categoryOpt.get().getActive()) {
+            return "redirect:/categories";
+        }
+        
         model.addAttribute("pageTitle", "Editar Categoria");
-        Optional<CategoryDTO> category = categoryService.getCategoryById(id);
-        model.addAttribute("categoryDTO", category.orElseThrow(() -> new RuntimeException("Categoria não encontrada")));
+        model.addAttribute("categoryDTO", categoryOpt.get());
         model.addAttribute("isEdit", true);        
-
         model.addAttribute("activePage", activePage);
+        
         return "pages/category/create_category";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String updateCategory(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("categoryDTO") CategoryDTO categoryDTO,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("pageTitle", "Editar Categoria");
+            model.addAttribute("isEdit", true);
+            model.addAttribute("activePage", activePage);
+            return "pages/category/create_category";
+        }
+        
+        try {
+            categoryService.updateCategory(id, categoryDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Categoria atualizada com sucesso!");
+            return "redirect:/categories/" + id;
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Erro ao atualizar categoria: " + e.getMessage());
+            model.addAttribute("pageTitle", "Editar Categoria");
+            model.addAttribute("isEdit", true);
+            model.addAttribute("activePage", activePage);
+            return "pages/category/create_category";
+        }
     }
 
     @GetMapping("/{id}")
@@ -80,6 +144,21 @@ public class CategoriesWebController {
 
         model.addAttribute("activePage", activePage);
         return "pages/category/category_details";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteCategory(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            categoryService.deleteCategory(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Categoria removida com sucesso!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao remover categoria: " + e.getMessage());
+        }
+        
+        return "redirect:/categories";
     }
 
 }

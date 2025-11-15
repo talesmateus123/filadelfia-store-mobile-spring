@@ -12,8 +12,10 @@
             
             <div class="form-container" th:if="${categoryDTO != null}">
                 <form id="form-categoria" 
-                    th:object="${categoryDTO}">
-                    <input type="hidden" id="categoria-id" name="id" th:field="*{id}">
+                    th:object="${categoryDTO}"
+                    th:action="${isEdit} ? @{/categories/edit/{id}(id=*{id})} : @{/categories/create}"
+                    method="post">
+                    <input type="hidden" id="categoria-id" name="id" th:field="*{id}" th:if="${isEdit}">
                     
                     <div class="form-group">
                         <label for="categoria-nome">Nome da Categoria:</label>
@@ -39,6 +41,16 @@
                     </div> -->
 
                    <div th:replace="~{layout :: notifications}"></div>
+                   
+                   <!-- Display validation errors -->
+                   <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
+                       <ul>
+                           <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                       </ul>
+                   </div>
+                   
+                   <!-- Display error message -->
+                   <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
                     
                     <div class="form-actions">
                         <button type="button" id="btn-cancelar" class="danger" onclick="history.back()">Cancelar</button>
@@ -58,7 +70,5 @@
     <div th:replace="~{layout :: scripts}">
     </div>
     
-    <script th:src="@{/js/category/category_service.js}"></script>
-    <script th:src="@{/js/category/create_category.js}"></script>
 </body>
 </html>

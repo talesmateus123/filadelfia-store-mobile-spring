@@ -14,6 +14,10 @@
                     <img th:src="@{/images/ion-icons/svg/add-sharp.svg}" alt="Adicionar">
                 </a>
             </div>
+
+            <!-- Display flash messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
                                         
             <div th:if="${not #lists.isEmpty(products)}" class="search-container">
                 <input type="text" id="search-produtos" placeholder="Pesquisar produtos...">
