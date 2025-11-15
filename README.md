@@ -32,9 +32,21 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
    DDL_AUTO=update
    DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
    DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
+   
+   # Email Configuration (for password reset)
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=your-email@gmail.com
+   MAIL_PASSWORD=your-app-password
+   EMAIL_FROM=noreply@filadelfiastore.com
+   BASE_URL=http://localhost:8080
    ```
-4. Run with `mvn spring-boot:run` or the IDE run configuration.
-5. Seed initial data (products, admin user) or create via admin UI.
+4. **Email Setup for Gmail:**
+   - Enable 2-Step Verification in your Google Account
+   - Generate an App Password: Google Account → Security → 2-Step Verification → App passwords
+   - Use the generated 16-character password as MAIL_PASSWORD
+5. Run with `mvn spring-boot:run` or the IDE run configuration.
+6. Seed initial data (products, admin user) or create via admin UI.
 
 ## TODO
 
@@ -54,10 +66,10 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Style error messages consistently
   - [x] Hide unaccessible tabs when user is not logged in
 
-  - [ ] **1.2.1 Login/Register flow issues** (1 hour)
+  - [x] **1.2.1 Login/Register flow issues** (1 hour)
   - [x] Implement register flow
   - [x] Add forgot password flow
-  - [ ] Implement email service to seng token for forgot password flow
+  - [x] Implement email service to seng token for forgot password flow
   - [x] Update user permissions in "users/create" flow
   - [x] All the tags "<a class="btn btn-primary"></a>" are breaking the style, the're above the other elements
 

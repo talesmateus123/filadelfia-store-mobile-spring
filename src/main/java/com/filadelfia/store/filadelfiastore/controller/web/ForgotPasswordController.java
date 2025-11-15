@@ -1,6 +1,7 @@
 package com.filadelfia.store.filadelfiastore.controller.web;
 
 import com.filadelfia.store.filadelfiastore.service.PasswordResetService;
+import com.filadelfia.store.filadelfiastore.service.interfaces.EmailService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +13,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ForgotPasswordController {
 
     private final PasswordResetService passwordResetService;
+    private final EmailService emailService;
 
-    public ForgotPasswordController(PasswordResetService passwordResetService) {
+    public ForgotPasswordController(
+            PasswordResetService passwordResetService,
+            EmailService emailService) {
         this.passwordResetService = passwordResetService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/forgot-password")
@@ -32,11 +37,20 @@ public class ForgotPasswordController {
         try {
             String token = passwordResetService.createPasswordResetToken(email);
             
+            // Send email if token was created (user exists)
+            if (token != null) {
+                try {
+                    emailService.sendPasswordResetEmail(email, token);
+                } catch (Exception e) {
+                    // Log error but don't reveal to user
+                    System.err.println("Failed to send password reset email: " + e.getMessage());
+                }
+            }
+            
             // Always show success message for security (don't reveal if email exists)
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Se o email existir em nossa base de dados, você receberá um link para redefinir sua senha. " +
-                "Por enquanto, use o link: http://localhost:8080/reset-password?token=" + 
-                (token != null ? token : "invalid"));
+                "Verifique sua caixa de entrada e spam.");
             
             return "redirect:/forgot-password?success=true";
             

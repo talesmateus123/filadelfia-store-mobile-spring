@@ -13,6 +13,7 @@ import com.filadelfia.store.filadelfiastore.model.dto.RegisterDTO;
 import com.filadelfia.store.filadelfiastore.model.dto.UserNewDTO;
 import com.filadelfia.store.filadelfiastore.model.entity.User;
 import com.filadelfia.store.filadelfiastore.model.enums.UserRole;
+import com.filadelfia.store.filadelfiastore.service.interfaces.EmailService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
 
 import jakarta.validation.Valid;
@@ -22,10 +23,15 @@ public class RegisterWebController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public RegisterWebController(UserService userService, PasswordEncoder passwordEncoder) {
+    public RegisterWebController(
+            UserService userService, 
+            PasswordEncoder passwordEncoder,
+            EmailService emailService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @GetMapping("/register")
@@ -68,12 +74,20 @@ public class RegisterWebController {
             UserNewDTO newUser = new UserNewDTO();
             newUser.setName(registerDTO.getName());
             newUser.setEmail(registerDTO.getEmail());
-            newUser.setPassword(registerDTO.getPassword());
+            newUser.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
             newUser.setPhone(registerDTO.getPhone());
-            newUser.setRole(UserRole.USER);
+            newUser.setRole(UserRole.USER); // Default role
             newUser.setActive(true);
 
             userService.createUser(newUser);
+
+            // Send welcome email
+            try {
+                emailService.sendWelcomeEmail(registerDTO.getEmail(), registerDTO.getName());
+            } catch (Exception e) {
+                // Log error but don't fail registration
+                System.err.println("Failed to send welcome email: " + e.getMessage());
+            }
 
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Cadastro realizado com sucesso! Faça login para continuar.");
