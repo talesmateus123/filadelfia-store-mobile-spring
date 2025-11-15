@@ -56,8 +56,9 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 
   - [ ] **1.2.1 Login/Register flow issues** (1 hour)
   - [x] Implement register flow
-  - [ ] Add forgot password flow
-  - [ ] Update user permissions in "users/create" flow
+  - [x] Add forgot password flow
+  - [ ] Implement email service to seng token for forgot password flow
+  - [x] Update user permissions in "users/create" flow
   - [x] All the tags "<a class="btn btn-primary"></a>" are breaking the style, the're above the other elements
 
   - [ ] **1.2.2 Product, Category and User creation ant updating flow iw not working more** (1 hour)

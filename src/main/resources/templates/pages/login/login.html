@@ -69,6 +69,11 @@
                             <span id="toggleIcon">👁️</span>
                         </button>
                     </div>
+                    <div style="text-align: right; margin-top: 0.5rem;">
+                        <a th:href="@{/forgot-password}" style="color: #007bff; text-decoration: none; font-size: 0.9rem;">
+                            Esqueci minha senha
+                        </a>
+                    </div>
                 </div>
                 
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>

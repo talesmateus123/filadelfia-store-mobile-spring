@@ -14,6 +14,7 @@ public class LoginWebController {
             @RequestParam(value = "message", required = false) String message,
             @RequestParam(value = "logout", required = false) String logout,
             @RequestParam(value = "registered", required = false) String registered,
+            @RequestParam(value = "reset", required = false) String reset,
             Model model) {
         
         model.addAttribute("pageTitle", "Login - Filadelfia Store");
@@ -32,6 +33,11 @@ public class LoginWebController {
         if (registered != null) {
             model.addAttribute("registeredSuccess", true);
             model.addAttribute("successMessage", "Cadastro realizado com sucesso! Faça login para continuar.");
+        }
+        
+        if (reset != null) {
+            model.addAttribute("resetSuccess", true);
+            model.addAttribute("successMessage", "Senha redefinida com sucesso! Faça login com sua nova senha.");
         }
         
         return "pages/login/login";
