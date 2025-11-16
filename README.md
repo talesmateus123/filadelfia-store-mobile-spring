@@ -100,7 +100,7 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Create Feature Products as the Home page to the customer
   - [x] Create A Category base view for the customer
   - [x] All thif flows has to have search feature
-  - [x] When clicking some product, the Customer will hava a detailed view with images (TODO), descrition, Add to cart button.
+  - [x] When clicking some product, the Customer will hava a detailed view with images (TODO), descrition, Add to cart button.  - 
   - [ ] Create a feedback section for the product details page
   - [ ] Implement active and disable Product by manager and Admin
   - [ ] Implement shipping address flow
