@@ -68,7 +68,33 @@ public class DashboardController {
         
         // Get current user information
         String email = authentication.getName();
-        // TODO: Get user profile information and recent orders
+        
+        try {
+            // Find user by email and get profile data
+            var userOptional = userService.getUserByEmail(email);
+            
+            if (userOptional.isPresent()) {
+                var user = userOptional.get();
+                model.addAttribute("user", user);
+                
+                // Get user's order statistics
+                model.addAttribute("totalUserOrders", orderService.getTotalOrdersByUser(user.getId()));
+                var recentUserOrders = orderService.getUserOrders(user.getId());
+                model.addAttribute("recentUserOrders", recentUserOrders.stream().limit(5).toList());
+                
+                // Calculate total spent
+                var totalSpent = recentUserOrders.stream()
+                    .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+                    .map(order -> order.getTotal())
+                    .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                model.addAttribute("totalSpent", String.format("R$ %.2f", totalSpent));
+            } else {
+                model.addAttribute("error", "Usuário não encontrado");
+            }
+        } catch (Exception e) {
+            // Handle user not found or other errors
+            model.addAttribute("error", "Erro ao carregar dados do perfil: " + e.getMessage());
+        }
         
         return "dashboards/user_profile";
     }

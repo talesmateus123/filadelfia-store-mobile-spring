@@ -15,7 +15,9 @@
         <div class="profile-container">
             <div class="profile-sidebar">
                 <div class="profile-avatar">
-                    <img th:src="@{/images/user-placeholder.png}" alt="Avatar" class="avatar-img">
+                    <div class="avatar-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                        <span th:text="${user?.name?.substring(0,1)?.toUpperCase()} ?: 'U'">U</span>
+                    </div>
                     <button class="btn btn-sm btn-outline">Alterar Foto</button>
                 </div>
                 
