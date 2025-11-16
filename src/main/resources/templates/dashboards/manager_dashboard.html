@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 th:text="${pageTitle}">Painel do Gerente</h2>
+            <p class="dashboard-subtitle">Gestão de produtos e pedidos</p>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-content">
+                    <h3>Produtos</h3>
+                    <p class="stat-number" th:text="${totalProducts} ?: '0'">0</p>
+                    <a href="/products" class="stat-link">Gerenciar Produtos</a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🛒</div>
+                <div class="stat-content">
+                    <h3>Pedidos Pendentes</h3>
+                    <p class="stat-number" th:text="${pendingOrders} ?: '0'">0</p>
+                    <a href="/orders/manage?status=pending" class="stat-link">Ver Pendentes</a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-content">
+                    <h3>Estoque Baixo</h3>
+                    <p class="stat-number" th:text="${lowStockProducts} ?: '0'">0</p>
+                    <a href="/products?filter=low-stock" class="stat-link">Ver Produtos</a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <h3>Vendas Hoje</h3>
+                    <p class="stat-number" th:text="${todaySales} ?: 'R$ 0,00'">R$ 0,00</p>
+                    <a href="/reports/daily" class="stat-link">Ver Relatório</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-actions">
+            <h3>Ações Rápidas</h3>
+            <div class="action-buttons">
+                <a href="/products/create" class="btn btn-success">
+                    <img th:src="@{/images/ion-icons/svg/add-outline.svg}" alt="Adicionar"> 
+                    Novo Produto
+                </a>
+                <a href="/categories/create" class="btn btn-info">
+                    <img th:src="@{/images/ion-icons/svg/folder-outline.svg}" alt="Adicionar"> 
+                    Nova Categoria
+                </a>
+                <a href="/orders/manage" class="btn btn-warning">
+                    <img th:src="@{/images/ion-icons/svg/list-outline.svg}" alt="Ver"> 
+                    Processar Pedidos
+                </a>
+                <a href="/products?filter=low-stock" class="btn btn-danger">
+                    <img th:src="@{/images/ion-icons/svg/alert-outline.svg}" alt="Alerta"> 
+                    Repor Estoque
+                </a>
+            </div>
+        </div>
+
+        <div class="manager-tasks">
+            <div class="task-section">
+                <h3>Pedidos para Processar</h3>
+                <div class="task-list" th:if="${pendingOrdersList != null and not #lists.isEmpty(pendingOrdersList)}">
+                    <div class="task-item" th:each="order : ${pendingOrdersList}">
+                        <div class="task-info">
+                            <p class="task-title">Pedido #<span th:text="${order.id}">123</span></p>
+                            <p class="task-details" th:text="${order.customerName}">Cliente</p>
+                            <p class="task-date" th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Data</p>
+                        </div>
+                        <div class="task-actions">
+                            <a th:href="@{'/orders/' + ${order.id}}" class="btn btn-sm btn-primary">Ver Detalhes</a>
+                            <a th:href="@{'/orders/' + ${order.id} + '/process'}" class="btn btn-sm btn-success">Processar</a>
+                        </div>
+                    </div>
+                </div>
+                <p th:if="${pendingOrdersList == null or #lists.isEmpty(pendingOrdersList)}" class="no-tasks">
+                    Nenhum pedido pendente no momento.
+                </p>
+            </div>
+
+            <div class="task-section">
+                <h3>Produtos com Estoque Baixo</h3>
+                <div class="task-list" th:if="${lowStockProductsList != null and not #lists.isEmpty(lowStockProductsList)}">
+                    <div class="task-item" th:each="product : ${lowStockProductsList}">
+                        <div class="task-info">
+                            <p class="task-title" th:text="${product.name}">Produto</p>
+                            <p class="task-details">Estoque: <span th:text="${product.stock}">0</span> unidades</p>
+                        </div>
+                        <div class="task-actions">
+                            <a th:href="@{'/products/edit/' + ${product.id}}" class="btn btn-sm btn-warning">Repor Estoque</a>
+                        </div>
+                    </div>
+                </div>
+                <p th:if="${lowStockProductsList == null or #lists.isEmpty(lowStockProductsList)}" class="no-tasks">
+                    Todos os produtos com estoque adequado.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+</body>
+</html>

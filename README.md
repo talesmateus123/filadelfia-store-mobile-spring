@@ -61,36 +61,40 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Forgot password with email verification
   - [x] Spring Security configuration
 
-- [ ] **1.2 Role-Based Access Control** (6-8 hours)
-  - [ ] Update UserRole enum (ADMIN, MANAGER, USER)
-  - [ ] Implement role-based navigation menus
-  - [ ] ADMIN: Full access to users, categories, products, orders
-  - [ ] MANAGER: Access to categories, products, order management (no user management)
-  - [ ] USER: Access to shopping cart, orders, profile management
-  - [ ] Add method-level security annotations (@PreAuthorize)
-  - [ ] Create role-specific dashboards
+- [x] **1.2 Role-Based Access Control** (COMPLETED)
+  - [x] Update UserRole enum (ADMIN, MANAGER, USER)
+  - [x] Implement role-based navigation menus
+  - [x] ADMIN: Full access to users, categories, products, orders
+  - [x] MANAGER: Access to categories, products, order management (no user management)
+  - [x] USER: Access to shopping cart, orders, profile management
+  - [x] Add method-level security annotations (@PreAuthorize)
+  - [x] Create role-specific dashboards
 
 - [ ] **1.3 Complete User Management (MVC)** (4-6 hours)
   - [ ] Migrate User CRUD from API to MVC controllers
   - [ ] Add proper validation and error handling
   - [ ] Implement user profile management for all roles
 
-### Phase 2: E-Commerce Core Entities (Priority: High)
-- [ ] **2.1 Shopping Cart System** (8-10 hours)
-  - [ ] Create Cart and CartItem entities
-  - [ ] Implement session-based cart for guests
-  - [ ] Implement database cart for logged users
-  - [ ] Add/remove/update cart items (MVC controllers)
-  - [ ] Cart persistence and synchronization
-  - [ ] Cart summary and total calculations
+- [ ] **1.3.1 CSS abstraction** (4-6 hours)
+  - [ ] Search and remove unused css styles
+  - [ ] Separate style.css file in abstracted files
 
-- [ ] **2.2 Order Management System** (12-15 hours)
-  - [ ] Create Order, OrderItem, OrderStatus entities
-  - [ ] Implement checkout process (MVC)
-  - [ ] Order status workflow (PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
-  - [ ] Order history for customers
-  - [ ] Order management dashboard for ADMIN/MANAGER
-  - [ ] Stock management and validation
+### Phase 2: E-Commerce Core Entities (Priority: High)
+- [x] **2.1 Shopping Cart System** (COMPLETED)
+  - [x] Create Cart and CartItem entities
+  - [x] Implement session-based cart for guests
+  - [x] Implement database cart for logged users
+  - [x] Add/remove/update cart items (MVC controllers)
+  - [x] Cart persistence and synchronization
+  - [x] Cart summary and total calculations
+
+- [x] **2.2 Order Management System** (COMPLETED - MVC Structure)
+  - [x] Create Order, OrderItem, OrderStatus entities
+  - [x] Implement checkout process (MVC)
+  - [x] Order status workflow (PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
+  - [x] Order history for customers
+  - [x] Order management dashboard for ADMIN/MANAGER
+  - [ ] Stock management and validation (pending business logic)
 
 - [ ] **2.3 Customer Information** (4-6 hours)
   - [ ] Create Customer entity (extends User)
@@ -188,6 +192,19 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - [x] Swagger/OpenAPI documentation
 - [x] Exception handling framework
 - [x] Thymeleaf template structure
+- [x] **MVC Architecture Implementation** (November 2025)
+  - [x] Complete role-based access control (ADMIN, MANAGER, USER)
+  - [x] Role-specific dashboards and navigation
+  - [x] Cart and Order entities with business logic
+  - [x] Shopping cart system (session + database persistence)
+  - [x] Order management system with status workflow
+  - [x] MVC controllers for cart, orders, and checkout
+  - [x] Repository layer with custom queries
+  - [x] Service layer with business logic
+  - [x] DTO mapping and validation
+  - [x] Thymeleaf templates for all cart/order flows
+  - [x] Payment method and order status enums
+  - [x] Build compilation and runtime fixes
 
 ### Architecture Decision: MVC-First Approach
 The project has pivoted to prioritize **Server-Side MVC architecture** with Thymeleaf templates over REST API implementation. This approach provides:

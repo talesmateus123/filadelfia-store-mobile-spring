@@ -4,7 +4,6 @@ import com.filadelfia.store.filadelfiastore.model.dto.UserNewDTO;
 import com.filadelfia.store.filadelfiastore.model.enums.UserRole;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -12,8 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataLoader implements ApplicationRunner {
 
-    @Autowired
     private UserService userService;
+
+    public DataLoader(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {

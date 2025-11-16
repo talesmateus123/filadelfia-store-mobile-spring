@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 th:text="${pageTitle}">Carrinho de Compras</h2>
+            <p class="dashboard-subtitle">Revise seus itens antes de finalizar a compra</p>
+        </div>
+
+        <div class="cart-container">
+            <div class="cart-items" th:if="${cartItems != null and not #lists.isEmpty(cartItems)}">
+                <div class="cart-item" th:each="item : ${cartItems}">
+                    <div class="item-image">
+                        <img th:src="@{/images/product-placeholder.png}" alt="Produto">
+                    </div>
+                    <div class="item-details">
+                        <h4 th:text="${item.productName}">Nome do Produto</h4>
+                        <p th:text="${item.productDescription}">Descrição do produto</p>
+                        <p class="item-price">R$ <span th:text="${item.price}">0,00</span></p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn" onclick="updateQuantity(this, -1)">-</button>
+                        <input type="number" th:value="${item.quantity}" min="1" readonly>
+                        <button class="qty-btn" onclick="updateQuantity(this, 1)">+</button>
+                    </div>
+                    <div class="item-total">
+                        <p>R$ <span th:text="${item.quantity * item.price}">0,00</span></p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-danger btn-sm" onclick="removeFromCart(this)">Remover</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-cart" th:if="${cartItems == null or #lists.isEmpty(cartItems)}">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Seu carrinho está vazio</h3>
+                <p>Adicione alguns produtos para começar suas compras!</p>
+                <a href="/" class="btn btn-primary">Continuar Comprando</a>
+            </div>
+
+            <div class="cart-summary" th:if="${cartItems != null and not #lists.isEmpty(cartItems)}">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>R$ <span th:text="${subtotal}">0,00</span></span>
+                </div>
+                <div class="summary-row">
+                    <span>Frete:</span>
+                    <span>R$ <span th:text="${shipping}">0,00</span></span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span>R$ <span th:text="${total}">0,00</span></span>
+                </div>
+                
+                <div class="cart-actions">
+                    <a href="/" class="btn btn-outline">Continuar Comprando</a>
+                    <a href="/checkout" class="btn btn-primary">Finalizar Compra</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+
+    <script>
+        function updateQuantity(button, change) {
+            const input = button.parentNode.querySelector('input');
+            const newValue = parseInt(input.value) + change;
+            if (newValue >= 1) {
+                input.value = newValue;
+                // TODO: Update cart via AJAX
+                console.log('Update quantity to', newValue);
+            }
+        }
+
+        function removeFromCart(button) {
+            if (confirm('Deseja remover este item do carrinho?')) {
+                const cartItem = button.closest('.cart-item');
+                cartItem.remove();
+                // TODO: Update cart via AJAX
+                console.log('Remove item from cart');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -2,6 +2,8 @@ package com.filadelfia.store.filadelfiastore.controller.web;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +23,18 @@ public class HomeWebController {
     }
 
     @GetMapping()
-    public String home(Model model) {
+    public String home(Model model, Authentication authentication) {
+        // If user is authenticated, redirect to appropriate dashboard
+        if (authentication != null && authentication.isAuthenticated()) {
+            if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                return "redirect:/admin";
+            } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MANAGER"))) {
+                return "redirect:/manager";
+            } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
+                return "redirect:/profile";
+            }
+        }
+        
         model.addAttribute("pageTitle", "Bem-vindo à Filadelfia Store");
                 
         // Get featured products

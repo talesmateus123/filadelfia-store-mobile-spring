@@ -3,6 +3,7 @@ package com.filadelfia.store.filadelfiastore.controller.web;
 import com.filadelfia.store.filadelfiastore.model.dto.CategoryDTO;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/categories")
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
 public class CategoriesWebController {
 
     private final CategoryService categoryService;

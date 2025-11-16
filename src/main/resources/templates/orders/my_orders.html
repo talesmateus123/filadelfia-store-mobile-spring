@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 th:text="${pageTitle}">Meus Pedidos</h2>
+            <p class="dashboard-subtitle">Acompanhe o status dos seus pedidos</p>
+        </div>
+
+        <div class="orders-container">
+            <div class="orders-filter">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-status="all">Todos</button>
+                    <button class="filter-btn" data-status="PENDING">Pendentes</button>
+                    <button class="filter-btn" data-status="CONFIRMED">Confirmados</button>
+                    <button class="filter-btn" data-status="SHIPPED">Enviados</button>
+                    <button class="filter-btn" data-status="DELIVERED">Entregues</button>
+                </div>
+            </div>
+
+            <div class="orders-list" th:if="${orders != null and not #lists.isEmpty(orders)}">
+                <div class="order-card" th:each="order : ${orders}">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h4>Pedido #<span th:text="${order.id}">123</span></h4>
+                            <p class="order-date">Realizado em <span th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Data</span></p>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge" th:classappend="${order.status}" th:text="${order.status}">Status</span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items">
+                        <div class="item-summary" th:each="item : ${order.items}">
+                            <div class="item-image">
+                                <img th:src="@{/images/product-placeholder.png}" alt="Produto">
+                            </div>
+                            <div class="item-details">
+                                <p class="item-name" th:text="${item.productName}">Nome do Produto</p>
+                                <p class="item-qty">Quantidade: <span th:text="${item.quantity}">1</span></p>
+                            </div>
+                            <div class="item-price">
+                                <p>R$ <span th:text="${item.price}">0,00</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-footer">
+                        <div class="order-total">
+                            <strong>Total: R$ <span th:text="${order.total}">0,00</span></strong>
+                        </div>
+                        <div class="order-actions">
+                            <a th:href="@{'/orders/my/' + ${order.id}}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                            <button class="btn btn-outline btn-sm" th:if="${order.status == 'DELIVERED'}">Avaliar</button>
+                            <button class="btn btn-danger btn-sm" th:if="${order.status == 'PENDING'}">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="no-orders" th:if="${orders == null or #lists.isEmpty(orders)}">
+                <div class="no-orders-icon">📦</div>
+                <h3>Você ainda não fez nenhum pedido</h3>
+                <p>Que tal começar suas compras agora?</p>
+                <a href="/" class="btn btn-primary">Explorar Produtos</a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const orderCards = document.querySelectorAll('.order-card');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const status = this.getAttribute('data-status');
+                    
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter orders
+                    orderCards.forEach(card => {
+                        const orderStatus = card.querySelector('.status-badge').textContent.trim();
+                        if (status === 'all' || orderStatus === status) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

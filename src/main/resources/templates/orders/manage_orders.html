@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 th:text="${pageTitle}">Gerenciar Pedidos</h2>
+            <p class="dashboard-subtitle">Processe e acompanhe todos os pedidos</p>
+        </div>
+
+        <div class="orders-manager">
+            <div class="manager-filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="status-filter">Status:</label>
+                        <select id="status-filter">
+                            <option value="all">Todos</option>
+                            <option value="PENDING">Pendentes</option>
+                            <option value="CONFIRMED">Confirmados</option>
+                            <option value="SHIPPED">Enviados</option>
+                            <option value="DELIVERED">Entregues</option>
+                            <option value="CANCELLED">Cancelados</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="date-filter">Data:</label>
+                        <select id="date-filter">
+                            <option value="all">Todas</option>
+                            <option value="today">Hoje</option>
+                            <option value="week">Esta Semana</option>
+                            <option value="month">Este Mês</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <input type="text" id="search-orders" placeholder="Buscar por cliente ou pedido...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="orders-table" th:if="${orders != null and not #lists.isEmpty(orders)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders}" class="order-row">
+                            <td>
+                                <strong>#<span th:text="${order.id}">123</span></strong>
+                            </td>
+                            <td>
+                                <div class="customer-info">
+                                    <p th:text="${order.customerName}">Nome do Cliente</p>
+                                    <small th:text="${order.customerEmail}">email@cliente.com</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="date-info">
+                                    <p th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy')}">Data</p>
+                                    <small th:text="${#dates.format(order.createdAt, 'HH:mm')}">Hora</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge" th:classappend="${order.status}" th:text="${order.status}">Status</span>
+                            </td>
+                            <td>
+                                <strong>R$ <span th:text="${order.total}">0,00</span></strong>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a th:href="@{'/orders/manage/' + ${order.id}}" class="btn btn-info btn-sm">Ver</a>
+                                    
+                                    <button class="btn btn-success btn-sm" 
+                                            th:if="${order.status == 'PENDING'}"
+                                            onclick="updateOrderStatus(this, 'CONFIRMED')">
+                                        Confirmar
+                                    </button>
+                                    
+                                    <button class="btn btn-warning btn-sm" 
+                                            th:if="${order.status == 'CONFIRMED'}"
+                                            onclick="updateOrderStatus(this, 'SHIPPED')">
+                                        Enviar
+                                    </button>
+                                    
+                                    <button class="btn btn-primary btn-sm" 
+                                            th:if="${order.status == 'SHIPPED'}"
+                                            onclick="updateOrderStatus(this, 'DELIVERED')">
+                                        Entregar
+                                    </button>
+                                    
+                                    <button class="btn btn-danger btn-sm" 
+                                            th:if="${order.status == 'PENDING' or order.status == 'CONFIRMED'}"
+                                            onclick="updateOrderStatus(this, 'CANCELLED')">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="no-orders" th:if="${orders == null or #lists.isEmpty(orders)}">
+                <div class="no-orders-icon">📋</div>
+                <h3>Nenhum pedido encontrado</h3>
+                <p>Não há pedidos correspondentes aos filtros selecionados.</p>
+            </div>
+        </div>
+
+        <div class="quick-stats">
+            <div class="stat-card">
+                <h4>Pedidos Hoje</h4>
+                <p class="stat-number" th:text="${todayOrders} ?: '0'">0</p>
+            </div>
+            <div class="stat-card">
+                <h4>Pendentes</h4>
+                <p class="stat-number" th:text="${pendingOrders} ?: '0'">0</p>
+            </div>
+            <div class="stat-card">
+                <h4>Receita Hoje</h4>
+                <p class="stat-number" th:text="${todayRevenue} ?: 'R$ 0,00'">R$ 0,00</p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+
+    <script>
+        function updateOrderStatus(button, newStatus) {
+            const orderId = button.closest('tr').querySelector('td:first-child strong').textContent.replace('#', '');
+            
+            if (confirm(`Confirma a alteração do status do pedido ${orderId} para ${newStatus}?`)) {
+                // TODO: Implement AJAX call to update order status
+                fetch(`/orders/manage/${orderId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro ao atualizar status: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erro ao atualizar status do pedido');
+                });
+            }
+        }
+
+        // Filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusFilter = document.getElementById('status-filter');
+            const dateFilter = document.getElementById('date-filter');
+            const searchInput = document.getElementById('search-orders');
+            const orderRows = document.querySelectorAll('.order-row');
+
+            function filterOrders() {
+                const statusValue = statusFilter.value;
+                const searchValue = searchInput.value.toLowerCase();
+
+                orderRows.forEach(row => {
+                    const status = row.querySelector('.status-badge').textContent.trim();
+                    const customerName = row.querySelector('.customer-info p').textContent.toLowerCase();
+                    const orderNumber = row.querySelector('td:first-child strong').textContent.toLowerCase();
+
+                    const statusMatch = statusValue === 'all' || status === statusValue;
+                    const searchMatch = searchValue === '' || 
+                                      customerName.includes(searchValue) || 
+                                      orderNumber.includes(searchValue);
+
+                    if (statusMatch && searchMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            statusFilter.addEventListener('change', filterOrders);
+            searchInput.addEventListener('input', filterOrders);
+        });
+    </script>
+</body>
+</html>

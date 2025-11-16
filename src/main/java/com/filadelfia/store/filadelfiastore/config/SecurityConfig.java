@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +14,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
@@ -38,12 +40,21 @@ public class SecurityConfig {
                     "/favicon.ico",
                     "/error"
                 ).permitAll()
-                // API endpoints - Authenticated users
-                .requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers("/api/v1/products/**", "/api/v1/categories/**").authenticated()
-                // Web controller pages
-                .requestMatchers("/users/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers("/products/**", "/categories/**").authenticated()
+                
+                // Admin-only pages
+                .requestMatchers("/admin/**", "/users/**").hasRole("ADMIN")
+                
+                // Admin and Manager pages
+                .requestMatchers("/products/**", "/categories/**", "/orders/manage/**").hasAnyRole("ADMIN", "MANAGER")
+                
+                // Customer pages (all authenticated users)
+                .requestMatchers("/cart/**", "/checkout/**", "/orders/my/**", "/profile/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                
+                // API endpoints
+                .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/products/**", "/api/v1/categories/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/api/v1/orders/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )

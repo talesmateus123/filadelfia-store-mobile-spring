@@ -32,34 +32,81 @@
                 </div>
             </div>
             
+            <!-- Role-based navigation -->
             <div class="tabs">
-                <!-- Home tab - visible to all authenticated users -->
+                <!-- Public/Home tab -->
                 <a class="tab" 
-                   sec:authorize="isAuthenticated()"
+                   sec:authorize="!isAuthenticated()"
                    th:classappend="${activePage == 'home'} ? 'active'" 
                    th:href="@{/}">
                     Início
                 </a>
                 
-                <!-- Products tab - visible to all authenticated users -->
+                <!-- ADMIN Dashboard -->
                 <a class="tab" 
-                   sec:authorize="isAuthenticated()"
+                   sec:authorize="hasRole('ADMIN')"
+                   th:classappend="${activePage == 'admin'} ? 'active'" 
+                   th:href="@{/admin}">
+                    Painel Admin
+                </a>
+                
+                <!-- MANAGER Dashboard -->
+                <a class="tab" 
+                   sec:authorize="hasRole('MANAGER')"
+                   th:classappend="${activePage == 'manager'} ? 'active'" 
+                   th:href="@{/manager}">
+                    Painel Gerente
+                </a>
+                
+                <!-- USER Profile -->
+                <a class="tab" 
+                   sec:authorize="hasRole('USER')"
+                   th:classappend="${activePage == 'profile'} ? 'active'" 
+                   th:href="@{/profile}">
+                    Meu Perfil
+                </a>
+                
+                <!-- Shopping Cart - USER only -->
+                <a class="tab" 
+                   sec:authorize="hasRole('USER')"
+                   th:classappend="${activePage == 'cart'} ? 'active'" 
+                   th:href="@{/cart}">
+                    Carrinho
+                </a>
+                
+                <!-- My Orders - USER only -->
+                <a class="tab" 
+                   sec:authorize="hasRole('USER')"
+                   th:classappend="${activePage == 'orders'} ? 'active'" 
+                   th:href="@{/orders/my}">
+                    Meus Pedidos
+                </a>
+                
+                <!-- Management sections for ADMIN and MANAGER -->
+                <a class="tab" 
+                   sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
                    th:classappend="${activePage == 'products'} ? 'active'" 
                    th:href="@{/products}">
                     Produtos
                 </a>
                 
-                <!-- Categories tab - visible to all authenticated users -->
                 <a class="tab"
-                   sec:authorize="isAuthenticated()"
+                   sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
                    th:classappend="${activePage == 'categories'} ? 'active'" 
                    th:href="@{/categories}">
                     Categorias
                 </a>
                 
-                <!-- Users tab - only visible to ADMIN and MANAGER roles -->
                 <a class="tab" 
                    sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
+                   th:classappend="${activePage == 'orders'} ? 'active'" 
+                   th:href="@{/orders/manage}">
+                    Gerenciar Pedidos
+                </a>
+                
+                <!-- Users management - ADMIN only -->
+                <a class="tab" 
+                   sec:authorize="hasRole('ADMIN')"
                    th:classappend="${activePage == 'users'} ? 'active'" 
                    th:href="@{/users}">
                     Usuários

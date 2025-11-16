@@ -4,6 +4,7 @@ import com.filadelfia.store.filadelfiastore.model.dto.ProductDTO;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/products")
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
 public class ProductsWebController {
 
     private final ProductService productService;
