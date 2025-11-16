@@ -79,7 +79,7 @@
                     <div class="task-item" th:each="order : ${pendingOrdersList}">
                         <div class="task-info">
                             <p class="task-title">Pedido #<span th:text="${order.id}">123</span></p>
-                            <p class="task-details" th:text="${order.customerName}">Cliente</p>
+                            <p class="task-details" th:text="${order.userName}">Cliente</p>
                             <p class="task-date" th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Data</p>
                         </div>
                         <div class="task-actions">

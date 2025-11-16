@@ -14,10 +14,16 @@
                     <a class="button" th:href="@{/products/edit/{id}(id=${product.id})}">
                         <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Editar">
                     </a>
-                    <form style="display: inline;" th:action="@{/products/delete/{id}(id=${product.id})}" method="post" 
-                          onsubmit="return confirm('Tem certeza que deseja remover este produto?')">
+                    <form th:if="${product.active}" style="display: inline;" th:action="@{/products/delete/{id}(id=${product.id})}" method="post" 
+                          onsubmit="return confirm('Tem certeza que deseja desabilitar este produto?')">
                         <button type="submit" class="button" style="border: none; background: none; padding: 0;">
-                            <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Remover">
+                            <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Desabilitar">
+                        </button>
+                    </form>
+                    <form th:if="${!product.active}" style="display: inline;" th:action="@{/products/activate/{id}(id=${product.id})}" method="post" 
+                          onsubmit="return confirm('Tem certeza que deseja ativar este produto?')">
+                        <button type="submit" class="button" style="border: none; background: none; padding: 0;">
+                            <img th:src="@{/images/ion-icons/svg/checkmark-circle-outline.svg}" alt="Ativar">
                         </button>
                     </form>
                 </div>

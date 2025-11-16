@@ -62,8 +62,8 @@
                             </td>
                             <td>
                                 <div class="customer-info">
-                                    <p th:text="${order.customerName}">Nome do Cliente</p>
-                                    <small th:text="${order.customerEmail}">email@cliente.com</small>
+                                    <p th:text="${order.userName}">Nome do Cliente</p>
+                                    <small th:text="${order.userEmail}">email@cliente.com</small>
                                 </div>
                             </td>
                             <td>
@@ -76,7 +76,7 @@
                                 <span class="status-badge" th:classappend="${order.status}" th:text="${order.status}">Status</span>
                             </td>
                             <td>
-                                <strong>R$ <span th:text="${order.total}">0,00</span></strong>
+                                <strong>R$ <span th:text="${#numbers.formatDecimal(order.total, 1, 2)}">0,00</span></strong>
                             </td>
                             <td>
                                 <div class="action-buttons">

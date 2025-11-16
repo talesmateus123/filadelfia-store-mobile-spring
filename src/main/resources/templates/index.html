@@ -77,19 +77,19 @@
                     <h3>🚀 Ações Rápidas</h3>
                     <div class="action-cards">
                         <div class="action-card">
-                            <h4>� Meu Carrinho</h4>
+                            <h4><img th:src="@{/images/ion-icons/svg/cart-outline.svg}" alt="Carrinho" width="24" height="24" style="vertical-align: middle; margin-right: 8px;"> Meu Carrinho</h4>
                             <p>Visualize e gerencie seus produtos</p>
                             <a th:href="@{/cart}" class="btn btn-primary">Ir ao Carrinho</a>
                         </div>
                         
                         <div class="action-card">
-                            <h4>👤 Meu Perfil</h4>
+                            <h4><img th:src="@{/images/ion-icons/svg/person-outline.svg}" alt="Perfil" width="24" height="24" style="vertical-align: middle; margin-right: 8px;"> Meu Perfil</h4>
                             <p>Gerencie sua conta e pedidos</p>
                             <a th:href="@{/dashboard/profile}" class="btn btn-primary">Ver Perfil</a>
                         </div>
                         
                         <div class="action-card" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
-                            <h4>⚙️ Gerenciamento</h4>
+                            <h4><img th:src="@{/images/ion-icons/svg/settings-outline.svg}" alt="Gerenciamento" width="24" height="24" style="vertical-align: middle; margin-right: 8px;"> Gerenciamento</h4>
                             <p>Administre produtos e categorias</p>
                             <a th:href="@{/products}" class="btn btn-primary">Gerenciar</a>
                         </div>

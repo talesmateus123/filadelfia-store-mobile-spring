@@ -78,7 +78,7 @@
                 <div class="activity-item" th:each="order : ${recentOrders}">
                     <div class="activity-info">
                         <p class="activity-title">Pedido #<span th:text="${order.id}">123</span></p>
-                        <p class="activity-details" th:text="${order.customerName}">Cliente</p>
+                        <p class="activity-details" th:text="${order.userName}">Cliente</p>
                     </div>
                     <div class="activity-status">
                         <span class="status-badge" th:classappend="${order.status}" th:text="${order.status}">Status</span>

@@ -45,7 +45,7 @@
                                 <p class="item-qty">Quantidade: <span th:text="${item.quantity}">1</span></p>
                             </div>
                             <div class="item-price">
-                                <p>R$ <span th:text="${item.price}">0,00</span></p>
+                                <p>R$ <span th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2)}">0,00</span></p>
                             </div>
                         </div>
                     </div>

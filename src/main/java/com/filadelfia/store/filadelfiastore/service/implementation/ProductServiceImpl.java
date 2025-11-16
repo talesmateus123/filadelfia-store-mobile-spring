@@ -168,6 +168,17 @@ public class ProductServiceImpl implements ProductService  {
     }
 
     @Override
+    @Transactional
+    public void activateProduct(Long id) {
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        
+        product.setActive(true);
+        product.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+        productRepository.save(product);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> getLowStockProducts() {
         return getLowStockProducts(10); // Default threshold of 10 units

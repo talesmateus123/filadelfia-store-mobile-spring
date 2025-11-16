@@ -52,7 +52,7 @@ public class ProductsWebController {
             products = productService.getProductsByCategory(category);
             model.addAttribute("selectedCategory", category);
         } else {
-            products = productService.getAllActiveProducts();
+            products = productService.getAllProducts();
         }
 
         model.addAttribute("products", products);
@@ -105,7 +105,7 @@ public class ProductsWebController {
     public String editProductForm(@PathVariable Long id, Model model) {
         Optional<ProductDTO> productOpt = productService.getProductById(id);
         
-        if (productOpt.isEmpty() || !productOpt.get().getActive()) {
+        if (productOpt.isEmpty()) {
             return "redirect:/products";
         }
         
@@ -152,7 +152,7 @@ public class ProductsWebController {
     public String productDetail(@PathVariable Long id, Model model) {
         Optional<ProductDTO> product = productService.getProductById(id);
         
-        if (product.isEmpty() || !product.get().getActive()) {
+        if (product.isEmpty()) {
             return "redirect:/products";
         }
 
@@ -171,9 +171,24 @@ public class ProductsWebController {
         
         try {
             productService.deleteProduct(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Produto removido com sucesso!");
+            redirectAttributes.addFlashAttribute("successMessage", "Produto desabilitado com sucesso!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao remover produto: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao desabilitar produto: " + e.getMessage());
+        }
+        
+        return "redirect:/products";
+    }
+
+    @PostMapping("/activate/{id}")
+    public String activateProduct(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            productService.activateProduct(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Produto ativado com sucesso!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao ativar produto: " + e.getMessage());
         }
         
         return "redirect:/products";
