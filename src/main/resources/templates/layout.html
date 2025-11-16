@@ -15,6 +15,7 @@
     <link th:href="@{/css/components/navigation.css}" rel="stylesheet"/>
     <link th:href="@{/css/components/dashboard.css}" rel="stylesheet"/>
     <link th:href="@{/css/components/profile.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/products.css}" rel="stylesheet"/>
     <link th:href="@{/css/components/utilities.css}" rel="stylesheet"/>
     <!-- Legacy styles for backward compatibility -->
     <link th:href="@{/css/style.css}" rel="stylesheet"/>
@@ -46,12 +47,18 @@
             
             <!-- Role-based navigation -->
             <div class="tabs">
-                <!-- Public/Home tab -->
+                <!-- Home tab - always visible -->
                 <a class="tab" 
-                   sec:authorize="!isAuthenticated()"
                    th:classappend="${activePage == 'home'} ? 'active'" 
                    th:href="@{/}">
-                    Início
+                    🏠 Início
+                </a>
+                
+                <!-- Shop tab - always visible -->
+                <a class="tab" 
+                   th:classappend="${activePage == 'shop'} ? 'active'" 
+                   th:href="@{/shop}">
+                    🛍️ Produtos
                 </a>
                 
                 <!-- ADMIN Dashboard -->

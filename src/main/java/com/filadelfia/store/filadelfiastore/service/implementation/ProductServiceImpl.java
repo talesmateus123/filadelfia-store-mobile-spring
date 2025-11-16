@@ -84,7 +84,7 @@ public class ProductServiceImpl implements ProductService  {
             sanitizedTerm = sanitizedTerm.substring(0, 100);
         }
         
-        return productRepository.findByNameContainingIgnoreCaseAndActiveTrue(sanitizedTerm)
+        return productRepository.findByNameOrDescriptionContainingIgnoreCaseAndActiveTrue(sanitizedTerm)
             .stream()
             .map(productMapper::toDTO)
             .collect(Collectors.toList());

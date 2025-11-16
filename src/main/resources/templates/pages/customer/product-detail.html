@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="~{layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+    
+    <main>
+        <div class="container">
+            <div th:replace="~{layout :: notifications}"></div>
+            
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb mb-4">
+                <a th:href="@{/}">Home</a> / 
+                <a th:href="@{/shop}">Produtos</a> / 
+                <span th:text="${product.name}">Produto</span>
+            </nav>
+
+            <!-- Product Detail -->
+            <div class="product-detail">
+                <div class="product-detail-image">
+                    <img th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}" 
+                         th:src="${product.imageUrl}" 
+                         th:alt="${product.name}">
+                    <span th:unless="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
+                        📦 Sem imagem disponível
+                    </span>
+                </div>
+                
+                <div class="product-detail-info">
+                    <h1 th:text="${product.name}">Nome do Produto</h1>
+                    
+                    <div class="product-detail-price" th:text="${product.priceFormatted}">R$ 0,00</div>
+                    
+                    <div class="product-detail-description" th:text="${product.description}">
+                        Descrição do produto
+                    </div>
+                    
+                    <div class="product-detail-stock"
+                         th:classappend="${product.stock > 10} ? 'in-stock' : (${product.stock > 0} ? 'low-stock' : 'out-of-stock')">
+                        <span th:if="${product.stock > 10}">✅ <strong>Em estoque</strong> - <span th:text="${product.stock}">0</span> unidades disponíveis</span>
+                        <span th:if="${product.stock > 0 and product.stock <= 10}">⚠️ <strong>Estoque baixo</strong> - Restam apenas <span th:text="${product.stock}">0</span> unidades</span>
+                        <span th:if="${product.stock == 0}">❌ <strong>Fora de estoque</strong></span>
+                    </div>
+
+                    <!-- Add to Cart Section (only for authenticated users) -->
+                    <div sec:authorize="isAuthenticated()" th:if="${product.stock > 0}">
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            
+                            <div class="quantity-selector">
+                                <label for="quantity">Quantidade:</label>
+                                <input type="number" 
+                                       id="quantity" 
+                                       name="quantity" 
+                                       class="quantity-input" 
+                                       value="1" 
+                                       min="1" 
+                                       th:max="${product.stock}">
+                            </div>
+                            
+                            <div class="add-to-cart-section">
+                                <button type="submit" class="btn-add-cart-large">
+                                    🛒 Adicionar ao Carrinho
+                                </button>
+                                <a th:href="@{/shop}" class="btn btn-outline">Continuar Comprando</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Out of Stock Message -->
+                    <div th:if="${product.stock == 0}" class="add-to-cart-section">
+                        <button class="btn-add-cart-large" disabled>
+                            ❌ Produto Esgotado
+                        </button>
+                        <a th:href="@{/shop}" class="btn btn-outline">Ver Outros Produtos</a>
+                    </div>
+
+                    <!-- Login prompt for non-authenticated users -->
+                    <div sec:authorize="!isAuthenticated()" class="add-to-cart-section">
+                        <div class="alert alert-info">
+                            <h4>💡 Faça login para comprar</h4>
+                            <p>Você precisa estar logado para adicionar produtos ao carrinho.</p>
+                            <a th:href="@{/login}" class="btn btn-primary">Fazer Login</a>
+                            <a th:href="@{/register}" class="btn btn-outline">Cadastrar-se</a>
+                        </div>
+                    </div>
+
+                    <!-- Product Category -->
+                    <div class="product-category mt-4">
+                        <p><strong>Categoria:</strong> 
+                           <a th:href="@{/shop/category/{name}(name=${product.categoryName})}" 
+                              th:text="${product.categoryName}">Categoria</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Products -->
+            <div th:if="${relatedProducts != null and not #lists.isEmpty(relatedProducts)}" class="featured-products mt-5">
+                <h3 class="section-title">Produtos Relacionados</h3>
+                <div class="products-grid">
+                    <div th:each="relatedProduct : ${relatedProducts}" class="product-card">
+                        <div class="product-image">
+                            <img th:if="${relatedProduct.imageUrl != null and not #strings.isEmpty(relatedProduct.imageUrl)}" 
+                                 th:src="${relatedProduct.imageUrl}" 
+                                 th:alt="${relatedProduct.name}">
+                            <span th:unless="${relatedProduct.imageUrl != null and not #strings.isEmpty(relatedProduct.imageUrl)}">
+                                📦 Sem imagem
+                            </span>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name" th:text="${relatedProduct.name}">Nome do Produto</h3>
+                            <p class="product-description" th:text="${relatedProduct.description}">Descrição</p>
+                            <div class="product-price" th:text="${relatedProduct.priceFormatted}">R$ 0,00</div>
+                            <div class="product-actions">
+                                <a th:href="@{/shop/product/{id}(id=${relatedProduct.id})}" class="btn-view-details">
+                                    Ver Detalhes
+                                </a>
+                                <form th:if="${relatedProduct.stock > 0}" 
+                                      sec:authorize="isAuthenticated()"
+                                      th:action="@{/cart/add}" method="post" style="flex: 1;">
+                                    <input type="hidden" name="productId" th:value="${relatedProduct.id}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn-add-cart">
+                                        🛒 Adicionar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

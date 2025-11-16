@@ -96,7 +96,17 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Order management dashboard for ADMIN/MANAGER
   - [ ] Stock management and validation (pending business logic)
 
-- [ ] **2.3 Customer Information** (4-6 hours)
+- [x] **2.3 Feature Products Page** (COMPLETED - November 2025)
+  - [x] Create Feature Products as the Home page to the customer
+  - [x] Create A Category base view for the customer
+  - [x] All thif flows has to have search feature
+  - [x] When clicking some product, the Customer will hava a detailed view with images (TODO), descrition, Add to cart button.
+  - [ ] Create a feedback section for the product details page
+  - [ ] Implement active and disable Product by manager and Admin
+  - [ ] Implement shipping address flow
+  - [ ] Implement user feedback comments when fishing the purchase
+
+- [ ] **2.4 Customer Information** (4-6 hours)
   - [ ] Create Customer entity (extends User)
   - [ ] Add shipping address management
   - [ ] Customer profile with order history
@@ -213,6 +223,15 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
     - [x] Maintained backward compatibility with legacy styles
     - [x] Fixed broken user profile page styling and functionality
     - [x] Added outline button variants and profile-specific styles
+  - [x] **Feature Products Page Implementation** (November 2025)
+    - [x] Customer-facing homepage with featured products showcase
+    - [x] Category-based product browsing and filtering
+    - [x] Enhanced search functionality (name and description)
+    - [x] Detailed product views with add-to-cart functionality
+    - [x] Public product catalog accessible to all users
+    - [x] Responsive product grid layouts and modern UI
+    - [x] Integration with existing cart system for authenticated users
+    - [x] Login prompts and registration call-to-actions for guests
 
 ### Architecture Decision: MVC-First Approach
 The project has pivoted to prioritize **Server-Side MVC architecture** with Thymeleaf templates over REST API implementation. This approach provides:
