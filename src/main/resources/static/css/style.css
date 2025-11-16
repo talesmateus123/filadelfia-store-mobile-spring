@@ -532,14 +532,7 @@ input.error, textarea.error, select.error {
     background-color: #545b62;
 }
 
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
+/* Removed duplicate .btn-danger - now defined in bootstrap-style button section */
 
 .btn-large {
     padding: 1rem 2rem;
@@ -705,8 +698,85 @@ input.error, textarea.error, select.error {
 
 .action-buttons {
     display: flex;
+    justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+/* Base button styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+/* Bootstrap-style button colors */
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    text-decoration: none;
+    color: white;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    text-decoration: none;
+    color: white;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    text-decoration: none;
+    color: #212529;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    text-decoration: none;
+    color: white;
+}
+
+/* Button icon sizing - more specific selector with !important */
+.action-buttons a.btn,
+.action-buttons a.btn:visited,
+.action-buttons a.btn:hover,
+.action-buttons a.btn:active {
+    color: #fff !important;
+}
+
+.action-buttons a.btn img {
+    filter: brightness(0) invert(1);
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0;
+    object-fit: contain;
 }
 
 .recent-activity, .manager-tasks {
