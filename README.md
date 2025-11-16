@@ -106,8 +106,8 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Implement user feedback comments when finishing the purchase
   - [x] Implement Payment page (Don't implement Payment yet, only the view)
   - [x] Create a feedback section for the product details page
-  - [x] Implement active and disable Product by manager and Admin
-  - [x] The Icons within the "h4" tags, in the "action-card"'s div are not working well, try to use ion-icons folder instead
+  - [ ] When disable a product it's not possible to activate it more
+  - [ ] The Icons within the "h4" tags, in the "action-card"'s div are not working well, try to use ion-icons folder instead
 
 - [ ] **2.4 Customer Information** (4-6 hours)
   - [ ] Create Customer entity (extends User)

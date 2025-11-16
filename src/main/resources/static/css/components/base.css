@@ -20,6 +20,10 @@ body {
     line-height: 1.6;
 }
 
+main {
+    background-color: rgb(229, 229, 229);
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
