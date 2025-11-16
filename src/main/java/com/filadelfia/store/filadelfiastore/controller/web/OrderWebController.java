@@ -228,8 +228,10 @@ public class OrderWebController {
     
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof User) {
-            return ((User) auth.getPrincipal()).getId();
+        if (auth != null && auth.getPrincipal() instanceof com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails) {
+            com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails userDetails = 
+                (com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails) auth.getPrincipal();
+            return userDetails.getUser().getId();
         }
         throw new RuntimeException("User not authenticated");
     }
@@ -273,8 +275,10 @@ public class OrderWebController {
     
     private boolean isCurrentUserAdminOrManager() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof User) {
-            User user = (User) auth.getPrincipal();
+        if (auth != null && auth.getPrincipal() instanceof com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails) {
+            com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails userDetails = 
+                (com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails) auth.getPrincipal();
+            User user = userDetails.getUser();
             return user.getRole().name().equals("ADMIN") || user.getRole().name().equals("MANAGER");
         }
         return false;

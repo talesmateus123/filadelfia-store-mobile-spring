@@ -1,7 +1,6 @@
 package com.filadelfia.store.filadelfiastore.controller.web;
 
 import com.filadelfia.store.filadelfiastore.model.dto.AddressDTO;
-import com.filadelfia.store.filadelfiastore.model.entity.User;
 import com.filadelfia.store.filadelfiastore.service.interfaces.AddressService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -161,8 +160,10 @@ public class AddressWebController {
     
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof User) {
-            return ((User) auth.getPrincipal()).getId();
+        if (auth != null && auth.getPrincipal() instanceof com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails) {
+            com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails userDetails = 
+                (com.filadelfia.store.filadelfiastore.config.CustomUserDetailsService.CustomUserDetails) auth.getPrincipal();
+            return userDetails.getUser().getId();
         }
         throw new RuntimeException("User not authenticated");
     }

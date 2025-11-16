@@ -101,13 +101,13 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Create A Category base view for the customer
   - [x] All thif flows has to have search feature
   - [x] When clicking some product, the Customer will hava a detailed view with images (TODO), descrition, Add to cart button.
-  - [ ] Create the cart page
-  - [ ] Implement shipping address flow
-  - [ ] Implement user feedback comments when finishing the purchase
-  - [ ] Implement Payment page (Don't implement Payment yet, only the view)
-  - [ ] Create a feedback section for the product details page
-  - [ ] Implement active and disable Product by manager and Admin
-  - [ ] The Icons within the "h4" tags, in the "action-card"'s div are not working well, try to use ion-icons folder instead
+  - [x] Create the cart page
+  - [x] Implement shipping address flow
+  - [x] Implement user feedback comments when finishing the purchase
+  - [x] Implement Payment page (Don't implement Payment yet, only the view)
+  - [x] Create a feedback section for the product details page
+  - [x] Implement active and disable Product by manager and Admin
+  - [x] The Icons within the "h4" tags, in the "action-card"'s div are not working well, try to use ion-icons folder instead
 
 - [ ] **2.4 Customer Information** (4-6 hours)
   - [ ] Create Customer entity (extends User)
