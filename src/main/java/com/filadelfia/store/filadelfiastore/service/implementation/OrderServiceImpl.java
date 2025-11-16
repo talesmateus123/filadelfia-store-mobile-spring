@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -307,6 +308,19 @@ public class OrderServiceImpl implements OrderService {
         }
         
         return orderOpt.get().getUser().getId().equals(userId);
+    }
+    
+    @Override
+    public BigDecimal getTodaysSales() {
+        LocalDate today = LocalDate.now();
+        return getSalesFromDate(today);
+    }
+    
+    @Override
+    public BigDecimal getSalesFromDate(LocalDate date) {
+        java.sql.Date sqlDate = java.sql.Date.valueOf(date);
+        BigDecimal sales = orderRepository.getSalesFromDate(sqlDate);
+        return sales != null ? sales : BigDecimal.ZERO;
     }
     
     private String generateOrderNumber() {

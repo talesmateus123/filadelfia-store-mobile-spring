@@ -21,4 +21,10 @@ public interface ProductService {
     List<ProductDTO> getProductsByCategory(String categoryName);
     List<ProductDTO> searchProducts(String searchTerm);
     List<ProductDTO> getFeaturedProducts();
+    
+    // Stock management
+    List<ProductDTO> getLowStockProducts();
+    List<ProductDTO> getLowStockProducts(int threshold);
+    Long getLowStockProductsCount();
+    Long getLowStockProductsCount(int threshold);
 }

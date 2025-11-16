@@ -167,4 +167,31 @@ public class ProductServiceImpl implements ProductService  {
         productRepository.save(product);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getLowStockProducts() {
+        return getLowStockProducts(10); // Default threshold of 10 units
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getLowStockProducts(int threshold) {
+        return productRepository.findByActiveTrueAndStockLessThan(threshold)
+            .stream()
+            .map(productMapper::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getLowStockProductsCount() {
+        return getLowStockProductsCount(10); // Default threshold of 10 units
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getLowStockProductsCount(int threshold) {
+        return productRepository.countByActiveTrueAndStockLessThan(threshold);
+    }
+
 }

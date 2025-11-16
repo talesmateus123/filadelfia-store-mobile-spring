@@ -17,4 +17,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findById(@NonNull Long id);
     List<Product> findByCategoryNameAndActiveTrue(String categoryName);
     List<Product> findTop4ByActiveTrueOrderByIdDesc();
+    
+    // Stock management queries
+    List<Product> findByActiveTrueAndStockLessThan(Integer threshold);
+    Long countByActiveTrueAndStockLessThan(Integer threshold);
 }

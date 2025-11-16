@@ -35,7 +35,9 @@ public class DashboardController {
         model.addAttribute("totalRevenue", orderService.getTotalRevenue());
         model.addAttribute("recentOrders", orderService.getRecentOrders(7));
         model.addAttribute("pendingOrders", orderService.getOrderCountByStatus(OrderStatus.PENDING));
-        
+        model.addAttribute("totalProducts", productService.getAllProducts().size());
+        model.addAttribute("totalUsers", userService.getAllUsers().size());
+
         return "dashboards/admin_dashboard";
     }
 
@@ -46,9 +48,14 @@ public class DashboardController {
         model.addAttribute("activePage", "manager");
         
         // Add manager statistics
-        model.addAttribute("pendingOrders", orderService.getOrdersByStatus(OrderStatus.PENDING));
-        model.addAttribute("recentOrders", orderService.getRecentOrders(3));
         model.addAttribute("totalProducts", productService.getAllProducts().size());
+        model.addAttribute("pendingOrders", orderService.getOrderCountByStatus(OrderStatus.PENDING));
+        model.addAttribute("lowStockProducts", productService.getLowStockProductsCount());
+        model.addAttribute("todaySales", String.format("R$ %.2f", orderService.getTodaysSales()));
+        
+        // Add lists for dashboard sections
+        model.addAttribute("pendingOrdersList", orderService.getOrdersByStatus(OrderStatus.PENDING));
+        model.addAttribute("lowStockProductsList", productService.getLowStockProducts());
         
         return "dashboards/manager_dashboard";
     }

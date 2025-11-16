@@ -36,6 +36,8 @@ public interface OrderService {
     Long getOrderCountByStatus(OrderStatus status);
     BigDecimal getTotalRevenue();
     BigDecimal getRevenueFromLastDays(int days);
+    BigDecimal getTodaysSales();
+    BigDecimal getSalesFromDate(java.time.LocalDate date);
     
     // Order processing
     void processPayment(Long orderId);
