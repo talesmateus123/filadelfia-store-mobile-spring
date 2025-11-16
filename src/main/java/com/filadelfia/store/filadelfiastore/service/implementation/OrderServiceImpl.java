@@ -97,6 +97,61 @@ public class OrderServiceImpl implements OrderService {
     }
     
     @Override
+    public OrderDTO createOrderFromCartWithAddress(Long userId, PaymentMethod paymentMethod, Long addressId,
+                                                  String shippingStreet, String shippingNumber, String shippingComplement,
+                                                  String shippingNeighborhood, String shippingCity, String shippingState, 
+                                                  String shippingZipCode) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        
+        // Get cart with items
+        Optional<Cart> cartOpt = cartService.findCartByUserId(userId);
+        if (cartOpt.isEmpty() || cartOpt.get().isEmpty()) {
+            throw new IllegalStateException("Cart is empty");
+        }
+        
+        Cart cart = cartOpt.get();
+        
+        // Create order
+        Order order = new Order(user, paymentMethod);
+        order.setOrderNumber(generateOrderNumber());
+        
+        // Set shipping address - either from address ID or individual fields
+        if (addressId != null) {
+            // TODO: Load address from AddressService when available
+            // For now, use the individual fields as fallback
+        }
+        
+        // Use provided address fields
+        order.setShippingStreet(shippingStreet != null ? shippingStreet : "");
+        order.setShippingNumber(shippingNumber != null ? shippingNumber : "");
+        order.setShippingComplement(shippingComplement);
+        order.setShippingNeighborhood(shippingNeighborhood != null ? shippingNeighborhood : "");
+        order.setShippingCity(shippingCity != null ? shippingCity : "");
+        order.setShippingState(shippingState != null ? shippingState : "");
+        order.setShippingZipCode(shippingZipCode != null ? shippingZipCode : "");
+        order.setShippingCost(BigDecimal.ZERO);
+        
+        order = orderRepository.save(order);
+        
+        // Create order items from cart items
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem(order, cartItem.getProduct(), 
+                                               cartItem.getQuantity(), cartItem.getUnitPrice());
+            orderItemRepository.save(orderItem);
+            order.addItem(orderItem);
+        }
+        
+        order.calculateTotals();
+        order = orderRepository.save(order);
+        
+        // Clear cart after order creation
+        cartService.clearCart(userId);
+        
+        return orderMapper.toDTO(order);
+    }
+    
+    @Override
     public OrderDTO createOrder(Long userId, List<OrderItemDTO> items, PaymentMethod paymentMethod, String shippingAddress) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));

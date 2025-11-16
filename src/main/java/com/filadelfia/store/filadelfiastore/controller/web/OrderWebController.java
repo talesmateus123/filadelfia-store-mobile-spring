@@ -90,7 +90,14 @@ public class OrderWebController {
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     public String createOrder(@RequestParam PaymentMethod paymentMethod,
-                             @RequestParam String shippingAddress,
+                             @RequestParam(required = false) Long addressId,
+                             @RequestParam(required = false) String shippingStreet,
+                             @RequestParam(required = false) String shippingNumber,
+                             @RequestParam(required = false) String shippingComplement,
+                             @RequestParam(required = false) String shippingNeighborhood,
+                             @RequestParam(required = false) String shippingCity,
+                             @RequestParam(required = false) String shippingState,
+                             @RequestParam(required = false) String shippingZipCode,
                              RedirectAttributes redirectAttributes) {
         try {
             Long userId = getCurrentUserId();
@@ -103,16 +110,44 @@ public class OrderWebController {
                 return "redirect:/cart";
             }
             
-            OrderDTO order = orderService.createOrderFromCart(userId, paymentMethod, shippingAddress);
+            OrderDTO order = orderService.createOrderFromCartWithAddress(userId, paymentMethod, 
+                addressId, shippingStreet, shippingNumber, shippingComplement, 
+                shippingNeighborhood, shippingCity, shippingState, shippingZipCode);
             
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Pedido criado com sucesso! Número: " + order.getOrderNumber());
-            return "redirect:/orders/" + order.getId();
+            return "redirect:/orders/" + order.getId() + "/payment";
             
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", 
                 "Erro ao criar pedido: " + e.getMessage());
             return "redirect:/cart/checkout";
+        }
+    }
+    
+    @GetMapping("/{id}/payment")
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
+    public String showPaymentPage(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            OrderDTO order = orderService.getOrderById(id);
+            
+            // Check if user owns this order (except for admins/managers)
+            if (!isCurrentUserAdminOrManager() && !order.getUserId().equals(getCurrentUserId())) {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Você não tem permissão para acessar este pedido!");
+                return "redirect:/orders/my";
+            }
+            
+            model.addAttribute("order", order);
+            model.addAttribute("pageTitle", "Pagamento - Pedido " + order.getOrderNumber());
+            model.addAttribute("activePage", "orders");
+            
+            return "orders/payment";
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erro ao carregar página de pagamento: " + e.getMessage());
+            return "redirect:/orders/my";
         }
     }
     
@@ -232,6 +267,15 @@ public class OrderWebController {
             
             // Users can only cancel their own orders
             return order.getUserId().equals(user.getId());
+        }
+        return false;
+    }
+    
+    private boolean isCurrentUserAdminOrManager() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof User) {
+            User user = (User) auth.getPrincipal();
+            return user.getRole().name().equals("ADMIN") || user.getRole().name().equals("MANAGER");
         }
         return false;
     }

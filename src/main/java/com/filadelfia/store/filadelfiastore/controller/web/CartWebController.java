@@ -31,6 +31,8 @@ public class CartWebController {
         
         model.addAttribute("cart", cart);
         model.addAttribute("totalItems", cart.getTotalItems());
+        model.addAttribute("activePage", "cart");
+        model.addAttribute("pageTitle", "Carrinho de Compras");
         
         return "cart/shopping_cart";
     }
@@ -38,7 +40,8 @@ public class CartWebController {
     @PostMapping("/add")
     public String addToCart(@RequestParam Long productId, 
                            @RequestParam(defaultValue = "1") Integer quantity,
-                           RedirectAttributes redirectAttributes) {
+                           RedirectAttributes redirectAttributes,
+                           @RequestHeader(value = "referer", required = false) String referer) {
         try {
             Long userId = getCurrentUserId();
             cartService.addItemToCart(userId, productId, quantity);
@@ -50,7 +53,11 @@ public class CartWebController {
                 "Erro ao adicionar produto ao carrinho: " + e.getMessage());
         }
         
-        return "redirect:/products";
+        // Redirect back to the page where the user came from, or to shop if not available
+        if (referer != null && !referer.contains("/cart/add")) {
+            return "redirect:" + referer.substring(referer.indexOf("/", 8)); // Remove domain part
+        }
+        return "redirect:/shop";
     }
     
     @PostMapping("/update")
@@ -120,6 +127,9 @@ public class CartWebController {
         }
         
         model.addAttribute("cart", cart);
+        model.addAttribute("activePage", "cart");
+        model.addAttribute("pageTitle", "Finalizar Pedido");
+        
         return "cart/checkout";
     }
     

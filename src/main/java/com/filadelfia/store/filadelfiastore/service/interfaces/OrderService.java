@@ -16,6 +16,10 @@ public interface OrderService {
     
     // Order creation and management
     OrderDTO createOrderFromCart(Long userId, PaymentMethod paymentMethod, String shippingAddress);
+    OrderDTO createOrderFromCartWithAddress(Long userId, PaymentMethod paymentMethod, Long addressId,
+                                           String shippingStreet, String shippingNumber, String shippingComplement,
+                                           String shippingNeighborhood, String shippingCity, String shippingState, 
+                                           String shippingZipCode);
     OrderDTO createOrder(Long userId, List<OrderItemDTO> items, PaymentMethod paymentMethod, String shippingAddress);
     OrderDTO updateOrderStatus(Long orderId, OrderStatus status);
     OrderDTO getOrderById(Long orderId);

@@ -86,11 +86,13 @@
                 </a>
                 
                 <!-- Shopping Cart - USER only -->
-                <a class="tab" 
+                <a class="tab cart-tab" 
                    sec:authorize="hasRole('USER')"
                    th:classappend="${activePage == 'cart'} ? 'active'" 
                    th:href="@{/cart}">
-                    Carrinho
+                    🛒 Carrinho
+                    <span class="cart-badge" th:if="${totalItems != null and totalItems > 0}" 
+                          th:text="${totalItems}">0</span>
                 </a>
                 
                 <!-- My Orders - USER only -->
