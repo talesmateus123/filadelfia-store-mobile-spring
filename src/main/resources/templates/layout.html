@@ -5,6 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle}">Filadelfia Store</title>
+    <!-- Modular CSS Files -->
+    <link th:href="@{/css/components/base.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/layout.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/buttons.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/forms.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/tables.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/notifications.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/navigation.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/dashboard.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/utilities.css}" rel="stylesheet"/>
+    <!-- Legacy styles for backward compatibility -->
     <link th:href="@{/css/style.css}" rel="stylesheet"/>
     <link th:fragment="modalStyles" th:href="@{/css/modal.css}" rel="stylesheet"/>
     <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}"/>

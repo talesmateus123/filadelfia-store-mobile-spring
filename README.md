@@ -75,9 +75,9 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [ ] Add proper validation and error handling
   - [ ] Implement user profile management for all roles
 
-- [ ] **1.3.1 CSS abstraction** (4-6 hours)
-  - [ ] Search and remove unused css styles
-  - [ ] Separate style.css file in abstracted files
+- [x] **1.3.1 CSS abstraction** (COMPLETED)
+  - [x] Search and remove unused css styles
+  - [x] Separate style.css file in abstracted files
 
 ### Phase 2: E-Commerce Core Entities (Priority: High)
 - [x] **2.1 Shopping Cart System** (COMPLETED)
@@ -205,6 +205,12 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Thymeleaf templates for all cart/order flows
   - [x] Payment method and order status enums
   - [x] Build compilation and runtime fixes
+  - [x] **CSS Architecture Modularization** (November 2025)
+    - [x] CSS abstraction and removal of unused styles
+    - [x] Modular CSS component architecture
+    - [x] Created component-based CSS files (base, layout, forms, tables, buttons, notifications, navigation, dashboard, utilities)
+    - [x] Updated template includes for modular CSS loading
+    - [x] Maintained backward compatibility with legacy styles
 
 ### Architecture Decision: MVC-First Approach
 The project has pivoted to prioritize **Server-Side MVC architecture** with Thymeleaf templates over REST API implementation. This approach provides:
