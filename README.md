@@ -110,19 +110,22 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] The Icons within the "h4" tags, in the "action-card"'s div are not working well, try to use ion-icons folder instead
 
 - [ ] **2.4 Customer Information** (4-6 hours)
-  - [ ] Create Customer entity (extends User)
+  - [ ] Create Customer entity (User field)
   - [ ] Add shipping address management
   - [ ] Customer profile with order history
   - [ ] Address validation and formatting
 
 ### Phase 3: Payment System (Priority: High)
-- [ ] **3.1 Payment Methods Implementation** (15-20 hours)
-  - [ ] Create Payment, PaymentMethod entities
-  - [ ] Credit Card payment integration
-  - [ ] Boleto bancário integration
-  - [ ] PIX payment integration
-  - [ ] Payment status tracking
-  - [ ] Payment confirmation handling
+- [x] **3.1 Payment Methods Implementation** (15-20 hours) - COMPLETED
+  - [x] Create Payment, PaymentMethod entities
+  - [x] Credit Card payment integration
+  - [x] Boleto bancário integration
+  - [x] PIX payment integration
+  - [x] Payment status tracking
+  - [x] Payment confirmation handling
+
+- [ ] **3.1.1 Payment Gateway Implementation** (2 hours)
+  - [ ] Integrate payment with some payment gateway, like, PayPal, or PagSeguro
 
 - [ ] **3.2 Implement erro logging throught crashlytics or similar** (10-12 hours)
 
@@ -237,6 +240,20 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
     - [x] Responsive product grid layouts and modern UI
     - [x] Integration with existing cart system for authenticated users
     - [x] Login prompts and registration call-to-actions for guests
+  - [x] **Payment System Implementation** (November 2025)
+    - [x] Complete Payment and PaymentMethod entities with JPA mappings
+    - [x] Payment status management with lifecycle tracking (PENDING → PROCESSING → CONFIRMED)
+    - [x] Credit Card payment processing with gateway simulation
+    - [x] PIX payment integration with QR code and copy-paste generation
+    - [x] Boleto bancário integration with barcode and due date management
+    - [x] Bank Transfer and Cash payment method support
+    - [x] Payment repository with comprehensive queries and statistics
+    - [x] Payment service layer with business logic and validation
+    - [x] Payment web controller with user and admin interfaces
+    - [x] Payment confirmation, cancellation, and refund capabilities
+    - [x] Processing fee calculation and payment method validation
+    - [x] Payment statistics and reporting functionality
+    - [x] Webhook/callback handling structure for payment gateways
 
 ### Architecture Decision: MVC-First Approach
 The project has pivoted to prioritize **Server-Side MVC architecture** with Thymeleaf templates over REST API implementation. This approach provides:
