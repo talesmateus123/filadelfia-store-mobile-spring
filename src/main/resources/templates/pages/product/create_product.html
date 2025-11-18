@@ -14,7 +14,8 @@
                 <form id="form-produto"
                     th:object="${productDTO}"
                     th:action="${isEdit} ? @{/products/edit/{id}(id=*{id})} : @{/products/create}"
-                    method="post">
+                    method="post"
+                    enctype="multipart/form-data">
                     <input type="hidden" id="produto-id" name="id" th:field="*{id}" th:if="${isEdit}">
                     <div class="form-group">
                         <label for="produto-nome">Nome do Produto</label>
@@ -44,11 +45,34 @@
                         <input type="checkbox" id="produto-ativo" th:field="*{active}" checked>
                     </div>
                     
-                    <!-- TODO Further implementation: Implement bucket to save the images -->
-                    <!-- <div class="form-group">
-                        <label for="produto-imagem">URL da Imagem</label>
-                        <input type="text" id="produto-imagem" name="imageUrl">
-                    </div> -->
+                    <!-- Product Image Upload -->
+                    <div class="form-group">
+                        <label for="produto-imagem">Imagem do Produto</label>
+                        <input type="file" 
+                               id="produto-imagem" 
+                               name="imageFile" 
+                               accept="image/*" 
+                               class="file-input"
+                               onchange="previewImageCreate(this)">
+                        <small class="form-text">
+                            Formatos aceitos: JPG, PNG, GIF, WEBP (máximo 5MB)
+                        </small>
+                        
+                        <!-- Current Image Display (for edit mode) -->
+                        <div th:if="${isEdit and productDTO.imageUrl != null and not #strings.isEmpty(productDTO.imageUrl)}" 
+                             class="current-image-display">
+                            <p>Imagem atual:</p>
+                            <img th:src="${productDTO.imageUrl}" 
+                                 th:alt="${productDTO.name}" 
+                                 class="current-product-image">
+                        </div>
+                        
+                        <!-- Image Preview -->
+                        <div id="imagePreviewCreate" class="image-preview" style="display: none;">
+                            <img id="previewImgCreate" src="" alt="Preview">
+                            <p>Preview da nova imagem</p>
+                        </div>
+                    </div>
 
                    <div th:replace="~{layout :: notifications}"></div>
                    
@@ -80,6 +104,28 @@
 
     <div th:replace="~{layout :: scripts}">
     </div>
+    
+    <!-- Image Preview JavaScript for Create/Edit -->
+    <script>
+        function previewImageCreate(input) {
+            const preview = document.getElementById('imagePreviewCreate');
+            const previewImg = document.getElementById('previewImgCreate');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+                previewImg.src = '';
+            }
+        }
+    </script>
     
 </body>
 </html>

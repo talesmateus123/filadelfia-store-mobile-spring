@@ -33,22 +33,88 @@
             <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
             <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
             
-            <div>
-                <p>
-                    <b>Nome:</b>&nbsp;<span th:text="${product.name}"></span>
-                </p>
-                <p>
-                    <b>Descrição:</b>&nbsp;<span th:text="${product.description}"></span>
-                </p>
-                <p>
-                    <b>Preço:</b>&nbsp;<span th:text="${product.priceFormatted}"></span>
-                </p>
-                <p>
-                    <b>Estoque:</b>&nbsp;<span th:text="${product.stock}"></span>
-                </p>
-                <p>
-                    <b>Ativo:</b>&nbsp;<span th:text="${product.active} ? 'Sim' : 'Não'"></span>
-                </p>
+            <!-- Product Information -->
+            <div class="product-info-section">
+                <div class="product-details">
+                    <p><b>Nome:</b>&nbsp;<span th:text="${product.name}"></span></p>
+                    <p><b>Descrição:</b>&nbsp;<span th:text="${product.description}"></span></p>
+                    <p><b>Preço:</b>&nbsp;<span th:text="${product.priceFormatted}"></span></p>
+                    <p><b>Estoque:</b>&nbsp;<span th:text="${product.stock}"></span></p>
+                    <p><b>Ativo:</b>&nbsp;<span th:text="${product.active} ? 'Sim' : 'Não'"></span></p>
+                </div>
+
+                <!-- Product Image Section -->
+                <div class="product-image-section">
+                    <h3>Imagem do Produto</h3>
+                    
+                    <!-- Current Image Display -->
+                    <div class="current-image">
+                        <div class="image-container" th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
+                            <img th:src="${product.imageUrl}" 
+                                 th:alt="${product.name}" 
+                                 class="product-image-preview">
+                            <p class="image-info">Imagem atual do produto</p>
+                        </div>
+                        <div class="no-image" th:unless="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
+                            <div class="placeholder-image">
+                                <span>📦 Nenhuma imagem</span>
+                            </div>
+                            <p class="image-info">Nenhuma imagem definida para este produto</p>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Form -->
+                    <div class="image-upload-section">
+                        <h4>Enviar Nova Imagem</h4>
+                        <form th:action="@{/products/{id}/upload-image(id=${product.id})}" 
+                              method="post" 
+                              enctype="multipart/form-data" 
+                              class="upload-form">
+                            
+                            <div class="form-group">
+                                <label for="imageFile">Escolher Imagem:</label>
+                                <input type="file" 
+                                       id="imageFile" 
+                                       name="imageFile" 
+                                       accept="image/*" 
+                                       class="file-input"
+                                       onchange="previewImage(this)">
+                                <small class="form-text">
+                                    Formatos aceitos: JPG, PNG, GIF, WEBP (máximo 5MB)
+                                </small>
+                            </div>
+
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="image-preview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview">
+                                <p>Preview da nova imagem</p>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    📤 Enviar Imagem
+                                </button>
+                                <button type="button" 
+                                        class="btn btn-secondary" 
+                                        onclick="clearImagePreview()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Delete Image Form -->
+                    <div class="image-delete-section" th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
+                        <h4>Remover Imagem</h4>
+                        <form th:action="@{/products/{id}/delete-image(id=${product.id})}" 
+                              method="post" 
+                              onsubmit="return confirm('Tem certeza que deseja remover a imagem do produto?')">
+                            <button type="submit" class="btn btn-danger">
+                                🗑️ Remover Imagem Atual
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -61,6 +127,37 @@
 
     <div th:replace="~{layout :: scripts}">
     </div>
+    
+    <!-- Image Preview JavaScript -->
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                clearImagePreview();
+            }
+        }
+        
+        function clearImagePreview() {
+            const preview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            const fileInput = document.getElementById('imageFile');
+            
+            preview.style.display = 'none';
+            previewImg.src = '';
+            fileInput.value = '';
+        }
+    </script>
     
 </body>
 </html>

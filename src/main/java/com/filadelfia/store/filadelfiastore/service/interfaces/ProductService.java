@@ -28,4 +28,9 @@ public interface ProductService {
     List<ProductDTO> getLowStockProducts(int threshold);
     Long getLowStockProductsCount();
     Long getLowStockProductsCount(int threshold);
+    
+    // Image management
+    ProductDTO updateProductImage(Long productId, org.springframework.web.multipart.MultipartFile imageFile);
+    boolean deleteProductImage(Long productId);
+    boolean hasValidImage(Long productId);
 }

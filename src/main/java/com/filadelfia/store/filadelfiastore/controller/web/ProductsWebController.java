@@ -77,6 +77,7 @@ public class ProductsWebController {
     public String createProduct(
             @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
             BindingResult bindingResult,
+            @RequestParam(value = "imageFile", required = false) org.springframework.web.multipart.MultipartFile imageFile,
             Model model,
             RedirectAttributes redirectAttributes) {
         
@@ -88,8 +89,23 @@ public class ProductsWebController {
         }
         
         try {
+            // Create product first
             ProductDTO createdProduct = productService.createProduct(productDTO);
-            redirectAttributes.addFlashAttribute("successMessage", "Produto criado com sucesso!");
+            
+            // Upload image if provided
+            if (imageFile != null && !imageFile.isEmpty()) {
+                try {
+                    productService.updateProductImage(createdProduct.getId(), imageFile);
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto criado com sucesso e imagem enviada!");
+                } catch (Exception imageError) {
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto criado com sucesso, mas houve erro no envio da imagem: " + imageError.getMessage());
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage", "Produto criado com sucesso!");
+            }
+            
             return "redirect:/products/" + createdProduct.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar produto: " + e.getMessage());
@@ -123,6 +139,7 @@ public class ProductsWebController {
             @PathVariable Long id,
             @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
             BindingResult bindingResult,
+            @RequestParam(value = "imageFile", required = false) org.springframework.web.multipart.MultipartFile imageFile,
             Model model,
             RedirectAttributes redirectAttributes) {
         
@@ -135,8 +152,23 @@ public class ProductsWebController {
         }
         
         try {
+            // Update product first
             productService.updateProduct(id, productDTO);
-            redirectAttributes.addFlashAttribute("successMessage", "Produto atualizado com sucesso!");
+            
+            // Upload new image if provided
+            if (imageFile != null && !imageFile.isEmpty()) {
+                try {
+                    productService.updateProductImage(id, imageFile);
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto atualizado com sucesso e nova imagem enviada!");
+                } catch (Exception imageError) {
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto atualizado com sucesso, mas houve erro no envio da imagem: " + imageError.getMessage());
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage", "Produto atualizado com sucesso!");
+            }
+            
             return "redirect:/products/" + id;
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao atualizar produto: " + e.getMessage());
@@ -192,5 +224,52 @@ public class ProductsWebController {
         }
         
         return "redirect:/products";
+    }
+
+    // Image management endpoints
+    @PostMapping("/{id}/upload-image")
+    public String uploadProductImage(
+            @PathVariable Long id,
+            @RequestParam("imageFile") org.springframework.web.multipart.MultipartFile imageFile,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            if (imageFile.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Por favor, selecione uma imagem para enviar.");
+                return "redirect:/products/" + id;
+            }
+
+            ProductDTO updatedProduct = productService.updateProductImage(id, imageFile);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Imagem do produto '" + updatedProduct.getName() + "' atualizada com sucesso!");
+            
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erro ao fazer upload da imagem: " + e.getMessage());
+        }
+        
+        return "redirect:/products/" + id;
+    }
+
+    @PostMapping("/{id}/delete-image")
+    public String deleteProductImage(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            boolean deleted = productService.deleteProductImage(id);
+            if (deleted) {
+                redirectAttributes.addFlashAttribute("successMessage", "Imagem do produto removida com sucesso!");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Nenhuma imagem encontrada para remover.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erro ao remover imagem: " + e.getMessage());
+        }
+        
+        return "redirect:/products/" + id;
     }
 }

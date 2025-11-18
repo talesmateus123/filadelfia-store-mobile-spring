@@ -11,6 +11,8 @@ import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 import com.filadelfia.store.filadelfiastore.util.PageableValidator;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,17 +32,19 @@ public class ProductServiceImpl implements ProductService  {
     private final ProductMapper productMapper;
     private final CategoryMapper categoryMapper;
     private final PageableValidator pageableValidator;
+    private final com.filadelfia.store.filadelfiastore.service.interfaces.FileStorageService fileStorageService;
 
     private final Set<String> ALLOWED_SORT_PROPERTIES = Set.of(
         "id", "name", "price", "createdAt", "updatedAt", "category"
     );
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper, CategoryMapper categoryMapper, PageableValidator pageableValidator) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper, CategoryMapper categoryMapper, PageableValidator pageableValidator, com.filadelfia.store.filadelfiastore.service.interfaces.FileStorageService fileStorageService) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
         this.categoryMapper = categoryMapper;
         this.pageableValidator = pageableValidator;
+        this.fileStorageService = fileStorageService;
     }
 
     @Override
@@ -203,6 +207,88 @@ public class ProductServiceImpl implements ProductService  {
     @Transactional(readOnly = true)
     public Long getLowStockProductsCount(int threshold) {
         return productRepository.countByActiveTrueAndStockLessThan(threshold);
+    }
+
+    // Image management methods
+    @Override
+    @Transactional
+    public ProductDTO updateProductImage(Long productId, MultipartFile imageFile) {
+        if (imageFile == null || imageFile.isEmpty()) {
+            throw new IllegalArgumentException("Image file cannot be null or empty");
+        }
+
+        if (!fileStorageService.isValidImage(imageFile)) {
+            throw new IllegalArgumentException("Invalid image file. Supported formats: JPG, PNG, GIF, WEBP");
+        }
+
+        Product product = productRepository.findById(java.util.Objects.requireNonNull(productId))
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        try {
+            // Delete old image if exists
+            if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+                fileStorageService.deleteFile(product.getImageUrl());
+            }
+
+            // Generate filename
+            String originalFileName = imageFile.getOriginalFilename();
+            String fileName = "product_" + productId + "_" + System.currentTimeMillis();
+            if (originalFileName != null && originalFileName.contains(".")) {
+                String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                fileName += extension;
+            } else {
+                fileName += ".jpg"; // Default extension
+            }
+
+            // Store new image
+            String imageUrl = fileStorageService.storeFile(imageFile, fileName);
+            
+            // Update product
+            product.setImageUrl(imageUrl);
+            product.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+            
+            Product savedProduct = productRepository.save(product);
+            return productMapper.toDTO(savedProduct);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update product image: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteProductImage(Long productId) {
+        Product product = productRepository.findById(java.util.Objects.requireNonNull(productId))
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        if (product.getImageUrl() == null || product.getImageUrl().isEmpty()) {
+            return false; // No image to delete
+        }
+
+        try {
+            boolean deleted = fileStorageService.deleteFile(product.getImageUrl());
+            if (deleted) {
+                product.setImageUrl(null);
+                product.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+                productRepository.save(product);
+            }
+            return deleted;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete product image: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasValidImage(Long productId) {
+        Product product = productRepository.findById(java.util.Objects.requireNonNull(productId))
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        if (product.getImageUrl() == null || product.getImageUrl().isEmpty()) {
+            return false;
+        }
+
+        return fileStorageService.fileExists(product.getImageUrl());
     }
 
 }
