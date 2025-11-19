@@ -68,6 +68,7 @@ public class ProductsWebController {
         model.addAttribute("pageTitle", "Novo Produto");          
         model.addAttribute("productDTO", new ProductDTO()); // Objeto para o formulário
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("isEdit", false);
         
         model.addAttribute("activePage", activePage);
         return "pages/product/create_product";
@@ -84,6 +85,7 @@ public class ProductsWebController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Novo Produto");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("isEdit", false);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
         }
@@ -111,6 +113,7 @@ public class ProductsWebController {
             model.addAttribute("errorMessage", "Erro ao criar produto: " + e.getMessage());
             model.addAttribute("pageTitle", "Novo Produto");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("isEdit", false);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
         }

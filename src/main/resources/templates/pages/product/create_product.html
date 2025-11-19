@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<div th:replace="~{layout :: head}">
-</div>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}">
+</head>
 <body>
-    <div th:replace="~{layout :: header}">
-    </div>
+    <header th:replace="~{layout :: header}">
+    </header>
 
     <div class="container">
         <div id="produtos" class="tab-content active">
@@ -59,7 +60,7 @@
                         </small>
                         
                         <!-- Current Image Display (for edit mode) -->
-                        <div th:if="${isEdit and productDTO.imageUrl != null and not #strings.isEmpty(productDTO.imageUrl)}" 
+                        <div th:if="${isEdit != null and isEdit and productDTO != null and productDTO.imageUrl != null and not #strings.isEmpty(productDTO.imageUrl)}" 
                              class="current-image-display">
                             <p>Imagem atual:</p>
                             <img th:src="${productDTO.imageUrl}" 
@@ -96,8 +97,8 @@
         </div>
     </div>
 
-    <div th:replace="~{layout :: footer}">
-    </div>
+    <footer th:replace="~{layout :: footer}">
+    </footer>
     
     <div th:replace="~{common/modal :: modal-manager}">
     </div>
