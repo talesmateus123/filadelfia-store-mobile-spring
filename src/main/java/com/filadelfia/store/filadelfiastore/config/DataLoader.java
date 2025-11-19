@@ -19,9 +19,16 @@ public class DataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Verifica se já existe um usuário admin
-        if (userService.getUserByEmail("admin@admin.com").isEmpty()) {
-            createDefaultAdmin();
+        try {
+            // Verifica se já existe um usuário admin
+            if (userService.getUserByEmail("admin@admin.com").isEmpty()) {
+                createDefaultAdmin();
+            }
+        } catch (Exception e) {
+            System.err.println("Error in DataLoader - this might be due to discriminator column issues:");
+            System.err.println("Please run the fix_discriminator.sql script manually in your database");
+            System.err.println("SQL: UPDATE users SET user_type = 'USER' WHERE user_type IS NULL OR user_type = '';");
+            throw e;
         }
     }
 

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Pagamento - Filadelfia Store</title>
+    <div th:replace="~{layout :: head}"></div>
+    <style>
+        .confirmation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #059669;
+            margin-bottom: 1rem;
+        }
+        
+        .pending-icon {
+            font-size: 4rem;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+        }
+        
+        .failed-icon {
+            font-size: 4rem;
+            color: #dc2626;
+            margin-bottom: 1rem;
+        }
+        
+        .confirmation-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .confirmation-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .payment-summary {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding-top: 1rem;
+        }
+        
+        .summary-row.total {
+            color: #059669;
+            font-size: 1.25rem;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #bfdbfe; color: #1e40af; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-failed { background-color: #fee2e2; color: #991b1b; }
+        .status-cancelled { background-color: #f3f4f6; color: #4b5563; }
+        
+        .next-steps {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .next-steps h3 {
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+        
+        .steps-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .steps-list li {
+            display: flex;
+            align-items: start;
+            margin-bottom: 0.75rem;
+            padding-left: 0;
+        }
+        
+        .step-number {
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .pix-instructions {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .boleto-instructions {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .instructions-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .copy-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.2s ease;
+        }
+        
+        .copy-button:hover {
+            background: #2563eb;
+        }
+        
+        .qr-code {
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        .btn-outline:hover {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .order-info {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .order-info h4 {
+            margin-bottom: 0.5rem;
+            color: #065f46;
+        }
+        
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .summary-row {
+                flex-direction: column;
+                align-items: start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+    
+    <div class="confirmation-container">
+        <!-- Success State -->
+        <div th:if="${payment.status.name() == 'COMPLETED'}" class="confirmation-header">
+            <div class="success-icon">✅</div>
+            <h1 class="confirmation-title">Pagamento Aprovado!</h1>
+            <p class="confirmation-subtitle">Seu pagamento foi processado com sucesso</p>
+        </div>
+        
+        <!-- Pending State -->
+        <div th:if="${payment.status.name() == 'PENDING' or payment.status.name() == 'PROCESSING'}" class="confirmation-header">
+            <div class="pending-icon">⏳</div>
+            <h1 class="confirmation-title">Pagamento Pendente</h1>
+            <p class="confirmation-subtitle">Aguardando confirmação do pagamento</p>
+        </div>
+        
+        <!-- Failed State -->
+        <div th:if="${payment.status.name() == 'FAILED'}" class="confirmation-header">
+            <div class="failed-icon">❌</div>
+            <h1 class="confirmation-title">Pagamento Recusado</h1>
+            <p class="confirmation-subtitle">Não foi possível processar o pagamento</p>
+        </div>
+        
+        <!-- Payment Summary -->
+        <div class="payment-summary">
+            <div class="summary-row">
+                <span>Número do Pagamento:</span>
+                <span th:text="'#' + ${payment.id}">#123</span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Pedido:</span>
+                <span>
+                    <a th:href="@{/orders/{id}(id=${payment.orderId})}" 
+                       th:text="'#' + ${payment.orderId}">
+                       #456
+                    </a>
+                </span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Método de Pagamento:</span>
+                <span th:text="${payment.method.displayName}">Cartão de Crédito</span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Status:</span>
+                <span class="status-badge" 
+                      th:classappend="'status-' + ${#strings.toLowerCase(payment.status)}"
+                      th:text="${payment.status.displayName}">
+                    Pendente
+                </span>
+            </div>
+            
+            <div class="summary-row">
+                <span>Data:</span>
+                <span th:text="${#temporals.format(payment.createdAt, 'dd/MM/yyyy \'às\' HH:mm')}">01/01/2025 às 12:00</span>
+            </div>
+            
+            <div class="summary-row total">
+                <span>Valor Total:</span>
+                <span th:text="${payment.formattedAmount}">R$ 100,00</span>
+            </div>
+        </div>
+        
+        <!-- PIX Instructions -->
+        <div th:if="${payment.method.name() == 'PIX' and (payment.status.name() == 'PENDING' or payment.status.name() == 'PROCESSING')}" 
+             class="pix-instructions">
+            <div class="instructions-title">
+                📱 Como pagar com PIX
+            </div>
+            
+            <ol class="steps-list">
+                <li>
+                    <span class="step-number">1</span>
+                    <span>Abra o aplicativo do seu banco ou carteira digital</span>
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <span>Escolha a opção PIX e "Pagar com código"</span>
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <span>Escaneie o QR Code ou copie e cole a chave PIX</span>
+                </li>
+                <li>
+                    <span class="step-number">4</span>
+                    <span>Confirme o pagamento no seu aplicativo</span>
+                </li>
+            </ol>
+            
+            <div class="qr-code" th:if="${payment.pixQrCode}">
+                <img th:src="${payment.pixQrCode}" alt="QR Code PIX" style="max-width: 200px;">
+            </div>
+            <div class="qr-code" th:unless="${payment.pixQrCode}">
+                <div class="qr-placeholder">QR Code será gerado em breve</div>
+            </div>
+            
+            <div th:if="${payment.pixKey}" style="margin-top: 1rem;">
+                <label>Chave PIX:</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem;">
+                    <input type="text" th:value="${payment.pixKey}" readonly class="form-control" id="pixKey">
+                    <button class="copy-button" onclick="copyPixKey()">Copiar</button>
+                </div>
+            </div>
+            
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
+                ⏰ O pagamento PIX é processado instantaneamente. Você receberá a confirmação em poucos segundos.
+            </p>
+        </div>
+        
+        <!-- Boleto Instructions -->
+        <div th:if="${payment.method.name() == 'BOLETO' and (payment.status.name() == 'PENDING' or payment.status.name() == 'PROCESSING')}" 
+             class="boleto-instructions">
+            <div class="instructions-title">
+                📄 Como pagar o boleto
+            </div>
+            
+            <ol class="steps-list">
+                <li>
+                    <span class="step-number">1</span>
+                    <span>Clique no botão "Baixar Boleto" abaixo</span>
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <span>Imprima o boleto ou anote o código de barras</span>
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <span>Pague em qualquer banco, casa lotérica ou pelo app do seu banco</span>
+                </li>
+                <li>
+                    <span class="step-number">4</span>
+                    <span>O pagamento será confirmado em até 2 dias úteis</span>
+                </li>
+            </ol>
+            
+            <div th:if="${payment.boletoBarcode}" style="margin-top: 1rem;">
+                <label>Código de Barras:</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem;">
+                    <input type="text" th:value="${payment.boletoBarcode}" readonly class="form-control" id="boletoCode">
+                    <button class="copy-button" onclick="copyBoletoCode()">Copiar</button>
+                </div>
+            </div>
+            
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
+                📅 Vencimento: <span th:text="${#temporals.format(payment.boletoExpiryDate ?: #temporals.createNow(), 'dd/MM/yyyy')}">01/01/2025</span>
+            </p>
+        </div>
+        
+        <!-- Order Information -->
+        <div class="order-info" th:if="${order}">
+            <h4>Informações do Pedido</h4>
+            <p><strong>Pedido:</strong> #<span th:text="${order.id}">123</span></p>
+            <p><strong>Itens:</strong> <span th:text="${order.totalItems}">3</span> produtos</p>
+            <p><strong>Status:</strong> <span th:text="${order.status}">Confirmado</span></p>
+        </div>
+        
+        <!-- Next Steps for Different Scenarios -->
+        <div th:if="${payment.status.name() == 'COMPLETED'}" class="next-steps">
+            <h3>Próximos Passos</h3>
+            <ol class="steps-list">
+                <li>
+                    <span class="step-number">1</span>
+                    <span>Seu pedido foi confirmado e está sendo preparado</span>
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <span>Você receberá um e-mail com os detalhes do pedido</span>
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <span>Acompanhe o status do seu pedido na área "Meus Pedidos"</span>
+                </li>
+            </ol>
+        </div>
+        
+        <div th:if="${payment.status.name() == 'FAILED'}" class="next-steps">
+            <h3>O que fazer agora?</h3>
+            <ol class="steps-list">
+                <li>
+                    <span class="step-number">1</span>
+                    <span>Verifique os dados do cartão e tente novamente</span>
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <span>Certifique-se de que há limite disponível</span>
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <span>Entre em contato com seu banco se o problema persistir</span>
+                </li>
+            </ol>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a th:href="@{/orders/{id}(id=${payment.orderId})}" class="btn btn-primary">
+                📦 Ver Pedido
+            </a>
+            
+            <a th:href="@{/payments/{id}(id=${payment.id})}" class="btn btn-outline">
+                👁️ Detalhes do Pagamento
+            </a>
+            
+            <a th:if="${payment.method.name() == 'BOLETO' and (payment.status.name() == 'PENDING' or payment.status.name() == 'PROCESSING')}" 
+               th:href="@{/payments/{id}/boleto(id=${payment.id})}" 
+               class="btn btn-secondary" 
+               target="_blank">
+                📄 Baixar Boleto
+            </a>
+            
+            <a th:if="${payment.status.name() == 'FAILED'}" 
+               th:href="@{/payments/new(orderId=${payment.orderId})}" 
+               class="btn btn-primary">
+                🔄 Tentar Novamente
+            </a>
+            
+            <a th:href="@{/shop}" class="btn btn-outline">
+                🛍️ Continuar Comprando
+            </a>
+        </div>
+    </div>
+    
+    <div th:replace="~{layout :: notifications}"></div>
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+    
+    <script>
+        function copyPixKey() {
+            const pixKeyInput = document.getElementById('pixKey');
+            if (pixKeyInput) {
+                copyToClipboard(pixKeyInput.value, 'Chave PIX copiada!');
+            }
+        }
+        
+        function copyBoletoCode() {
+            const boletoCodeInput = document.getElementById('boletoCode');
+            if (boletoCodeInput) {
+                copyToClipboard(boletoCodeInput.value, 'Código de barras copiado!');
+            }
+        }
+        
+        function copyToClipboard(text, successMessage) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showNotification(successMessage, 'success');
+                }, function(err) {
+                    console.error('Erro ao copiar: ', err);
+                    fallbackCopy(text, successMessage);
+                });
+            } else {
+                fallbackCopy(text, successMessage);
+            }
+        }
+        
+        function fallbackCopy(text, successMessage) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showNotification(successMessage, 'success');
+            } catch (err) {
+                console.error('Erro ao copiar: ', err);
+                showNotification('Erro ao copiar. Selecione o texto manualmente.', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        function showNotification(message, type) {
+            // Simple notification - in a real app you might use a proper notification library
+            alert(message);
+        }
+        
+        // Auto-refresh for pending payments
+        const paymentStatus = /*[[${payment.status.name()}]]*/ 'PENDING';
+        if (paymentStatus === 'PENDING' || paymentStatus === 'PROCESSING') {
+            setTimeout(function() {
+                location.reload();
+            }, 30000); // Refresh every 30 seconds
+        }
+    </script>
+</body>
+</html>

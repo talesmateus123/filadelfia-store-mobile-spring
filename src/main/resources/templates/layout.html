@@ -16,6 +16,7 @@
     <link th:href="@{/css/components/dashboard.css}" rel="stylesheet"/>
     <link th:href="@{/css/components/profile.css}" rel="stylesheet"/>
     <link th:href="@{/css/components/products.css}" rel="stylesheet"/>
+    <link th:href="@{/css/components/payments.css}" rel="stylesheet"/>
     <link th:href="@{/css/components/utilities.css}" rel="stylesheet"/>
     <!-- Legacy styles for backward compatibility -->
     <link th:href="@{/css/style.css}" rel="stylesheet"/>
@@ -103,6 +104,14 @@
                     Meus Pedidos
                 </a>
                 
+                <!-- My Payments - USER only -->
+                <a class="tab" 
+                   sec:authorize="hasRole('USER')"
+                   th:classappend="${activePage == 'payments'} ? 'active'" 
+                   th:href="@{/payments/history}">
+                    💳 Meus Pagamentos
+                </a>
+                
                 <!-- Management sections for ADMIN and MANAGER -->
                 <a class="tab" 
                    sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
@@ -131,6 +140,14 @@
                    th:classappend="${activePage == 'users'} ? 'active'" 
                    th:href="@{/users}">
                     Usuários
+                </a>
+                
+                <!-- Payments management - ADMIN and MANAGER -->
+                <a class="tab" 
+                   sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
+                   th:classappend="${activePage == 'admin-payments'} ? 'active'" 
+                   th:href="@{/admin/payments}">
+                    💰 Gerenciar Pagamentos
                 </a>
             </div>
         </div>

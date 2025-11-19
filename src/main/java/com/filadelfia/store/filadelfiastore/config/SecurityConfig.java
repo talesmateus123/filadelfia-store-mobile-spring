@@ -34,6 +34,7 @@ public class SecurityConfig {
                     "/register",
                     "/forgot-password",
                     "/reset-password",
+                    "/shop/**",
                     "/css/**",
                     "/js/**",
                     "/images/**",
@@ -48,7 +49,10 @@ public class SecurityConfig {
                 .requestMatchers("/products/**", "/categories/**", "/orders/manage/**").hasAnyRole("ADMIN", "MANAGER")
                 
                 // Customer pages (all authenticated users)
-                .requestMatchers("/cart/**", "/checkout/**", "/orders/my/**", "/profile/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                .requestMatchers("/cart/**", "/checkout/**", "/orders/my/**", "/profile/**", "/payments/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                
+                // Payment management pages for admin and manager
+                .requestMatchers("/admin/payments/**").hasAnyRole("ADMIN", "MANAGER")
                 
                 // API endpoints
                 .requestMatchers("/api/v1/users/**").hasRole("ADMIN")

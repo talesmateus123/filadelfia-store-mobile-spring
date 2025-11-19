@@ -48,6 +48,15 @@
                     <a href="/reports" class="stat-link">Ver Relatórios</a>
                 </div>
             </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💳</div>
+                <div class="stat-content">
+                    <h3>Pagamentos</h3>
+                    <p class="stat-number" th:text="${totalPayments} ?: '0'">0</p>
+                    <a href="/admin/payments" class="stat-link">Gerenciar Pagamentos</a>
+                </div>
+            </div>
         </div>
 
         <div class="dashboard-actions">
@@ -68,6 +77,10 @@
                 <a href="/orders/manage" class="btn btn-warning">
                     <img th:src="@{/images/ion-icons/svg/list-outline.svg}" alt="Ver"> 
                     Ver Pedidos
+                </a>
+                <a href="/admin/payments" class="btn btn-success">
+                    <img th:src="@{/images/ion-icons/svg/card-outline.svg}" alt="Ver"> 
+                    Gerenciar Pagamentos
                 </a>
             </div>
         </div>

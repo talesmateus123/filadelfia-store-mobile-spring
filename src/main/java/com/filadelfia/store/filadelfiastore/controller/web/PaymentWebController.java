@@ -227,53 +227,6 @@ public class PaymentWebController {
     // Admin/Manager endpoints
     
     /**
-     * Show payments management dashboard (Admin/Manager only)
-     */
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    public String showPaymentsAdmin(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "20") int size,
-                                  @RequestParam(required = false) String search,
-                                  @RequestParam(required = false) PaymentStatus status,
-                                  @RequestParam(required = false) PaymentMethod method,
-                                  Model model) {
-        try {
-            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-            Page<Payment> payments;
-            
-            if (search != null && !search.trim().isEmpty()) {
-                payments = paymentService.searchPayments(search, pageable);
-            } else {
-                // Apply filters if needed
-                // For now, get all payments
-                payments = paymentService.findPaymentsByUser(null, pageable); // This would need to be changed to findAll
-            }
-            
-            // Get statistics
-            LocalDateTime startOfToday = LocalDateTime.now().toLocalDate().atStartOfDay();
-            LocalDateTime endOfToday = startOfToday.plusDays(1);
-            PaymentService.PaymentStatistics todayStats = paymentService.getPaymentStatistics(startOfToday, endOfToday);
-            
-            model.addAttribute("payments", payments);
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", payments.getTotalPages());
-            model.addAttribute("search", search);
-            model.addAttribute("selectedStatus", status);
-            model.addAttribute("selectedMethod", method);
-            model.addAttribute("paymentStatuses", PaymentStatus.values());
-            model.addAttribute("paymentMethods", PaymentMethod.values());
-            model.addAttribute("todayStats", todayStats);
-            
-            return "admin/payments/payments-list";
-            
-        } catch (Exception e) {
-            logger.error("Error showing payments admin: {}", e.getMessage());
-            model.addAttribute("error", "Erro interno do servidor");
-            return "error/500";
-        }
-    }
-    
-    /**
      * Confirm payment manually (Admin/Manager only)
      */
     @PostMapping("/{paymentId}/confirm")
@@ -383,6 +336,183 @@ public class PaymentWebController {
             logger.error("Error showing payment statistics: {}", e.getMessage());
             model.addAttribute("error", "Erro interno do servidor");
             return "error/500";
+        }
+    }
+    
+    /**
+     * Show payment confirmation page
+     */
+    @GetMapping("/{paymentId}/confirmation")
+    public String showPaymentConfirmation(@PathVariable Long paymentId, 
+                                        @AuthenticationPrincipal UserDetails userDetails,
+                                        Model model) {
+        try {
+            Optional<Payment> paymentOpt = paymentService.findById(paymentId);
+            if (paymentOpt.isEmpty()) {
+                model.addAttribute("error", "Pagamento não encontrado");
+                return "error/404";
+            }
+            
+            Payment payment = paymentOpt.get();
+            
+            // Check if user has permission to view this payment
+            if (!hasPaymentAccess(payment, userDetails)) {
+                model.addAttribute("error", "Acesso negado");
+                return "error/403";
+            }
+            
+            model.addAttribute("payment", payment);
+            model.addAttribute("order", payment.getOrder());
+            model.addAttribute("pageTitle", "Confirmação de Pagamento");
+            model.addAttribute("activePage", "payments");
+            
+            return "payments/payment-confirmation";
+        } catch (Exception e) {
+            logger.error("Error showing payment confirmation for payment {}: {}", paymentId, e.getMessage());
+            model.addAttribute("error", "Erro ao carregar confirmação de pagamento");
+            return "error/500";
+        }
+    }
+    
+    /**
+     * Admin payment management page
+     */
+    @GetMapping("/admin")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public String showAdminPayments(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "20") int size,
+                                  @RequestParam(required = false) PaymentStatus status,
+                                  @RequestParam(required = false) PaymentMethod method,
+                                  @RequestParam(required = false) String startDate,
+                                  @RequestParam(required = false) String endDate,
+                                  Model model) {
+        try {
+            // For now, we'll get payments from the last year for admin view
+            LocalDateTime yearAgo = LocalDateTime.now().minusYears(1);
+            LocalDateTime now = LocalDateTime.now();
+            List<Payment> allPayments = paymentService.findPaymentsBetweenDates(yearAgo, now);
+            
+            // Simple pagination simulation
+            int start = page * size;
+            int end = Math.min(start + size, allPayments.size());
+            List<Payment> pagedPayments = allPayments.subList(start, end);
+            
+            // Calculate statistics
+            LocalDateTime monthAgo = LocalDateTime.now().minusMonths(1);
+            var statistics = paymentService.getPaymentStatistics(monthAgo, now);
+            
+            model.addAttribute("payments", pagedPayments);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", (int) Math.ceil((double) allPayments.size() / size));
+            model.addAttribute("statistics", statistics);
+            model.addAttribute("pageTitle", "Gerenciar Pagamentos");
+            model.addAttribute("activePage", "admin-payments");
+            
+            return "payments/admin-payments";
+        } catch (Exception e) {
+            logger.error("Error showing admin payments: {}", e.getMessage());
+            model.addAttribute("error", "Erro ao carregar pagamentos");
+            return "error/500";
+        }
+    }
+    
+    /**
+     * Process admin payment refund
+     */
+    @PostMapping("/admin/{paymentId}/refund")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public String processRefund(@PathVariable Long paymentId,
+                              @RequestParam String reason,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            // Get the payment first to determine the refund amount
+            Optional<Payment> paymentOpt = paymentService.findById(paymentId);
+            if (paymentOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Pagamento não encontrado");
+                return "redirect:/admin/payments";
+            }
+            
+            Payment payment = paymentOpt.get();
+            paymentService.refundPayment(paymentId, payment.getAmount(), reason);
+            redirectAttributes.addFlashAttribute("success", "Reembolso processado com sucesso");
+            
+        } catch (Exception e) {
+            logger.error("Error processing refund for payment {}: {}", paymentId, e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Erro ao processar reembolso: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/payments";
+    }
+    
+    /**
+     * Process admin payment cancellation
+     */
+    @PostMapping("/admin/{paymentId}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public String cancelAdminPayment(@PathVariable Long paymentId,
+                                   @RequestParam String reason,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            paymentService.cancelPayment(paymentId, reason);
+            redirectAttributes.addFlashAttribute("success", "Pagamento cancelado com sucesso");
+            
+        } catch (Exception e) {
+            logger.error("Error canceling payment {}: {}", paymentId, e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Erro ao cancelar pagamento: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/payments";
+    }
+    
+    /**
+     * Export payment report
+     */
+    @GetMapping("/admin/export")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public String exportPaymentReport(@RequestParam(required = false) PaymentStatus status,
+                                    @RequestParam(required = false) PaymentMethod method,
+                                    @RequestParam(required = false) String startDate,
+                                    @RequestParam(required = false) String endDate,
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            // In a real implementation, this would generate and download a report
+            // For now, just redirect back with a message
+            redirectAttributes.addFlashAttribute("info", "Funcionalidade de exportação será implementada em breve");
+            
+        } catch (Exception e) {
+            logger.error("Error exporting payment report: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Erro ao exportar relatório");
+        }
+        
+        return "redirect:/admin/payments";
+    }
+    
+    /**
+     * Helper method to check if user has access to a payment
+     */
+    private boolean hasPaymentAccess(Payment payment, UserDetails userDetails) {
+        if (userDetails == null) {
+            return false;
+        }
+        
+        // Admin and Manager can access all payments
+        if (userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || 
+                             a.getAuthority().equals("ROLE_MANAGER"))) {
+            return true;
+        }
+        
+        // Regular users can only access their own payments
+        try {
+            // Use the order relationship from payment entity
+            Order order = payment.getOrder();
+            if (order != null && order.getUser() != null) {
+                return order.getUser().getEmail().equals(userDetails.getUsername());
+            }
+            return false;
+        } catch (Exception e) {
+            logger.error("Error checking payment access: {}", e.getMessage());
+            return false;
         }
     }
     
