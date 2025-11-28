@@ -20,6 +20,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByCategoryNameAndActiveTrue(String categoryName);
     List<Product> findTop4ByActiveTrueOrderByIdDesc();
     
+    // Featured products queries
+    List<Product> findByActiveTrueAndFeaturedTrueOrderByUpdatedAtDesc();
+    List<Product> findByFeaturedTrue();
+    
     // Stock management queries
     List<Product> findByActiveTrueAndStockLessThan(Integer threshold);
     Long countByActiveTrueAndStockLessThan(Integer threshold);

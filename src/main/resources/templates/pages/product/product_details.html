@@ -27,6 +27,21 @@
                             <img th:src="@{/images/ion-icons/svg/checkmark-circle-outline.svg}" alt="Ativar">
                         </button>
                     </form>
+                    <!-- Featured Toggle Button -->
+                    <form th:if="${product.featured}" style="display: inline;" th:action="@{/products/set-featured/{id}(id=${product.id})}" method="post" 
+                          onsubmit="return confirm('Remover produto dos destaques?')">
+                        <input type="hidden" name="featured" value="false">
+                        <button type="submit" class="button" style="border: none; background: none; padding: 0;" title="Remover dos Destaques">
+                            <img th:src="@{/images/ion-icons/svg/star.svg}" alt="Remover Destaque">
+                        </button>
+                    </form>
+                    <form th:if="${!product.featured}" style="display: inline;" th:action="@{/products/set-featured/{id}(id=${product.id})}" method="post" 
+                          onsubmit="return confirm('Marcar produto como destaque?')">
+                        <input type="hidden" name="featured" value="true">
+                        <button type="submit" class="button" style="border: none; background: none; padding: 0;" title="Marcar como Destaque">
+                            <img th:src="@{/images/ion-icons/svg/star-outline.svg}" alt="Marcar Destaque">
+                        </button>
+                    </form>
                 </div>
             </div>
             
@@ -42,6 +57,7 @@
                     <p><b>Preço:</b>&nbsp;<span th:text="${product.priceFormatted}"></span></p>
                     <p><b>Estoque:</b>&nbsp;<span th:text="${product.stock}"></span></p>
                     <p><b>Ativo:</b>&nbsp;<span th:text="${product.active} ? 'Sim' : 'Não'"></span></p>
+                    <p><b>Produto em Destaque:</b>&nbsp;<span th:text="${product.featured} ? 'Sim' : 'Não'"></span></p>
                 </div>
 
                 <!-- Product Image Section -->

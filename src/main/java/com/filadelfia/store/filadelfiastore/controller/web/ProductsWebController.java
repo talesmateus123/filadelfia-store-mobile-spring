@@ -275,4 +275,39 @@ public class ProductsWebController {
         
         return "redirect:/products/" + id;
     }
+
+    // Featured products management endpoints
+    @GetMapping("/featured")
+    public String listFeaturedProducts(Model model) {
+        List<ProductDTO> featuredProducts = productService.getAllFeaturedProducts();
+        
+        model.addAttribute("pageTitle", "Produtos em Destaque");
+        model.addAttribute("products", featuredProducts);
+        model.addAttribute("showFeaturedOnly", true);
+        model.addAttribute("activePage", activePage);
+        
+        return "pages/product/products";
+    }
+
+    @PostMapping("/set-featured/{id}")
+    public String toggleProductFeatured(
+            @PathVariable Long id,
+            @RequestParam("featured") Boolean featured,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            ProductDTO updatedProduct = productService.setProductFeatured(id, featured);
+            
+            String message = featured ? 
+                "Produto '" + updatedProduct.getName() + "' marcado como destaque!" :
+                "Produto '" + updatedProduct.getName() + "' removido dos destaques!";
+            
+            redirectAttributes.addFlashAttribute("successMessage", message);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erro ao modificar destaque do produto: " + e.getMessage());
+        }
+        
+        return "redirect:/products/" + id;
+    }
 }

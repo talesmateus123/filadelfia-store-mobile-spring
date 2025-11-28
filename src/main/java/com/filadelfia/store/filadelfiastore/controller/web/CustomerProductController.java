@@ -51,13 +51,18 @@ public class CustomerProductController {
             model.addAttribute("selectedCategory", category);
             model.addAttribute("pageTitle", "Categoria: " + category);
         } else {
-            products = productService.getAllActiveProducts();
+            // Show only featured products in the main shop page
+            products = productService.getFeaturedProducts();
+            model.addAttribute("pageTitle", "Filadelfia Store - Produtos em Destaque");
+            model.addAttribute("showingFeatured", true);
         }
 
-        // Filter only active products for customers
-        products = products.stream()
-                .filter(ProductDTO::getActive)
-                .toList();
+        // Filter only active products for customers (already handled in service for featured products)
+        if (search != null || category != null) {
+            products = products.stream()
+                    .filter(ProductDTO::getActive)
+                    .toList();
+        }
 
         model.addAttribute("products", products);
         model.addAttribute("totalProducts", products.size());

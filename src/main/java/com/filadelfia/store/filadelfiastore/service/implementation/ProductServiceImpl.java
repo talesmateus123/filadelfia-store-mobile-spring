@@ -59,10 +59,37 @@ public class ProductServiceImpl implements ProductService  {
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> getFeaturedProducts() {
-        return productRepository.findTop4ByActiveTrueOrderByIdDesc()
+        List<Product> featuredProducts = productRepository.findByActiveTrueAndFeaturedTrueOrderByUpdatedAtDesc();
+        
+        // If no featured products exist, fallback to latest products
+        if (featuredProducts.isEmpty()) {
+            featuredProducts = productRepository.findTop4ByActiveTrueOrderByIdDesc();
+        }
+        
+        return featuredProducts.stream()
+            .map(productMapper::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getAllFeaturedProducts() {
+        return productRepository.findByFeaturedTrue()
             .stream()
             .map(productMapper::toDTO)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public ProductDTO setProductFeatured(Long id, Boolean featured) {
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        
+        product.setFeatured(featured);
+        Product savedProduct = productRepository.save(product);
+        
+        return productMapper.toDTO(savedProduct);
     }
 
     @Override

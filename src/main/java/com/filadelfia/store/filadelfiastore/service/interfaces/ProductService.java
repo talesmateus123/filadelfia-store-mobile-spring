@@ -23,6 +23,10 @@ public interface ProductService {
     List<ProductDTO> searchProducts(String searchTerm);
     List<ProductDTO> getFeaturedProducts();
     
+    // Featured products management
+    ProductDTO setProductFeatured(Long id, Boolean featured);
+    List<ProductDTO> getAllFeaturedProducts();
+    
     // Stock management
     List<ProductDTO> getLowStockProducts();
     List<ProductDTO> getLowStockProducts(int threshold);

@@ -11,9 +11,14 @@
         <div id="produtos" class="tab-content active">
             <div class="section-title">
                 <h2 th:text="${pageTitle}"></h2>
-                <a th:href="@{/products/create}" class="button">
-                    <img th:src="@{/images/ion-icons/svg/add-sharp.svg}" alt="Adicionar">
-                </a>
+                <div>
+                    <a th:href="@{/products/featured}" class="button" title="Ver apenas produtos em destaque">
+                        <img th:src="@{/images/ion-icons/svg/star-outline.svg}" alt="Destaques">
+                    </a>
+                    <a th:href="@{/products/create}" class="button">
+                        <img th:src="@{/images/ion-icons/svg/add-sharp.svg}" alt="Adicionar">
+                    </a>
+                </div>
             </div>
 
             <!-- Display flash messages -->
@@ -32,6 +37,7 @@
                             <th>Categoria</th>
                             <th>Descrição</th>
                             <th>Ativo</th>
+                            <th>Destaque</th>
                             <th>Preço</th>
                             <th>Estoque</th>
                             <th>Ações</th>
@@ -43,6 +49,10 @@
                             <td th:text="${product.categoryName}"></td>
                             <td th:text="${product.description}"></td>
                             <td th:text="${product.active} ? 'Sim' : 'Não'"></td>
+                            <td>
+                                <span th:if="${product.featured}" style="color: gold;">★</span>
+                                <span th:if="${!product.featured}" style="color: #ccc;">☆</span>
+                            </td>
                             <td th:text="${product.priceFormatted}"></td>
                             <td th:text="${product.stock}"></td>
                             <td>
