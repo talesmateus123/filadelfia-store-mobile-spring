@@ -33,13 +33,13 @@
 }
 
 /* Button variants */
-.btn-primary {
+.btn-primary, a.btn-primary:link, a.btn-primary:visited {
     background-color: #007bff;
     color: white;
 }
 
-.btn-primary:hover {
-    background-color: #0056b3;
+.btn-primary:hover, a.btn-primary:hover {
+    background-color: #01458d;
     color: white;
     box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
 }
