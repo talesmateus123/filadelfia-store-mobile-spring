@@ -4,6 +4,7 @@ import com.filadelfia.store.filadelfiastore.model.dto.UserDTO;
 import com.filadelfia.store.filadelfiastore.model.dto.UserNewDTO;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/users")
+@PreAuthorize("hasRole('ADMIN')")
 public class UsersWebController {
 
     private final UserService userService;

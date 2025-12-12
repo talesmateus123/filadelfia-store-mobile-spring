@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pagamentos - Filadelfia Store</title>
+    <div th:replace="~{layout :: head}"></div>
+    <style>
+        .payment-history-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .filters {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .payments-grid {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .payment-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .payment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-id {
+            font-weight: bold;
+            color: #1a202c;
+            font-size: 1.1rem;
+        }
+        
+        .payment-date {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .payment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .detail-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #1a202c;
+            font-weight: 500;
+        }
+        
+        .payment-amount {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #059669;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #bfdbfe; color: #1e40af; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-failed { background-color: #fee2e2; color: #991b1b; }
+        .status-cancelled { background-color: #f3f4f6; color: #4b5563; }
+        .status-refunded { background-color: #e0e7ff; color: #3730a3; }
+        
+        .payment-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary { background-color: #3b82f6; color: white; }
+        .btn-primary:hover { background-color: #2563eb; }
+        
+        .btn-secondary { background-color: #6b7280; color: white; }
+        .btn-secondary:hover { background-color: #4b5563; }
+        
+        .btn-warning { background-color: #f59e0b; color: white; }
+        .btn-warning:hover { background-color: #d97706; }
+        
+        .method-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+        
+        .pagination a,
+        .pagination span {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .pagination a:hover {
+            background-color: #f8fafc;
+        }
+        
+        .pagination .current {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        @media (max-width: 768px) {
+            .payment-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .payment-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+    
+    <div class="payment-history-container">
+        <div class="page-header">
+            <h2>Meus Pagamentos</h2>
+            <p>Histórico completo dos seus pagamentos realizados</p>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <form th:action="@{/payments/history}" method="get">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label for="status">Status:</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="PENDING" th:selected="${param.status == 'PENDING'}">Pendente</option>
+                            <option value="PROCESSING" th:selected="${param.status == 'PROCESSING'}">Processando</option>
+                            <option value="COMPLETED" th:selected="${param.status == 'COMPLETED'}">Concluído</option>
+                            <option value="FAILED" th:selected="${param.status == 'FAILED'}">Falhado</option>
+                            <option value="CANCELLED" th:selected="${param.status == 'CANCELLED'}">Cancelado</option>
+                            <option value="REFUNDED" th:selected="${param.status == 'REFUNDED'}">Reembolsado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="method">Método:</label>
+                        <select name="method" id="method" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="CREDIT_CARD" th:selected="${param.method == 'CREDIT_CARD'}">Cartão de Crédito</option>
+                            <option value="BOLETO" th:selected="${param.method == 'BOLETO'}">Boleto</option>
+                            <option value="PIX" th:selected="${param.method == 'PIX'}">PIX</option>
+                            <option value="BANK_TRANSFER" th:selected="${param.method == 'BANK_TRANSFER'}">Transferência</option>
+                            <option value="CASH" th:selected="${param.method == 'CASH'}">Dinheiro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="period">Período:</label>
+                        <select name="period" id="period" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="7" th:selected="${param.period == '7'}">Últimos 7 dias</option>
+                            <option value="30" th:selected="${param.period == '30'}">Últimos 30 dias</option>
+                            <option value="90" th:selected="${param.period == '90'}">Últimos 3 meses</option>
+                            <option value="365" th:selected="${param.period == '365'}">Último ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <a th:href="@{/payments/history}" class="btn btn-secondary">Limpar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Payments Grid -->
+        <div class="payments-grid" th:if="${payments != null and not #lists.isEmpty(payments)}">
+            <div class="payment-card" th:each="payment : ${payments}">
+                <div class="payment-header">
+                    <div>
+                        <div class="payment-id">Pagamento #<span th:text="${payment.id}">123</span></div>
+                        <div class="payment-date" th:text="${#temporals.format(payment.createdAt, 'dd/MM/yyyy \'às\' HH:mm')}">01/01/2025 às 12:00</div>
+                    </div>
+                    <span class="status-badge" 
+                          th:classappend="'status-' + ${#strings.toLowerCase(payment.status)}"
+                          th:text="${payment.status.displayName}">
+                        Pendente
+                    </span>
+                </div>
+                
+                <div class="payment-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Pedido</span>
+                        <span class="detail-value">
+                            <a th:href="@{/orders/{id}(id=${payment.orderId})}" 
+                               th:text="'#' + ${payment.orderId}">
+                               #123
+                            </a>
+                        </span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Método de Pagamento</span>
+                        <span class="detail-value">
+                            <span th:switch="${payment.method}">
+                                <span th:case="'CREDIT_CARD'" class="method-icon">💳</span>
+                                <span th:case="'BOLETO'" class="method-icon">📄</span>
+                                <span th:case="'PIX'" class="method-icon">📱</span>
+                                <span th:case="'BANK_TRANSFER'" class="method-icon">🏦</span>
+                                <span th:case="'CASH'" class="method-icon">💵</span>
+                            </span>
+                            <span th:text="${payment.method.displayName}">Cartão de Crédito</span>
+                        </span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Valor</span>
+                        <span class="detail-value payment-amount" th:text="${payment.formattedAmount}">R$ 100,00</span>
+                    </div>
+                    
+                    <div class="detail-item" th:if="${payment.gatewayTransactionId}">
+                        <span class="detail-label">ID da Transação</span>
+                        <span class="detail-value" th:text="${payment.gatewayTransactionId}">TXN123456</span>
+                    </div>
+                </div>
+                
+                <!-- Payment-specific information -->
+                <div th:if="${payment.method == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentMethod).PIX and payment.status == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentStatus).PENDING}" 
+                     class="pix-info">
+                    <div class="detail-item">
+                        <span class="detail-label">Chave PIX</span>
+                        <span class="detail-value" th:text="${payment.pixKey ?: 'Será gerada após confirmação'}">chave-pix-example</span>
+                    </div>
+                </div>
+                
+                <div th:if="${payment.method == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentMethod).BOLETO and payment.status == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentStatus).PENDING}" 
+                     class="boleto-info">
+                    <div class="detail-item">
+                        <span class="detail-label">Código de Barras</span>
+                        <span class="detail-value" th:text="${payment.boletoBarcode ?: 'Será gerado após confirmação'}">12345.67890 12345.678901 12345.678901 1 23456789012345</span>
+                    </div>
+                </div>
+                
+                <div class="payment-actions">
+                    <a th:href="@{/payments/{id}(id=${payment.id})}" class="btn-sm btn-primary">
+                        👁️ Ver Detalhes
+                    </a>
+                    
+                    <a th:if="${payment.canCancel()}" 
+                       th:href="@{/payments/{id}/cancel(id=${payment.id})}" 
+                       class="btn-sm btn-warning"
+                       onclick="return confirm('Deseja realmente cancelar este pagamento?')">
+                        ❌ Cancelar
+                    </a>
+                    
+                    <a th:if="${payment.method == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentMethod).BOLETO and payment.status == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentStatus).PENDING}" 
+                       th:href="@{/payments/{id}/boleto(id=${payment.id})}" 
+                       class="btn-sm btn-secondary"
+                       target="_blank">
+                        📄 Baixar Boleto
+                    </a>
+                    
+                    <button th:if="${payment.method == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentMethod).PIX and payment.status == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentStatus).PENDING}" 
+                            class="btn-sm btn-secondary"
+                            th:onclick="'copyPixKey(\'' + ${payment.pixKey} + '\')'">
+                        📋 Copiar PIX
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div class="empty-state" th:if="${payments == null or #lists.isEmpty(payments)}">
+            <div class="empty-state-icon">💳</div>
+            <h3>Nenhum pagamento encontrado</h3>
+            <p>Você ainda não realizou nenhum pagamento ou não há resultados para os filtros aplicados.</p>
+            <a th:href="@{/shop}" class="btn btn-primary">Continuar Comprando</a>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 0}" 
+               th:href="@{/payments/history(page=${currentPage - 1}, status=${param.status}, method=${param.method}, period=${param.period})}">
+               « Anterior
+            </a>
+            
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i != currentPage}" 
+                   th:href="@{/payments/history(page=${i}, status=${param.status}, method=${param.method}, period=${param.period})}"
+                   th:text="${i + 1}">1</a>
+                <span th:if="${i == currentPage}" 
+                      class="current" 
+                      th:text="${i + 1}">1</span>
+            </span>
+            
+            <a th:if="${currentPage < totalPages - 1}" 
+               th:href="@{/payments/history(page=${currentPage + 1}, status=${param.status}, method=${param.method}, period=${param.period})}">
+               Próxima »
+            </a>
+        </div>
+    </div>
+    
+    <div th:replace="~{layout :: notifications}"></div>
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+    
+    <script>
+        function copyPixKey(pixKey) {
+            if (navigator.clipboard && pixKey) {
+                navigator.clipboard.writeText(pixKey).then(function() {
+                    alert('Chave PIX copiada para a área de transferência!');
+                }, function(err) {
+                    console.error('Erro ao copiar chave PIX: ', err);
+                    fallbackCopyPixKey(pixKey);
+                });
+            } else {
+                fallbackCopyPixKey(pixKey);
+            }
+        }
+        
+        function fallbackCopyPixKey(pixKey) {
+            const textArea = document.createElement("textarea");
+            textArea.value = pixKey;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Chave PIX copiada para a área de transferência!');
+            } catch (err) {
+                console.error('Erro ao copiar chave PIX: ', err);
+                alert('Erro ao copiar chave PIX. Copie manualmente: ' + pixKey);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

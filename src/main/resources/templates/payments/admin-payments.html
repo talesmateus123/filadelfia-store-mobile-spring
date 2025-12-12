@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Pagamentos - Admin</title>
+    <div th:replace="~{layout :: head}"></div>
+    <style>
+        .payment-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a202c;
+        }
+        
+        .filters {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .payment-table th,
+        .payment-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .payment-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #bfdbfe; color: #1e40af; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-failed { background-color: #fee2e2; color: #991b1b; }
+        .status-cancelled { background-color: #f3f4f6; color: #4b5563; }
+        .status-refunded { background-color: #e0e7ff; color: #3730a3; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-view { background-color: #3b82f6; color: white; }
+        .btn-refund { background-color: #f59e0b; color: white; }
+        .btn-cancel { background-color: #ef4444; color: white; }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+        
+        .pagination a,
+        .pagination span {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        
+        .pagination .current {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+    
+    <div class="container">
+        <div class="dashboard-header">
+            <h2>Gerenciar Pagamentos</h2>
+            <p class="dashboard-subtitle">Visualizar e gerenciar todos os pagamentos do sistema</p>
+        </div>
+        
+        <!-- Payment Statistics -->
+        <div class="payment-stats">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-label">Total Processado</div>
+                <div class="stat-value" th:text="${statistics.totalProcessed ?: 'R$ 0,00'}">R$ 0,00</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Pagamentos Aprovados</div>
+                <div class="stat-value" th:text="${statistics.completedCount ?: '0'}">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-label">Pendentes</div>
+                <div class="stat-value" th:text="${statistics.pendingCount ?: '0'}">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-label">Falharam</div>
+                <div class="stat-value" th:text="${statistics.failedCount ?: '0'}">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🔄</div>
+                <div class="stat-label">Reembolsos</div>
+                <div class="stat-value" th:text="${statistics.refundedCount ?: '0'}">0</div>
+            </div>
+        </div>
+        
+        <!-- Export and Action Buttons -->
+        <div class="export-buttons">
+            <a th:href="@{/admin/payments/export}" class="btn btn-secondary">
+                📊 Exportar Relatório
+            </a>
+            <a th:href="@{/admin/payments/reconcile}" class="btn btn-info">
+                🔍 Reconciliar Pagamentos
+            </a>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <form th:action="@{/admin/payments}" method="get">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label for="status">Status:</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="PENDING" th:selected="${param.status == 'PENDING'}">Pendente</option>
+                            <option value="PROCESSING" th:selected="${param.status == 'PROCESSING'}">Processando</option>
+                            <option value="COMPLETED" th:selected="${param.status == 'COMPLETED'}">Concluído</option>
+                            <option value="FAILED" th:selected="${param.status == 'FAILED'}">Falhado</option>
+                            <option value="CANCELLED" th:selected="${param.status == 'CANCELLED'}">Cancelado</option>
+                            <option value="REFUNDED" th:selected="${param.status == 'REFUNDED'}">Reembolsado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="method">Método:</label>
+                        <select name="method" id="method" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="CREDIT_CARD" th:selected="${param.method == 'CREDIT_CARD'}">Cartão de Crédito</option>
+                            <option value="BOLETO" th:selected="${param.method == 'BOLETO'}">Boleto</option>
+                            <option value="PIX" th:selected="${param.method == 'PIX'}">PIX</option>
+                            <option value="BANK_TRANSFER" th:selected="${param.method == 'BANK_TRANSFER'}">Transferência</option>
+                            <option value="CASH" th:selected="${param.method == 'CASH'}">Dinheiro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="startDate">Data Início:</label>
+                        <input type="date" name="startDate" id="startDate" class="form-control" th:value="${param.startDate}">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="endDate">Data Fim:</label>
+                        <input type="date" name="endDate" id="endDate" class="form-control" th:value="${param.endDate}">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <a th:href="@{/admin/payments}" class="btn btn-secondary">Limpar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Payments Table -->
+        <div class="table-responsive">
+            <table class="payment-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Método</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                        <th>Gateway</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="payment : ${payments}" th:if="${payments != null and not #lists.isEmpty(payments)}">
+                        <td th:text="${payment.id}">1</td>
+                        <td>
+                            <a th:href="@{/admin/orders/{id}(id=${payment.orderId})}" 
+                               th:text="'#' + ${payment.orderId}">
+                               #123
+                            </a>
+                        </td>
+                        <td th:text="${payment.customerName ?: 'N/A'}">Cliente</td>
+                        <td th:text="${payment.method.displayName}">Cartão</td>
+                        <td th:text="${payment.formattedAmount}">R$ 100,00</td>
+                        <td>
+                            <span class="status-badge" 
+                                  th:classappend="'status-' + ${#strings.toLowerCase(payment.status)}"
+                                  th:text="${payment.status.displayName}">
+                                Pendente
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(payment.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00</td>
+                        <td th:text="${payment.gatewayProvider ?: 'N/A'}">Gateway</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{/admin/payments/{id}(id=${payment.id})}" 
+                                   class="btn-sm btn-view" title="Ver Detalhes">
+                                    👁️
+                                </a>
+                                <button th:if="${payment.canRefund()}" 
+                                        type="button"
+                                        class="btn-sm btn-refund"
+                                        th:onclick="'showRefundModal(' + ${payment.id} + ', \'' + ${payment.formattedAmount} + '\')'">
+                                    🔄
+                                </button>
+                                <button th:if="${payment.canCancel()}" 
+                                        type="button"
+                                        class="btn-sm btn-cancel"
+                                        th:onclick="'showCancelModal(' + ${payment.id} + ')'">
+                                    ❌
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${payments == null or #lists.isEmpty(payments)}">
+                        <td colspan="9" style="text-align: center; padding: 2rem;">
+                            Nenhum pagamento encontrado
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 0}" 
+               th:href="@{/admin/payments(page=${currentPage - 1}, status=${param.status}, method=${param.method}, startDate=${param.startDate}, endDate=${param.endDate})}">
+               « Anterior
+            </a>
+            
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i != currentPage}" 
+                   th:href="@{/admin/payments(page=${i}, status=${param.status}, method=${param.method}, startDate=${param.startDate}, endDate=${param.endDate})}"
+                   th:text="${i + 1}">1</a>
+                <span th:if="${i == currentPage}" 
+                      class="current" 
+                      th:text="${i + 1}">1</span>
+            </span>
+            
+            <a th:if="${currentPage < totalPages - 1}" 
+               th:href="@{/admin/payments(page=${currentPage + 1}, status=${param.status}, method=${param.method}, startDate=${param.startDate}, endDate=${param.endDate})}">
+               Próxima »
+            </a>
+        </div>
+    </div>
+    
+    <!-- Refund Modal -->
+    <div id="refundModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Reembolso</h3>
+                <span class="close" onclick="closeRefundModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Deseja realmente processar o reembolso do pagamento?</p>
+                <p><strong>Valor:</strong> <span id="refundAmount"></span></p>
+                <form id="refundForm" method="post">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                    <div class="form-group">
+                        <label for="refundReason">Motivo do reembolso:</label>
+                        <textarea name="reason" id="refundReason" class="form-control" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeRefundModal()" class="btn btn-secondary">Cancelar</button>
+                <button type="button" onclick="submitRefund()" class="btn btn-warning">Confirmar Reembolso</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cancel Modal -->
+    <div id="cancelModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Cancelamento</h3>
+                <span class="close" onclick="closeCancelModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Deseja realmente cancelar este pagamento?</p>
+                <form id="cancelForm" method="post">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                    <div class="form-group">
+                        <label for="cancelReason">Motivo do cancelamento:</label>
+                        <textarea name="reason" id="cancelReason" class="form-control" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeCancelModal()" class="btn btn-secondary">Fechar</button>
+                <button type="button" onclick="submitCancel()" class="btn btn-danger">Confirmar Cancelamento</button>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{layout :: notifications}"></div>
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+    
+    <script>
+        function showRefundModal(paymentId, amount) {
+            document.getElementById('refundAmount').textContent = amount;
+            document.getElementById('refundForm').action = '/admin/payments/' + paymentId + '/refund';
+            document.getElementById('refundModal').style.display = 'block';
+        }
+        
+        function closeRefundModal() {
+            document.getElementById('refundModal').style.display = 'none';
+        }
+        
+        function submitRefund() {
+            document.getElementById('refundForm').submit();
+        }
+        
+        function showCancelModal(paymentId) {
+            document.getElementById('cancelForm').action = '/admin/payments/' + paymentId + '/cancel';
+            document.getElementById('cancelModal').style.display = 'block';
+        }
+        
+        function closeCancelModal() {
+            document.getElementById('cancelModal').style.display = 'none';
+        }
+        
+        function submitCancel() {
+            document.getElementById('cancelForm').submit();
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const refundModal = document.getElementById('refundModal');
+            const cancelModal = document.getElementById('cancelModal');
+            if (event.target == refundModal) {
+                refundModal.style.display = 'none';
+            }
+            if (event.target == cancelModal) {
+                cancelModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

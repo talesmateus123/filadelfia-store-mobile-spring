@@ -35,6 +35,7 @@ public class ProductDTO {
     private Long categoryId;
     private String categoryName;
     private Boolean active = true;
+    private Boolean featured = false;
 
     public String getPriceFormatted() {
         if (price == null) {

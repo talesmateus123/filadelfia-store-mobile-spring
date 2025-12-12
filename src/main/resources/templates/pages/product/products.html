@@ -1,18 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<div th:replace="~{layout :: head}">
-</div>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}">
+</head>
 <body>
-    <div th:replace="~{layout :: header}">
-    </div>
+    <header th:replace="~{layout :: header}">
+    </header>
 
     <div class="container">
         <div id="produtos" class="tab-content active">
             <div class="section-title">
                 <h2 th:text="${pageTitle}"></h2>
-                <a th:href="@{/products/create}" class="button">
-                    <img th:src="@{/images/ion-icons/svg/add-sharp.svg}" alt="Adicionar">
-                </a>
+                <div>
+                    <a th:href="@{/products/featured}" class="button" title="Ver apenas produtos em destaque">
+                        <img th:src="@{/images/ion-icons/svg/star-outline.svg}" alt="Destaques">
+                    </a>
+                    <a th:href="@{/products/create}" class="button">
+                        <img th:src="@{/images/ion-icons/svg/add-sharp.svg}" alt="Adicionar">
+                    </a>
+                </div>
             </div>
 
             <!-- Display flash messages -->
@@ -31,6 +37,7 @@
                             <th>Categoria</th>
                             <th>Descrição</th>
                             <th>Ativo</th>
+                            <th>Destaque</th>
                             <th>Preço</th>
                             <th>Estoque</th>
                             <th>Ações</th>
@@ -42,10 +49,23 @@
                             <td th:text="${product.categoryName}"></td>
                             <td th:text="${product.description}"></td>
                             <td th:text="${product.active} ? 'Sim' : 'Não'"></td>
+                            <td>
+                                <span th:if="${product.featured}" style="color: gold;">★</span>
+                                <span th:if="${!product.featured}" style="color: #ccc;">☆</span>
+                            </td>
                             <td th:text="${product.priceFormatted}"></td>
                             <td th:text="${product.stock}"></td>
                             <td>
-                                <a th:href="@{'/products/' + ${product.id}}" class="view-button">Ver Detalhes</a>
+                                <a th:href="@{'/products/' + ${product.id}}" class="view-button">Ver</a>
+                                <a th:href="@{'/products/edit/' + ${product.id}}" class="edit-button">Editar</a>
+                                <form th:if="${product.active}" style="display: inline;" th:action="@{/products/delete/{id}(id=${product.id})}" method="post" 
+                                      onsubmit="return confirm('Tem certeza que deseja desabilitar este produto?')">
+                                    <button type="submit" class="delete-button">Desabilitar</button>
+                                </form>
+                                <form th:if="${!product.active}" style="display: inline;" th:action="@{/products/activate/{id}(id=${product.id})}" method="post" 
+                                      onsubmit="return confirm('Tem certeza que deseja ativar este produto?')">
+                                    <button type="submit" class="activate-button">Ativar</button>
+                                </form>
                             </td>
                         </tr>
                     </tbody>
@@ -58,7 +78,10 @@
         </div>
     </div>
     
-    <div th:replace="~{layout :: footer}">
+    <footer th:replace="~{layout :: footer}">
+    </footer>
+    
+    <div th:replace="~{layout :: scripts}">
     </div>
 </body>
 </html>

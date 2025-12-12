@@ -61,53 +61,75 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
   - [x] Forgot password with email verification
   - [x] Spring Security configuration
 
-- [ ] **1.2 Role-Based Access Control** (6-8 hours)
-  - [ ] Update UserRole enum (ADMIN, MANAGER, USER)
-  - [ ] Implement role-based navigation menus
-  - [ ] ADMIN: Full access to users, categories, products, orders
-  - [ ] MANAGER: Access to categories, products, order management (no user management)
-  - [ ] USER: Access to shopping cart, orders, profile management
-  - [ ] Add method-level security annotations (@PreAuthorize)
-  - [ ] Create role-specific dashboards
+- [x] **1.2 Role-Based Access Control** (COMPLETED)
+  - [x] Update UserRole enum (ADMIN, MANAGER, USER)
+  - [x] Implement role-based navigation menus
+  - [x] ADMIN: Full access to users, categories, products, orders
+  - [x] MANAGER: Access to categories, products, order management (no user management)
+  - [x] USER: Access to shopping cart, orders, profile management
+  - [x] Add method-level security annotations (@PreAuthorize)
+  - [x] Create role-specific dashboards
 
 - [ ] **1.3 Complete User Management (MVC)** (4-6 hours)
   - [ ] Migrate User CRUD from API to MVC controllers
   - [ ] Add proper validation and error handling
   - [ ] Implement user profile management for all roles
 
+- [x] **1.3.1 CSS abstraction** (COMPLETED)
+  - [x] Search and remove unused css styles
+  - [x] Separate style.css file in abstracted files
+
 ### Phase 2: E-Commerce Core Entities (Priority: High)
-- [ ] **2.1 Shopping Cart System** (8-10 hours)
-  - [ ] Create Cart and CartItem entities
-  - [ ] Implement session-based cart for guests
-  - [ ] Implement database cart for logged users
-  - [ ] Add/remove/update cart items (MVC controllers)
-  - [ ] Cart persistence and synchronization
-  - [ ] Cart summary and total calculations
+- [x] **2.1 Shopping Cart System** (COMPLETED)
+  - [x] Create Cart and CartItem entities
+  - [x] Implement session-based cart for guests
+  - [x] Implement database cart for logged users
+  - [x] Add/remove/update cart items (MVC controllers)
+  - [x] Cart persistence and synchronization
+  - [x] Cart summary and total calculations
 
-- [ ] **2.2 Order Management System** (12-15 hours)
-  - [ ] Create Order, OrderItem, OrderStatus entities
-  - [ ] Implement checkout process (MVC)
-  - [ ] Order status workflow (PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
-  - [ ] Order history for customers
-  - [ ] Order management dashboard for ADMIN/MANAGER
-  - [ ] Stock management and validation
+- [x] **2.2 Order Management System** (COMPLETED - MVC Structure)
+  - [x] Create Order, OrderItem, OrderStatus entities
+  - [x] Implement checkout process (MVC)
+  - [x] Order status workflow (PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
+  - [x] Order history for customers
+  - [x] Order management dashboard for ADMIN/MANAGER
+  - [ ] Stock management and validation (pending business logic)
 
-- [ ] **2.3 Customer Information** (4-6 hours)
-  - [ ] Create Customer entity (extends User)
+- [x] **2.3 Feature Products Page** (COMPLETED - November 2025)
+  - [x] Create Feature Products as the Home page to the customer
+  - [x] Create A Category base view for the customer
+  - [x] All thif flows has to have search feature
+  - [x] When clicking some product, the Customer will hava a detailed view with images (TODO), descrition, Add to cart button.
+  - [x] Create the cart page
+  - [x] Implement shipping address flow
+  - [x] Implement user feedback comments when finishing the purchase
+  - [x] Implement Payment page (Don't implement Payment yet, only the view)
+  - [x] Create a feedback section for the product details page
+  - [x] When disable a product it's not possible to activate it more
+  - [x] The Icons within the "h4" tags, in the "action-card"'s div are not working well, try to use ion-icons folder instead
+
+- [ ] **2.4 Customer Information** (4-6 hours)
+  - [ ] Create Customer entity (User field)
   - [ ] Add shipping address management
   - [ ] Customer profile with order history
   - [ ] Address validation and formatting
 
 ### Phase 3: Payment System (Priority: High)
-- [ ] **3.1 Payment Methods Implementation** (15-20 hours)
-  - [ ] Create Payment, PaymentMethod entities
-  - [ ] Credit Card payment integration
-  - [ ] Boleto bancário integration
-  - [ ] PIX payment integration
-  - [ ] Payment status tracking
-  - [ ] Payment confirmation handling
+- [x] **3.1 Payment Methods Implementation** (15-20 hours) - COMPLETED
+  - [x] Create Payment, PaymentMethod entities
+  - [x] Credit Card payment integration
+  - [x] Boleto bancário integration
+  - [x] PIX payment integration
+  - [x] Payment status tracking
+  - [x] Payment confirmation handling
 
-- [ ] **3.2 Invoice Generation (Nota Fiscal)** (10-12 hours)
+- [ ] **3.1.1 Payment Gateway Implementation** (2 hours)
+  - [ ] Integrate payment with some payment gateway, like, PayPal, or PagSeguro
+
+- [ ] **3.2 Implement erro logging throught crashlytics or similar** (10-12 hours)
+
+- [ ] **3.3 Invoice Generation (Nota Fiscal)** (10-12 hours)
   - [ ] Create Invoice entity
   - [ ] Generate PDF invoices
   - [ ] Tax calculations (if applicable)
@@ -188,6 +210,50 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - [x] Swagger/OpenAPI documentation
 - [x] Exception handling framework
 - [x] Thymeleaf template structure
+- [x] **MVC Architecture Implementation** (November 2025)
+  - [x] Complete role-based access control (ADMIN, MANAGER, USER)
+  - [x] Role-specific dashboards and navigation
+  - [x] Cart and Order entities with business logic
+  - [x] Shopping cart system (session + database persistence)
+  - [x] Order management system with status workflow
+  - [x] MVC controllers for cart, orders, and checkout
+  - [x] Repository layer with custom queries
+  - [x] Service layer with business logic
+  - [x] DTO mapping and validation
+  - [x] Thymeleaf templates for all cart/order flows
+  - [x] Payment method and order status enums
+  - [x] Build compilation and runtime fixes
+  - [x] **CSS Architecture Modularization** (November 2025)
+    - [x] CSS abstraction and removal of unused styles
+    - [x] Modular CSS component architecture
+    - [x] Created component-based CSS files (base, layout, forms, tables, buttons, notifications, navigation, dashboard, utilities, profile)
+    - [x] Updated template includes for modular CSS loading
+    - [x] Maintained backward compatibility with legacy styles
+    - [x] Fixed broken user profile page styling and functionality
+    - [x] Added outline button variants and profile-specific styles
+  - [x] **Feature Products Page Implementation** (November 2025)
+    - [x] Customer-facing homepage with featured products showcase
+    - [x] Category-based product browsing and filtering
+    - [x] Enhanced search functionality (name and description)
+    - [x] Detailed product views with add-to-cart functionality
+    - [x] Public product catalog accessible to all users
+    - [x] Responsive product grid layouts and modern UI
+    - [x] Integration with existing cart system for authenticated users
+    - [x] Login prompts and registration call-to-actions for guests
+  - [x] **Payment System Implementation** (November 2025)
+    - [x] Complete Payment and PaymentMethod entities with JPA mappings
+    - [x] Payment status management with lifecycle tracking (PENDING → PROCESSING → CONFIRMED)
+    - [x] Credit Card payment processing with gateway simulation
+    - [x] PIX payment integration with QR code and copy-paste generation
+    - [x] Boleto bancário integration with barcode and due date management
+    - [x] Bank Transfer and Cash payment method support
+    - [x] Payment repository with comprehensive queries and statistics
+    - [x] Payment service layer with business logic and validation
+    - [x] Payment web controller with user and admin interfaces
+    - [x] Payment confirmation, cancellation, and refund capabilities
+    - [x] Processing fee calculation and payment method validation
+    - [x] Payment statistics and reporting functionality
+    - [x] Webhook/callback handling structure for payment gateways
 
 ### Architecture Decision: MVC-First Approach
 The project has pivoted to prioritize **Server-Side MVC architecture** with Thymeleaf templates over REST API implementation. This approach provides:

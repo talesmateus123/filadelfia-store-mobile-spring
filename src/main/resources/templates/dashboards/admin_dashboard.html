@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}">
+</head>
+<body>
+    <header th:replace="~{layout :: header}">
+    </header>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 th:text="${pageTitle}">Painel Administrativo</h2>
+            <p class="dashboard-subtitle">Visão geral completa do sistema</p>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3>Usuários</h3>
+                    <p class="stat-number" th:text="${totalUsers} ?: '0'">0</p>
+                    <a href="/users" class="stat-link">Gerenciar Usuários</a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-content">
+                    <h3>Produtos</h3>
+                    <p class="stat-number" th:text="${totalProducts} ?: '0'">0</p>
+                    <a href="/products" class="stat-link">Gerenciar Produtos</a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🛒</div>
+                <div class="stat-content">
+                    <h3>Pedidos</h3>
+                    <p class="stat-number" th:text="${totalOrders} ?: '0'">0</p>
+                    <a href="/orders/manage" class="stat-link">Gerenciar Pedidos</a>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <h3>Receita</h3>
+                    <p class="stat-number" th:text="${totalRevenue} ?: 'R$ 0,00'">R$ 0,00</p>
+                    <a href="/reports" class="stat-link">Ver Relatórios</a>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💳</div>
+                <div class="stat-content">
+                    <h3>Pagamentos</h3>
+                    <p class="stat-number" th:text="${totalPayments} ?: '0'">0</p>
+                    <a href="/admin/payments" class="stat-link">Gerenciar Pagamentos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-actions">
+            <h3>Ações Rápidas</h3>
+            <div class="action-buttons">
+                <a href="/users/create" class="btn btn-primary">
+                    <img th:src="@{/images/ion-icons/svg/person-add-outline.svg}" alt="Adicionar"> 
+                    Novo Usuário
+                </a>
+                <a href="/products/create" class="btn btn-success">
+                    <img th:src="@{/images/ion-icons/svg/add-outline.svg}" alt="Adicionar"> 
+                    Novo Produto
+                </a>
+                <a href="/categories/create" class="btn btn-info">
+                    <img th:src="@{/images/ion-icons/svg/folder-outline.svg}" alt="Adicionar"> 
+                    Nova Categoria
+                </a>
+                <a href="/orders/manage" class="btn btn-warning">
+                    <img th:src="@{/images/ion-icons/svg/list-outline.svg}" alt="Ver"> 
+                    Ver Pedidos
+                </a>
+                <a href="/admin/payments" class="btn btn-success">
+                    <img th:src="@{/images/ion-icons/svg/card-outline.svg}" alt="Ver"> 
+                    Gerenciar Pagamentos
+                </a>
+            </div>
+        </div>
+
+        <div class="recent-activity" th:if="${recentOrders != null and not #lists.isEmpty(recentOrders)}">
+            <h3>Pedidos Recentes</h3>
+            <div class="activity-list">
+                <div class="activity-item" th:each="order : ${recentOrders}">
+                    <div class="activity-info">
+                        <p class="activity-title">Pedido #<span th:text="${order.id}">123</span></p>
+                        <p class="activity-details" th:text="${order.userName}">Cliente</p>
+                    </div>
+                    <div class="activity-status">
+                        <span class="status-badge" th:classappend="${order.status}" th:text="${order.status}">Status</span>
+                    </div>
+                    <div class="activity-amount">
+                        <span th:text="${order.total}">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{layout :: footer}">
+    </footer>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+</body>
+</html>

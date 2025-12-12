@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="~{layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <main>
+        <div class="container">
+            <div th:replace="~{layout :: notifications}"></div>
+            
+            <!-- Page Header -->
+            <div class="section-title">
+                <h2>💳 Finalizar Pedido</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/cart}">Carrinho</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Checkout Container -->
+            <div class="checkout-container">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="summary-card">
+                        <h3>📋 Resumo do Pedido</h3>
+                        <div th:if="${cart != null and !cart.empty}">
+                            <div class="order-items">
+                                <div th:each="item : ${cart.items}" class="order-item">
+                                    <div class="item-info">
+                                        <strong th:text="${item.productName}"></strong>
+                                        <span class="item-qty" th:text="'Qtd: ' + ${item.quantity}"></span>
+                                    </div>
+                                    <div class="item-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}"></div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}"></span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Frete:</span>
+                                <span class="text-success">Grátis</span>
+                            </div>
+                            <hr>
+                            <div class="summary-row total">
+                                <strong>Total:</strong>
+                                <strong th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}"></strong>
+                            </div>
+                        </div>
+                        <div th:if="${cart == null or cart.empty}" class="text-center text-muted">
+                            <p>Carrinho vazio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+                <div class="checkout-form">
+                    <form th:action="@{/orders/create}" method="post">
+                        <!-- Address Section -->
+                        <div class="form-section">
+                            <h3>📍 Endereço de Entrega</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="shippingStreet">Rua</label>
+                                    <input type="text" id="shippingStreet" name="shippingStreet" 
+                                           class="form-control" required placeholder="Nome da rua">
+                                </div>
+                                <div class="form-group" style="max-width: 150px;">
+                                    <label for="shippingNumber">Número</label>
+                                    <input type="text" id="shippingNumber" name="shippingNumber" 
+                                           class="form-control" required placeholder="123">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="shippingComplement">Complemento</label>
+                                <input type="text" id="shippingComplement" name="shippingComplement" 
+                                       class="form-control" placeholder="Apartamento, bloco, etc. (opcional)">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="shippingNeighborhood">Bairro</label>
+                                    <input type="text" id="shippingNeighborhood" name="shippingNeighborhood" 
+                                           class="form-control" required placeholder="Nome do bairro">
+                                </div>
+                                <div class="form-group">
+                                    <label for="shippingCity">Cidade</label>
+                                    <input type="text" id="shippingCity" name="shippingCity" 
+                                           class="form-control" required placeholder="Nome da cidade">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group" style="max-width: 100px;">
+                                    <label for="shippingState">UF</label>
+                                    <input type="text" id="shippingState" name="shippingState" 
+                                           class="form-control" required placeholder="SP" maxlength="2" 
+                                           style="text-transform: uppercase;">
+                                </div>
+                                <div class="form-group" style="max-width: 150px;">
+                                    <label for="shippingZipCode">CEP</label>
+                                    <input type="text" id="shippingZipCode" name="shippingZipCode" 
+                                           class="form-control" required placeholder="12345-678" 
+                                           pattern="[0-9]{5}-?[0-9]{3}" title="CEP no formato 12345-678">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method Section -->
+                        <div class="form-section">
+                            <h3>💳 Forma de Pagamento</h3>
+                            
+                            <div class="payment-methods">
+                                <div class="payment-option">
+                                    <input type="radio" id="credit_card" name="paymentMethod" 
+                                           value="CREDIT_CARD" checked>
+                                    <label for="credit_card" class="payment-label">
+                                        💳 Cartão de Crédito
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" id="debit_card" name="paymentMethod" 
+                                           value="DEBIT_CARD">
+                                    <label for="debit_card" class="payment-label">
+                                        💳 Cartão de Débito
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" id="pix" name="paymentMethod" 
+                                           value="PIX">
+                                    <label for="pix" class="payment-label">
+                                        📱 PIX
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" id="bank_slip" name="paymentMethod" 
+                                           value="BANK_SLIP">
+                                    <label for="bank_slip" class="payment-label">
+                                        📄 Boleto Bancário
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="checkout-actions">
+                            <a th:href="@{/cart}" class="btn btn-outline">
+                                ← Voltar ao Carrinho
+                            </a>
+                            <button type="submit" class="btn btn-primary" 
+                                    th:disabled="${cart == null or cart.empty}">
+                                🛒 Finalizar Pedido
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+    
+    <script>
+        // Format CEP input
+        document.getElementById('shippingZipCode').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value;
+        });
+        
+        // Format state input (uppercase)
+        document.getElementById('shippingState').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    </script>
+</body>
+</html>

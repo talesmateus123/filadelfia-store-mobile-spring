@@ -35,3 +35,6 @@ build/
 # Environment variables
 .env
 .env.local
+
+# Image files
+src/main/resources/static/images/products/*

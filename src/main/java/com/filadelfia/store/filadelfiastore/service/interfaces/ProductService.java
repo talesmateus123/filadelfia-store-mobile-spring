@@ -16,9 +16,25 @@ public interface ProductService {
     Page<ProductDTO> getAllProducts(Pageable pageable);
     ProductDTO updateProduct(Long id, ProductDTO request);
     void deleteProduct(Long id);
+    void activateProduct(Long id);
 
     List<ProductDTO> getAllActiveProducts();
     List<ProductDTO> getProductsByCategory(String categoryName);
     List<ProductDTO> searchProducts(String searchTerm);
     List<ProductDTO> getFeaturedProducts();
+    
+    // Featured products management
+    ProductDTO setProductFeatured(Long id, Boolean featured);
+    List<ProductDTO> getAllFeaturedProducts();
+    
+    // Stock management
+    List<ProductDTO> getLowStockProducts();
+    List<ProductDTO> getLowStockProducts(int threshold);
+    Long getLowStockProductsCount();
+    Long getLowStockProductsCount(int threshold);
+    
+    // Image management
+    ProductDTO updateProductImage(Long productId, org.springframework.web.multipart.MultipartFile imageFile);
+    boolean deleteProductImage(Long productId);
+    boolean hasValidImage(Long productId);
 }

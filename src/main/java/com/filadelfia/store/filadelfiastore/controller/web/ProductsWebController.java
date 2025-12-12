@@ -4,6 +4,7 @@ import com.filadelfia.store.filadelfiastore.model.dto.ProductDTO;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/products")
+@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
 public class ProductsWebController {
 
     private final ProductService productService;
@@ -50,7 +52,7 @@ public class ProductsWebController {
             products = productService.getProductsByCategory(category);
             model.addAttribute("selectedCategory", category);
         } else {
-            products = productService.getAllActiveProducts();
+            products = productService.getAllProducts();
         }
 
         model.addAttribute("products", products);
@@ -66,6 +68,7 @@ public class ProductsWebController {
         model.addAttribute("pageTitle", "Novo Produto");          
         model.addAttribute("productDTO", new ProductDTO()); // Objeto para o formulário
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("isEdit", false);
         
         model.addAttribute("activePage", activePage);
         return "pages/product/create_product";
@@ -75,24 +78,42 @@ public class ProductsWebController {
     public String createProduct(
             @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
             BindingResult bindingResult,
+            @RequestParam(value = "imageFile", required = false) org.springframework.web.multipart.MultipartFile imageFile,
             Model model,
             RedirectAttributes redirectAttributes) {
         
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Novo Produto");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("isEdit", false);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
         }
         
         try {
+            // Create product first
             ProductDTO createdProduct = productService.createProduct(productDTO);
-            redirectAttributes.addFlashAttribute("successMessage", "Produto criado com sucesso!");
+            
+            // Upload image if provided
+            if (imageFile != null && !imageFile.isEmpty()) {
+                try {
+                    productService.updateProductImage(createdProduct.getId(), imageFile);
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto criado com sucesso e imagem enviada!");
+                } catch (Exception imageError) {
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto criado com sucesso, mas houve erro no envio da imagem: " + imageError.getMessage());
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage", "Produto criado com sucesso!");
+            }
+            
             return "redirect:/products/" + createdProduct.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar produto: " + e.getMessage());
             model.addAttribute("pageTitle", "Novo Produto");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("isEdit", false);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
         }
@@ -103,7 +124,7 @@ public class ProductsWebController {
     public String editProductForm(@PathVariable Long id, Model model) {
         Optional<ProductDTO> productOpt = productService.getProductById(id);
         
-        if (productOpt.isEmpty() || !productOpt.get().getActive()) {
+        if (productOpt.isEmpty()) {
             return "redirect:/products";
         }
         
@@ -121,6 +142,7 @@ public class ProductsWebController {
             @PathVariable Long id,
             @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
             BindingResult bindingResult,
+            @RequestParam(value = "imageFile", required = false) org.springframework.web.multipart.MultipartFile imageFile,
             Model model,
             RedirectAttributes redirectAttributes) {
         
@@ -133,8 +155,23 @@ public class ProductsWebController {
         }
         
         try {
+            // Update product first
             productService.updateProduct(id, productDTO);
-            redirectAttributes.addFlashAttribute("successMessage", "Produto atualizado com sucesso!");
+            
+            // Upload new image if provided
+            if (imageFile != null && !imageFile.isEmpty()) {
+                try {
+                    productService.updateProductImage(id, imageFile);
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto atualizado com sucesso e nova imagem enviada!");
+                } catch (Exception imageError) {
+                    redirectAttributes.addFlashAttribute("successMessage", 
+                        "Produto atualizado com sucesso, mas houve erro no envio da imagem: " + imageError.getMessage());
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage", "Produto atualizado com sucesso!");
+            }
+            
             return "redirect:/products/" + id;
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao atualizar produto: " + e.getMessage());
@@ -150,7 +187,7 @@ public class ProductsWebController {
     public String productDetail(@PathVariable Long id, Model model) {
         Optional<ProductDTO> product = productService.getProductById(id);
         
-        if (product.isEmpty() || !product.get().getActive()) {
+        if (product.isEmpty()) {
             return "redirect:/products";
         }
 
@@ -169,11 +206,108 @@ public class ProductsWebController {
         
         try {
             productService.deleteProduct(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Produto removido com sucesso!");
+            redirectAttributes.addFlashAttribute("successMessage", "Produto desabilitado com sucesso!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao remover produto: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao desabilitar produto: " + e.getMessage());
         }
         
         return "redirect:/products";
+    }
+
+    @PostMapping("/activate/{id}")
+    public String activateProduct(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            productService.activateProduct(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Produto ativado com sucesso!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao ativar produto: " + e.getMessage());
+        }
+        
+        return "redirect:/products";
+    }
+
+    // Image management endpoints
+    @PostMapping("/{id}/upload-image")
+    public String uploadProductImage(
+            @PathVariable Long id,
+            @RequestParam("imageFile") org.springframework.web.multipart.MultipartFile imageFile,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            if (imageFile.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Por favor, selecione uma imagem para enviar.");
+                return "redirect:/products/" + id;
+            }
+
+            ProductDTO updatedProduct = productService.updateProductImage(id, imageFile);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Imagem do produto '" + updatedProduct.getName() + "' atualizada com sucesso!");
+            
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erro ao fazer upload da imagem: " + e.getMessage());
+        }
+        
+        return "redirect:/products/" + id;
+    }
+
+    @PostMapping("/{id}/delete-image")
+    public String deleteProductImage(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            boolean deleted = productService.deleteProductImage(id);
+            if (deleted) {
+                redirectAttributes.addFlashAttribute("successMessage", "Imagem do produto removida com sucesso!");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Nenhuma imagem encontrada para remover.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erro ao remover imagem: " + e.getMessage());
+        }
+        
+        return "redirect:/products/" + id;
+    }
+
+    // Featured products management endpoints
+    @GetMapping("/featured")
+    public String listFeaturedProducts(Model model) {
+        List<ProductDTO> featuredProducts = productService.getAllFeaturedProducts();
+        
+        model.addAttribute("pageTitle", "Produtos em Destaque");
+        model.addAttribute("products", featuredProducts);
+        model.addAttribute("showFeaturedOnly", true);
+        model.addAttribute("activePage", activePage);
+        
+        return "pages/product/products";
+    }
+
+    @PostMapping("/set-featured/{id}")
+    public String toggleProductFeatured(
+            @PathVariable Long id,
+            @RequestParam("featured") Boolean featured,
+            RedirectAttributes redirectAttributes) {
+        
+        try {
+            ProductDTO updatedProduct = productService.setProductFeatured(id, featured);
+            
+            String message = featured ? 
+                "Produto '" + updatedProduct.getName() + "' marcado como destaque!" :
+                "Produto '" + updatedProduct.getName() + "' removido dos destaques!";
+            
+            redirectAttributes.addFlashAttribute("successMessage", message);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erro ao modificar destaque do produto: " + e.getMessage());
+        }
+        
+        return "redirect:/products/" + id;
     }
 }
