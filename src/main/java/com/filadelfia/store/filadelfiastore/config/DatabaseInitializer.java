@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +24,19 @@ public class DatabaseInitializer {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    @Autowired
+    private Environment environment;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void initializeDatabase() {
+        // Skip database initialization for test profile
+        if (environment.acceptsProfiles("test")) {
+            logger.info("Skipping database initialization for test profile");
+            return;
+        }
+        
         logger.info("Starting database schema validation and initialization...");
         
         try {
