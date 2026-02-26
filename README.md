@@ -19,7 +19,7 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 - **Responsive UI** using server-side rendering (Thymeleaf)
 
 ## Technology stack
-- Backend: Spring Boot (Java)
+- Backend: Spring Boot (Java 21.0.9)
 - Templating: Thymeleaf
 - Database: MySQL
 - Build: Maven
