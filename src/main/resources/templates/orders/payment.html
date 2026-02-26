@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="~{layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <main>
+        <div class="container">
+            <div th:replace="~{layout :: notifications}"></div>
+            
+            <!-- Success Header -->
+            <div class="payment-header">
+                <div class="success-icon">✅</div>
+                <h1>Pedido Confirmado!</h1>
+                <p class="order-number">Pedido #<span th:text="${order.orderNumber}">ORD-001</span></p>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="payment-container">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h3>📋 Resumo do Pedido</h3>
+                    
+                    <div class="order-details">
+                        <div class="detail-row">
+                            <span>Pedido:</span>
+                            <strong th:text="${order.orderNumber}">ORD-001</strong>
+                        </div>
+                        <div class="detail-row">
+                            <span>Data:</span>
+                            <span th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">15/11/2025 14:30</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Status:</span>
+                            <span class="status-pending">Aguardando Pagamento</span>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="order-items">
+                        <div th:each="item : ${order.items}" class="order-item">
+                            <div class="item-info">
+                                <strong th:text="${item.productName}">Produto</strong>
+                                <span class="item-qty" th:text="'Qtd: ' + ${item.quantity}">Qtd: 1</span>
+                            </div>
+                            <div class="item-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 100,00</div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="order-totals">
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span th:text="'R$ ' + ${#numbers.formatDecimal(order.subtotal, 1, 2)}">R$ 100,00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Frete:</span>
+                            <span class="text-success">Grátis</span>
+                        </div>
+                        <div class="total-row final-total">
+                            <strong>Total:</strong>
+                            <strong th:text="'R$ ' + ${#numbers.formatDecimal(order.total, 1, 2)}">R$ 100,00</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Instructions -->
+                <div class="payment-instructions">
+                    <!-- Credit Card Payment -->
+                    <div th:if="${order.paymentMethod.name() == 'CREDIT_CARD'}" class="payment-method">
+                        <h3>💳 Pagamento com Cartão de Crédito</h3>
+                        <div class="payment-info">
+                            <div class="info-card">
+                                <p><strong>Instruções:</strong></p>
+                                <ol>
+                                    <li>Você será redirecionado para o processador de pagamentos</li>
+                                    <li>Insira os dados do seu cartão de crédito</li>
+                                    <li>Confirme o pagamento</li>
+                                    <li>Aguarde a confirmação</li>
+                                </ol>
+                                
+                                <div class="payment-security">
+                                    <p>🔒 <strong>Pagamento Seguro</strong></p>
+                                    <p>Seus dados são protegidos por criptografia SSL</p>
+                                </div>
+                                
+                                <button class="btn btn-primary btn-large" disabled>
+                                    💳 Pagar com Cartão
+                                    <small>(Em breve)</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Debit Card Payment -->
+                    <div th:if="${order.paymentMethod.name() == 'DEBIT_CARD'}" class="payment-method">
+                        <h3>💳 Pagamento com Cartão de Débito</h3>
+                        <div class="payment-info">
+                            <div class="info-card">
+                                <p><strong>Instruções:</strong></p>
+                                <ol>
+                                    <li>Você será redirecionado para o processador de pagamentos</li>
+                                    <li>Insira os dados do seu cartão de débito</li>
+                                    <li>Confirme o pagamento</li>
+                                    <li>O valor será debitado imediatamente</li>
+                                </ol>
+                                
+                                <div class="payment-security">
+                                    <p>🔒 <strong>Pagamento Seguro</strong></p>
+                                    <p>Seus dados são protegidos por criptografia SSL</p>
+                                </div>
+                                
+                                <button class="btn btn-primary btn-large" disabled>
+                                    💳 Pagar com Débito
+                                    <small>(Em breve)</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PIX Payment -->
+                    <div th:if="${order.paymentMethod.name() == 'PIX'}" class="payment-method">
+                        <h3>📱 Pagamento via PIX</h3>
+                        <div class="payment-info">
+                            <div class="info-card">
+                                <div class="pix-instructions">
+                                    <p><strong>Como pagar:</strong></p>
+                                    <ol>
+                                        <li>Abra o aplicativo do seu banco</li>
+                                        <li>Escolha a opção PIX</li>
+                                        <li>Escaneie o QR Code ou copie o código</li>
+                                        <li>Confirme o pagamento</li>
+                                    </ol>
+                                </div>
+                                
+                                <div class="pix-qr">
+                                    <div class="qr-placeholder">
+                                        <div class="qr-code">
+                                            📱<br>
+                                            QR CODE<br>
+                                            (Simulado)
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pix-code">
+                                        <label>Código PIX:</label>
+                                        <div class="code-container">
+                                            <input type="text" readonly 
+                                                   value="00020126330014BR.GOV.BCB.PIX0114+55119999999990204000053039865802BR5913FILADELFIA STORE6009SAO PAULO61080540900062070503***6304XXXX"
+                                                   id="pixCode">
+                                            <button class="btn btn-outline btn-sm" onclick="copyPixCode()">
+                                                📋 Copiar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="pix-info">
+                                    <p>⏰ <strong>Pagamento PIX:</strong> Instantâneo</p>
+                                    <p>💡 O pedido será confirmado automaticamente após o pagamento</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Slip Payment -->
+                    <div th:if="${order.paymentMethod.name() == 'BANK_SLIP'}" class="payment-method">
+                        <h3>📄 Boleto Bancário</h3>
+                        <div class="payment-info">
+                            <div class="info-card">
+                                <div class="boleto-info">
+                                    <p><strong>Informações do Boleto:</strong></p>
+                                    <div class="boleto-details">
+                                        <div class="detail-row">
+                                            <span>Valor:</span>
+                                            <strong th:text="'R$ ' + ${#numbers.formatDecimal(order.total, 1, 2)}">R$ 100,00</strong>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span>Vencimento:</span>
+                                            <strong>3 dias úteis</strong>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span>Código de Barras:</span>
+                                            <code>34191.09008 12345.678901 23456.789012 3 98760000010000</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="boleto-instructions">
+                                    <p><strong>Como pagar:</strong></p>
+                                    <ol>
+                                        <li>Baixe o boleto clicando no botão abaixo</li>
+                                        <li>Pague em qualquer banco, lotérica ou internet banking</li>
+                                        <li>O prazo de compensação é de 1 a 3 dias úteis</li>
+                                        <li>Guarde o comprovante de pagamento</li>
+                                    </ol>
+                                </div>
+                                
+                                <button class="btn btn-primary btn-large" disabled>
+                                    📄 Baixar Boleto
+                                    <small>(Em breve)</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div class="shipping-info">
+                        <h3>📍 Endereço de Entrega</h3>
+                        <div class="address-card">
+                            <address th:text="${order.fullShippingAddress}">
+                                Rua Example, 123 - Bairro
+                                Cidade - UF, CEP: 12345-678
+                            </address>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="payment-actions">
+                <a th:href="@{/orders/my}" class="btn btn-outline">
+                    📋 Ver Meus Pedidos
+                </a>
+                <a th:href="@{/shop}" class="btn btn-secondary">
+                    🛍️ Continuar Comprando
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+    
+    <script>
+        function copyPixCode() {
+            const pixCode = document.getElementById('pixCode');
+            pixCode.select();
+            pixCode.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '✅ Copiado!';
+            button.classList.add('success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('success');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -1,6 +1,5 @@
 package com.filadelfia.store.filadelfiastore.model.dto;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +10,7 @@ import lombok.Setter;
 
 import java.sql.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.filadelfia.store.filadelfiastore.model.enums.UserRole;
 
 @Getter
@@ -26,7 +26,8 @@ public class UserDTO {
     private String name;
     @NotNull
     private String email;
-    private String password;    
+    @JsonIgnore
+    private String password;
     @Enumerated(EnumType.STRING)
     private UserRole role;
     private String phone;

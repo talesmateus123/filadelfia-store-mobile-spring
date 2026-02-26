@@ -35,13 +35,14 @@ public class ProductDTO {
     private Long categoryId;
     private String categoryName;
     private Boolean active = true;
+    private Boolean featured = false;
 
     public String getPriceFormatted() {
         if (price == null) {
             return "R$ 0,00";
         }
         
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR"));
         return currencyFormat.format(price);
     }
 

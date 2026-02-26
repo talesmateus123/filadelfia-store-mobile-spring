@@ -2,6 +2,7 @@ package com.filadelfia.store.filadelfiastore.controller.web;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +21,11 @@ public class HomeWebController {
         this.productService = productService;
     }
 
-    @GetMapping("/")
-    public String home(Model model) {
+    @GetMapping()
+    public String home(Model model, Authentication authentication) {
         model.addAttribute("pageTitle", "Bem-vindo à Filadelfia Store");
                 
-        // Get featured products
+        // Get featured products for all users (authenticated or not)
         List<ProductDTO> featuredProducts = productService.getFeaturedProducts();
         model.addAttribute("featuredProducts", featuredProducts);
         

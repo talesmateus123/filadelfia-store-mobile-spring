@@ -1,0 +1,80 @@
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches: [ "develop" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21.0.9' # Sua versão específica
+          distribution: 'temurin' # Eclipse Temurin (recomendado)
+
+      - name: Cache dos pacotes Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build com Maven
+        run: mvn clean package -DskipTests
+
+      - name: Definir nome do arquivo JAR
+        id: vars
+        run: echo "jar_name=$(ls target/*.jar | head -n 1 | xargs -n 1 basename)" >> $GITHUB_OUTPUT
+
+      - name: Configurar chave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Enviar JAR para o VPS via SCP
+        run: |
+          scp -i ~/.ssh/id_rsa target/${{ steps.vars.outputs.jar_name }} \
+            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/opt/filadelfia-store/temp/
+
+      - name: Executar deploy no VPS via SSH
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
+            # Verifica versão do Java
+            java -version
+            
+            # Para a aplicação
+            sudo systemctl stop filadelfia-store || true
+
+            # Backup da versão atual
+            if [ -f /opt/filadelfia-store/filadelfia-store-app.jar ]; then
+              cp /opt/filadelfia-store/filadelfia-store-app.jar \
+                /opt/filadelfia-store/filadelfia-store-app.jar.bak.$(date +%Y%m%d_%H%M%S)
+            fi
+
+            # Move nova versão
+            mv /opt/filadelfia-store/temp/${{ steps.vars.outputs.jar_name }} \
+              /opt/filadelfia-store/filadelfia-store-app.jar
+
+            # Ajusta permissões
+            sudo chown ${{ secrets.VPS_USERNAME }}:${{ secrets.VPS_USERNAME }} \
+              /opt/filadelfia-store/filadelfia-store-app.jar
+            chmod 750 /opt/filadelfia-store/filadelfia-store-app.jar
+
+            # Inicia a aplicação
+            sudo systemctl start filadelfia-store
+
+            # Limpa temp
+            rm -rf /opt/filadelfia-store/temp/*
+
+            # Aguarda e verifica
+            sleep 15
+            sudo systemctl status filadelfia-store --no-pager
+          EOF

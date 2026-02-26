@@ -10,13 +10,18 @@ import com.filadelfia.store.filadelfiastore.model.mapper.CategoryMapper;
 import com.filadelfia.store.filadelfiastore.model.mapper.ProductMapper;
 import com.filadelfia.store.filadelfiastore.repository.CategoryRepository;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
+import com.filadelfia.store.filadelfiastore.util.PageableValidator;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,14 +31,21 @@ public class CategoryServiceImpl implements CategoryService  {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final PageableValidator pageableValidator;
+
+    private final Set<String> ALLOWED_SORT_PROPERTIES = Set.of(
+        "id", "name", "description", "createdAt", "updatedAt"
+    );
   
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, ProductMapper productMapper) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, ProductMapper productMapper, PageableValidator pageableValidator) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
         this.productMapper = productMapper;
+        this.pageableValidator = pageableValidator;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDTO> getAllActiveCategories() {
         return categoryRepository.findByActiveTrue()
             .stream()
@@ -42,8 +54,20 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDTO> searchCategories(String searchTerm) {
-        return categoryRepository.findByNameContainingIgnoreCaseAndActiveTrue(searchTerm)
+        // Validate and sanitize search term
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getAllActiveCategories();
+        }
+        
+        // Limit search term length to prevent abuse
+        String sanitizedTerm = searchTerm.trim();
+        if (sanitizedTerm.length() > 100) {
+            sanitizedTerm = sanitizedTerm.substring(0, 100);
+        }
+        
+        return categoryRepository.findByNameContainingIgnoreCaseAndActiveTrue(sanitizedTerm)
             .stream()
             .map(categoryMapper::toDTO)
             .collect(Collectors.toList());
@@ -51,18 +75,21 @@ public class CategoryServiceImpl implements CategoryService  {
 
     
     @Override
+    @Transactional(readOnly = true)
     public Optional<CategoryDetailedDTO> getCategoryDetailedById(Long id) {
         return categoryRepository.findById(id)
             .map(this::toDetailedDTO);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<CategoryDTO> getCategoryById(Long id) {
         return categoryRepository.findById(id)
             .map(categoryMapper::toDTO);
     }
 
     @Override
+    @Transactional
     public CategoryDTO createCategory(CategoryDTO request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new DuplicateCategoryException("Já existe uma categoria com o nome: " + request.getName());
@@ -73,6 +100,7 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll()
             .stream()
@@ -81,9 +109,22 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
-public CategoryDTO updateCategory(Long id, CategoryDTO request) {
+    @Transactional(readOnly = true)
+    public Page<CategoryDTO> getAllCategories(Pageable pageable) {
+        Pageable safePageable = pageableValidator.validateAndSanitize(
+            pageable, 
+            ALLOWED_SORT_PROPERTIES,
+            "name"
+        );
+        return categoryRepository.findAll(safePageable)
+            .map(categoryMapper::toDTO);
+    }
+
+    @Override
+    @Transactional
+    public CategoryDTO updateCategory(Long id, CategoryDTO request) {
     Category existing = categoryRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
     
     // Verifica se existe outra categoria com o mesmo nome (excluindo a atual)
     if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
@@ -99,11 +140,14 @@ public CategoryDTO updateCategory(Long id, CategoryDTO request) {
 }
 
     @Override
+    @Transactional
     public void deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Category not found");
-        }
-        categoryRepository.deleteById(id);
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+                
+        category.setActive(false);
+        category.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
+        categoryRepository.save(category);
     }
 
 

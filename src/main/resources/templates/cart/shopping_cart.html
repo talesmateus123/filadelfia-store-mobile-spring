@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="~{layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <main>
+        <div class="container">
+            <div th:replace="~{layout :: notifications}"></div>
+            
+            <!-- Page Header -->
+            <div class="section-title">
+                <h2>🛒 Carrinho de Compras</h2>
+                <p>Revise seus itens antes de finalizar a compra</p>
+            </div>
+
+            <!-- Cart Content -->
+            <div class="cart-container">
+                <!-- Cart Items -->
+                <div th:if="${cart != null and !cart.empty}" class="cart-items">
+                    <div class="cart-item" th:each="item : ${cart.items}">
+                        <div class="item-image">
+                            <img th:if="${item.productImageUrl != null and !#strings.isEmpty(item.productImageUrl)}"
+                                 th:src="${item.productImageUrl}" 
+                                 th:alt="${item.productName}">
+                            <div th:unless="${item.productImageUrl != null and !#strings.isEmpty(item.productImageUrl)}"
+                                 class="product-image">
+                                📦
+                            </div>
+                        </div>
+                        <div class="item-details">
+                            <h4 th:text="${item.productName}">Nome do Produto</h4>
+                            <p th:if="${item.productDescription}" th:text="${item.productDescription}">Descrição do produto</p>
+                            <p class="item-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.productPrice, 1, 2)}">R$ 0,00</p>
+                        </div>
+                        <div class="item-quantity">
+                            <form th:action="@{/cart/update}" method="post" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="hidden" name="productId" th:value="${item.productId}">
+                                <button type="submit" name="quantity" th:value="${item.quantity - 1}" 
+                                        class="qty-btn" th:disabled="${item.quantity <= 1}">-</button>
+                                <input type="number" th:value="${item.quantity}" min="1" readonly class="qty-input">
+                                <button type="submit" name="quantity" th:value="${item.quantity + 1}" class="qty-btn">+</button>
+                            </form>
+                        </div>
+                        <div class="item-total">
+                            <p class="subtotal-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 0,00</p>
+                        </div>
+                        <div class="item-actions">
+                            <form th:action="@{/cart/remove}" method="post" style="display: inline;">
+                                <input type="hidden" name="productId" th:value="${item.productId}">
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                        onclick="return confirm('Deseja remover este item do carrinho?')">
+                                    🗑️ Remover
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty Cart -->
+                <div th:if="${cart == null or cart.empty}" class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <h3>Seu carrinho está vazio</h3>
+                    <p>Adicione alguns produtos para começar suas compras!</p>
+                    <a href="/" class="btn btn-primary">Continuar Comprando</a>
+                </div>
+
+                <!-- Cart Summary -->
+                <div th:if="${cart != null and !cart.empty}" class="cart-summary">
+                    <div class="summary-card">
+                        <h3>📋 Resumo do Pedido</h3>
+                        <div class="summary-row">
+                            <span>Subtotal (<span th:text="${cart.totalItems}">0</span> itens):</span>
+                            <span th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}">R$ 0,00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Frete:</span>
+                            <span class="text-success">Grátis</span>
+                        </div>
+                        <hr>
+                        <div class="summary-row total">
+                            <strong>Total:</strong>
+                            <strong th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}">R$ 0,00</strong>
+                        </div>
+                        
+                        <div class="cart-actions">
+                            <a href="/shop" class="btn btn-outline">Continuar Comprando</a>
+                            <a th:href="@{/cart/checkout}" class="btn btn-primary">
+                                💳 Finalizar Compra
+                            </a>
+                        </div>
+
+                        <!-- Clear Cart -->
+                        <form th:action="@{/cart/clear}" method="post" style="margin-top: 1rem;">
+                            <button type="submit" class="btn btn-secondary btn-sm" 
+                                    onclick="return confirm('Deseja limpar todo o carrinho?')">
+                                🗑️ Limpar Carrinho
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

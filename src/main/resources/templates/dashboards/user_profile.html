@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: head}">
+</div>
+<body>
+    <div th:replace="~{layout :: header}">
+    </div>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 th:text="${pageTitle}">Meu Perfil</h2>
+            <p class="dashboard-subtitle">Gerencie suas informações pessoais</p>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <div class="profile-avatar">
+                    <div class="avatar-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                        <span th:text="${user?.name?.substring(0,1)?.toUpperCase()} ?: 'U'">U</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline">Alterar Foto</button>
+                </div>
+                
+                <div class="profile-info">
+                    <h3 th:text="${user?.name} ?: 'Nome do Usuário'">Nome do Usuário</h3>
+                    <p th:text="${user?.email} ?: 'email@exemplo.com'">email@exemplo.com</p>
+                    <span class="role-badge" th:text="${user?.role?.name()} ?: 'USER'">USER</span>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-tabs">
+                    <button class="tab-button active" data-tab="personal">Dados Pessoais</button>
+                    <button class="tab-button" data-tab="security">Segurança</button>
+                    <button class="tab-button" data-tab="orders">Meus Pedidos</button>
+                </div>
+
+                <div class="tab-content active" id="personal">
+                    <form class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Nome Completo</label>
+                                <input type="text" id="name" name="name" th:value="${user?.name}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="email" id="email" name="email" th:value="${user?.email}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Telefone</label>
+                                <input type="tel" id="phone" name="phone" th:value="${user?.phone}">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            <button type="button" class="btn btn-outline">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-content" id="security">
+                    <form class="profile-form">
+                        <h4>Alterar Senha</h4>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Senha Atual</label>
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">Nova Senha</label>
+                            <input type="password" id="newPassword" name="newPassword" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar Nova Senha</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-content" id="orders">
+                    <div class="orders-summary">
+                        <div class="summary-card">
+                            <h4>Total de Pedidos</h4>
+                            <p class="summary-number" th:text="${totalUserOrders} ?: '0'">0</p>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Total Gasto</h4>
+                            <p class="summary-number" th:text="${totalSpent} ?: 'R$ 0,00'">R$ 0,00</p>
+                        </div>
+                    </div>
+
+                    <div class="recent-orders" th:if="${recentUserOrders != null and not #lists.isEmpty(recentUserOrders)}">
+                        <h4>Pedidos Recentes</h4>
+                        <div class="orders-list">
+                            <div class="order-item" th:each="order : ${recentUserOrders}">
+                                <div class="order-info">
+                                    <p class="order-number">Pedido #<span th:text="${order.id}">123</span></p>
+                                    <p class="order-date" th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy')}">Data</p>
+                                </div>
+                                <div class="order-status">
+                                    <span class="status-badge" th:classappend="${order.status}" th:text="${order.status}">Status</span>
+                                </div>
+                                <div class="order-total">
+                                    <span th:text="${order.total}">R$ 0,00</span>
+                                </div>
+                                <div class="order-actions">
+                                    <a th:href="@{'/orders/my/' + ${order.id}}" class="btn btn-sm btn-outline">Ver Detalhes</a>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="/orders/my" class="btn btn-outline">Ver Todos os Pedidos</a>
+                    </div>
+                    
+                    <p th:if="${recentUserOrders == null or #lists.isEmpty(recentUserOrders)}" class="no-orders">
+                        Você ainda não fez nenhum pedido.
+                        <a href="/" class="btn btn-primary">Começar a Comprar</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}">
+    </div>
+
+    <div th:replace="~{layout :: scripts}">
+    </div>
+
+    <script>
+        // Simple tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding content
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

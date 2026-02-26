@@ -1,24 +1,121 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<div th:replace="~{layout :: head}">
-</div>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="~{layout :: head}"></div>
+</head>
 <body>
-    <div th:replace="~{layout :: header}">
-    </div>
-
-    <div class="container">
-        <div class="tab-content active">
-            <div class="section-title">
-                <h2 th:text="${pageTitle}"></h2>
-            </div>
-
-            <div>
-                <p>Essa página está em desenvolvimento.</p>
-            </div>
-         </div>
-    </div>
+    <div th:replace="~{layout :: header}"></div>
     
-    <div th:replace="~{layout :: footer}">
-    </div>
+    <main>
+        <div class="container">
+            <div th:replace="~{layout :: notifications}"></div>
+            
+            <div id="home-content" class="tab-content active">
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <h1 class="hero-title" th:text="${pageTitle}">Bem-vindo à Filadelfia Store</h1>
+                    <p class="hero-subtitle">Produtos exclusivos feitos pela juventude da nossa igreja</p>
+                    <div class="hero-actions">
+                        <a th:href="@{/shop}" class="btn btn-primary btn-large">🛍️ Ver Produtos</a>
+                        <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-outline btn-large">🔑 Fazer Login</a>
+                    </div>
+                </div>
+                
+                <!-- Featured Products Section -->
+                <div th:if="${featuredProducts != null and not #lists.isEmpty(featuredProducts)}" class="featured-products">
+                    <div class="section-title">
+                        <h2>🌟 Produtos em Destaque</h2>
+                        <a th:href="@{/shop}" class="btn btn-outline">Ver Todos</a>
+                    </div>
+                    
+                    <div class="products-grid">
+                        <div th:each="product : ${featuredProducts}" class="product-card">
+                            <div class="product-image">
+                                <img th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}" 
+                                     th:src="${product.imageUrl}" 
+                                     th:alt="${product.name}">
+                                <span th:unless="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
+                                    📦 Sem imagem
+                                </span>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-name" th:text="${product.name}">Nome do Produto</h3>
+                                <p class="product-description" th:text="${product.description}">Descrição do produto</p>
+                                <div class="product-price" th:text="${product.priceFormatted}">R$ 0,00</div>
+                                <div class="product-stock"
+                                     th:classappend="${product.stock > 10} ? 'in-stock' : (${product.stock > 0} ? 'low-stock' : 'out-of-stock')">
+                                    <span th:if="${product.stock > 10}">✅ Em estoque</span>
+                                    <span th:if="${product.stock > 0 and product.stock <= 10}">⚠️ Estoque baixo</span>
+                                    <span th:if="${product.stock == 0}">❌ Esgotado</span>
+                                </div>
+                                <div class="product-actions">
+                                    <a th:href="@{/shop/product/{id}(id=${product.id})}" class="btn-view-details">
+                                        Ver Detalhes
+                                    </a>
+                                    <form th:if="${product.stock > 0}" 
+                                          sec:authorize="isAuthenticated()"
+                                          th:action="@{/cart/add}" method="post" style="flex: 1;">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn-add-cart">
+                                            🛒 Adicionar
+                                        </button>
+                                    </form>
+                                    <a th:unless="${product.stock > 0}" 
+                                       class="btn-add-cart" style="background: #d1d5db; cursor: not-allowed;">
+                                        Esgotado
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions for Authenticated Users -->
+                <div sec:authorize="isAuthenticated()" class="quick-actions mt-5">
+                    <h3>🚀 Ações Rápidas</h3>
+                    <div class="action-cards">
+                        <div class="action-card">
+                            <h4><img th:src="@{/images/ion-icons/svg/cart-outline.svg}" alt="Carrinho" width="24" height="24" style="vertical-align: middle; margin-right: 8px;"> Meu Carrinho</h4>
+                            <p>Visualize e gerencie seus produtos</p>
+                            <a th:href="@{/cart}" class="btn btn-primary">Ir ao Carrinho</a>
+                        </div>
+                        
+                        <div class="action-card">
+                            <h4><img th:src="@{/images/ion-icons/svg/person-outline.svg}" alt="Perfil" width="24" height="24" style="vertical-align: middle; margin-right: 8px;"> Meu Perfil</h4>
+                            <p>Gerencie sua conta e pedidos</p>
+                            <a th:href="@{/dashboard/profile}" class="btn btn-primary">Ver Perfil</a>
+                        </div>
+                        
+                        <div class="action-card" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
+                            <h4><img th:src="@{/images/ion-icons/svg/settings-outline.svg}" alt="Gerenciamento" width="24" height="24" style="vertical-align: middle; margin-right: 8px;"> Gerenciamento</h4>
+                            <p>Administre produtos e categorias</p>
+                            <a th:href="@{/products}" class="btn btn-primary">Gerenciar</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action for Non-Authenticated Users -->
+                <div sec:authorize="!isAuthenticated()" class="cta-section">
+                    <div class="cta-content">
+                        <h3>💡 Crie sua conta e comece a comprar!</h3>
+                        <p>Faça parte da nossa comunidade e tenha acesso a produtos exclusivos.</p>
+                        <div class="cta-actions">
+                            <a th:href="@{/register}" class="btn btn-primary btn-large">
+                                📝 Cadastrar-se
+                            </a>
+                            <a th:href="@{/login}" class="btn btn-outline btn-large">
+                                🔑 Já tenho conta
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
 </body>
 </html>

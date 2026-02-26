@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="~{layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+    
+    <main>
+        <div class="container">
+            <div th:replace="~{layout :: notifications}"></div>
+            
+            <!-- Page Header -->
+            <div class="section-title">
+                <h2 th:text="${pageTitle}">Produtos</h2>
+                <a th:href="@{/shop}" class="btn btn-outline">Ver Todos</a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="product-search">
+                <form th:action="@{/shop/search}" method="get" class="search-form">
+                    <input type="text" name="q" class="search-input" 
+                           placeholder="Pesquisar produtos..." 
+                           th:value="${searchTerm}">
+                    <button type="submit" class="search-btn">🔍 Pesquisar</button>
+                </form>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="category-filter" th:if="${categories != null and not #lists.isEmpty(categories)}">
+                <a th:href="@{/shop}" 
+                   class="category-btn"
+                   th:classappend="${selectedCategory == null} ? 'active' : ''">
+                    Todas as Categorias
+                </a>
+                <a th:each="category : ${categories}"
+                   th:href="@{/shop/category/{name}(name=${category.name})}"
+                   class="category-btn"
+                   th:classappend="${selectedCategory == category.name} ? 'active' : ''"
+                   th:text="${category.name}">
+                    Categoria
+                </a>
+            </div>
+
+            <!-- Results Info -->
+            <div th:if="${totalProducts != null}" class="results-info">
+                <p class="text-muted">
+                    <span th:text="${totalProducts}">0</span> 
+                    <span th:text="${totalProducts == 1} ? 'produto encontrado' : 'produtos encontrados'">produtos encontrados</span>
+                    <span th:if="${searchTerm != null}"> para "<span th:text="${searchTerm}"></span>"</span>
+                    <span th:if="${selectedCategory != null}"> na categoria "<span th:text="${selectedCategory}"></span>"</span>
+                </p>
+            </div>
+
+            <!-- Products Grid -->
+            <div th:if="${products != null and not #lists.isEmpty(products)}" class="featured-products">
+                <div class="products-grid">
+                    <div th:each="product : ${products}" class="product-card">
+                        <div class="product-image">
+                            <img th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}" 
+                                 th:src="${product.imageUrl}" 
+                                 th:alt="${product.name}">
+                            <span th:unless="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
+                                📦 Sem imagem
+                            </span>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name" th:text="${product.name}">Nome do Produto</h3>
+                            <p class="product-description" th:text="${product.description}">Descrição do produto</p>
+                            <div class="product-price" th:text="${product.priceFormatted}">R$ 0,00</div>
+                            <div class="product-stock"
+                                 th:classappend="${product.stock > 10} ? 'in-stock' : (${product.stock > 0} ? 'low-stock' : 'out-of-stock')">
+                                <span th:if="${product.stock > 10}">✅ Em estoque</span>
+                                <span th:if="${product.stock > 0 and product.stock <= 10}">⚠️ Restam apenas <span th:text="${product.stock}">0</span> unidades</span>
+                                <span th:if="${product.stock == 0}">❌ Fora de estoque</span>
+                            </div>
+                            <div class="product-actions">
+                                <a th:href="@{/shop/product/{id}(id=${product.id})}" class="btn-view-details">
+                                    Ver Detalhes
+                                </a>
+                                <form th:if="${product.stock > 0}" 
+                                      sec:authorize="isAuthenticated()"
+                                      th:action="@{/cart/add}" method="post" style="flex: 1;">
+                                    <input type="hidden" name="productId" th:value="${product.id}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn-add-cart">
+                                        🛒 Adicionar
+                                    </button>
+                                </form>
+                                <a th:unless="${product.stock > 0}" 
+                                   class="btn-add-cart" style="background: #d1d5db; cursor: not-allowed;">
+                                    Esgotado
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Products Message -->
+            <div th:unless="${products != null and not #lists.isEmpty(products)}" class="no-products">
+                <h3>🔍 Nenhum produto encontrado</h3>
+                <p th:if="${searchTerm != null}">
+                    Não encontramos produtos para "<strong th:text="${searchTerm}"></strong>".
+                </p>
+                <p th:if="${selectedCategory != null}">
+                    Não há produtos disponíveis na categoria "<strong th:text="${selectedCategory}"></strong>".
+                </p>
+                <p th:unless="${searchTerm != null or selectedCategory != null}">
+                    Não há produtos disponíveis no momento.
+                </p>
+                <a th:href="@{/shop}" class="btn btn-primary">Ver Todos os Produtos</a>
+            </div>
+
+            <!-- Login prompt for non-authenticated users -->
+            <div sec:authorize="!isAuthenticated()" class="mt-4 p-4 bg-light rounded text-center">
+                <h4>💡 Dica</h4>
+                <p>Faça login para adicionar produtos ao seu carrinho e finalizar compras!</p>
+                <a th:href="@{/login}" class="btn btn-primary">Fazer Login</a>
+                <a th:href="@{/register}" class="btn btn-outline ml-2">Cadastrar-se</a>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="~{layout :: footer}"></div>
+    <div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
