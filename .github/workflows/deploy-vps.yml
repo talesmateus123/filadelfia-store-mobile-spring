@@ -15,8 +15,8 @@ jobs:
       - name: Configurar JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '21.0.9' # Sua versão específica
-          distribution: 'temurin' # Eclipse Temurin (recomendado)
+          java-version: '21.0.9'
+          distribution: 'temurin'
 
       - name: Cache dos pacotes Maven
         uses: actions/cache@v3
@@ -35,18 +35,41 @@ jobs:
       - name: Configurar chave SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          # Salva a chave com formatação correta
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Configura o SSH para usar a chave
+          cat > ~/.ssh/config << EOF
+          Host vps-hostinger
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USERNAME }}
+            Port 22
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Testar conexão SSH
+        run: |
+          ssh -v vps-hostinger "echo 'Conexão SSH estabelecida com sucesso!'"
+
+      - name: Criar diretório temp no VPS
+        run: |
+          ssh vps-hostinger "mkdir -p /opt/filadelfia-store/temp"
 
       - name: Enviar JAR para o VPS via SCP
         run: |
-          scp -i ~/.ssh/id_rsa target/${{ steps.vars.outputs.jar_name }} \
-            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/opt/filadelfia-store/temp/
+          scp target/${{ steps.vars.outputs.jar_name }} vps-hostinger:/opt/filadelfia-store/temp/
 
       - name: Executar deploy no VPS via SSH
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh vps-hostinger << 'EOF'
+            # Mostra informações de debug
+            echo "Usuário atual: $(whoami)"
+            echo "Diretório atual: $(pwd)"
+            
             # Verifica versão do Java
             java -version
             
@@ -58,6 +81,10 @@ jobs:
               cp /opt/filadelfia-store/filadelfia-store-app.jar \
                 /opt/filadelfia-store/filadelfia-store-app.jar.bak.$(date +%Y%m%d_%H%M%S)
             fi
+
+            # Lista arquivos no temp para confirmar
+            echo "Arquivos no temp:"
+            ls -la /opt/filadelfia-store/temp/
 
             # Move nova versão
             mv /opt/filadelfia-store/temp/${{ steps.vars.outputs.jar_name }} \
