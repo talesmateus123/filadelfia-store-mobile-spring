@@ -14,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Database initialization component for handling schema migrations
  * and data consistency checks on application startup.
  * 
- * This component ensures that the discriminator column for JPA inheritance
- * is properly initialized for existing records.
+ * This component ensures that the User role column is properly configured
+ * for existing records.
  */
 @Component
 public class DatabaseInitializer {
@@ -40,8 +40,8 @@ public class DatabaseInitializer {
         logger.info("Starting database schema validation and initialization...");
         
         try {
-            // Check if discriminator column exists and is properly configured
-            ensureDiscriminatorColumnIntegrity();
+            // Check if role column exists and is properly configured
+            ensureRoleColumnIntegrity();
             
             logger.info("Database initialization completed successfully");
             
@@ -52,43 +52,40 @@ public class DatabaseInitializer {
         }
     }
     
-    private void ensureDiscriminatorColumnIntegrity() {
+    private void ensureRoleColumnIntegrity() {
         try {
-            // First, check if we have any records with invalid discriminator values
+            // First, check if we have any records with invalid role values
             Integer invalidRecords = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM users WHERE user_type IS NULL OR user_type = '' OR TRIM(user_type) = ''", 
+                "SELECT COUNT(*) FROM users WHERE role IS NULL OR role = '' OR TRIM(role) = ''", 
                 Integer.class
             );
             
             if (invalidRecords != null && invalidRecords > 0) {
-                logger.warn("Found {} records with invalid discriminator values. Applying data migration...", invalidRecords);
+                logger.warn("Found {} records with invalid role values. Applying data migration...", invalidRecords);
                 
-                // Apply business logic-based correction
+                // Apply business logic-based correction - set default role to USER
                 int updatedRows = jdbcTemplate.update(
-                    "UPDATE users SET user_type = CASE " +
-                    "WHEN role = 'CUSTOMER' THEN 'CUSTOMER' " +
-                    "ELSE 'USER' " +
-                    "END " +
-                    "WHERE user_type IS NULL OR user_type = '' OR TRIM(user_type) = ''"
+                    "UPDATE users SET role = 'USER' " +
+                    "WHERE role IS NULL OR role = '' OR TRIM(role) = ''"
                 );
                 
-                logger.info("Successfully migrated discriminator values for {} records", updatedRows);
+                logger.info("Successfully migrated role values for {} records", updatedRows);
                 
                 // Verify the fix
                 Integer remainingInvalid = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(*) FROM users WHERE user_type IS NULL OR user_type = '' OR TRIM(user_type) = ''", 
+                    "SELECT COUNT(*) FROM users WHERE role IS NULL OR role = '' OR TRIM(role) = ''", 
                     Integer.class
                 );
                 
                 if (remainingInvalid != null && remainingInvalid > 0) {
-                    throw new RuntimeException("Failed to fix all discriminator values. Remaining invalid records: " + remainingInvalid);
+                    throw new RuntimeException("Failed to fix all role values. Remaining invalid records: " + remainingInvalid);
                 }
             } else {
-                logger.debug("All discriminator values are valid - no migration needed");
+                logger.debug("All role values are valid - no migration needed");
             }
             
         } catch (Exception e) {
-            logger.error("Failed to ensure discriminator column integrity", e);
+            logger.error("Failed to ensure role column integrity", e);
             throw e;
         }
     }

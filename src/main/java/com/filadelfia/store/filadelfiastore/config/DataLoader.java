@@ -25,9 +25,8 @@ public class DataLoader implements ApplicationRunner {
                 createDefaultAdmin();
             }
         } catch (Exception e) {
-            System.err.println("Error in DataLoader - this might be due to discriminator column issues:");
-            System.err.println("Please run the fix_discriminator.sql script manually in your database");
-            System.err.println("SQL: UPDATE users SET user_type = 'USER' WHERE user_type IS NULL OR user_type = '';");
+            System.err.println("Error in DataLoader - failed to create default admin user:");
+            System.err.println("Error: " + e.getMessage());
             throw e;
         }
     }
