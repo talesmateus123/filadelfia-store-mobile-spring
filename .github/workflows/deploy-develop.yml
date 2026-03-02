@@ -70,12 +70,33 @@ jobs:
         echo "Built JAR: $JAR_FILE"
         ls -la target/*.jar
     
+    - name: 🔍 Verify secrets
+      run: |
+        echo "Verificando configuração dos secrets..."
+        echo "VPS_HOST: ${{ secrets.FILADELFIA_VPS_HOST != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "VPS_USER: ${{ secrets.FILADELFIA_VPS_USER != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT != '' && 'configurado' || 'NÃO CONFIGURADO (padrão: 22)' }}"
+        echo "VPS_SSH_KEY: ${{ secrets.FILADELFIA_VPS_SSH_KEY != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+    
     - name: 🔐 Setup SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.FILADELFIA_VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.FILADELFIA_VPS_HOST }} >> ~/.ssh/known_hosts
+        echo "${{ secrets.FILADELFIA_VPS_SSH_KEY }}" > ~/.ssh/filadelfia_key
+        chmod 600 ~/.ssh/filadelfia_key
+        
+        # Adicionar host às known_hosts
+        ssh-keyscan -p ${{ secrets.FILADELFIA_VPS_PORT || '22' }} -H ${{ secrets.FILADELFIA_VPS_HOST }} >> ~/.ssh/known_hosts || true
+        
+        # Teste de conectividade SSH
+        ssh -i ~/.ssh/filadelfia_key -p ${{ secrets.FILADELFIA_VPS_PORT || '22' }} -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${{ secrets.FILADELFIA_VPS_USER }}@${{ secrets.FILADELFIA_VPS_HOST }} "echo 'SSH connection successful'" || {
+          echo "❌ SSH connection failed. Verifique:"
+          echo "1. GitHub Secrets configurados corretamente"
+          echo "2. Usuário 'filadelfia' existe no servidor"
+          echo "3. Chave pública adicionada em ~/.ssh/authorized_keys"
+          echo "4. IP/porta/usuário corretos"
+          exit 1
+        }
     
     - name: 🚀 Deploy to VPS
       env:
@@ -86,10 +107,10 @@ jobs:
         DATABASE_URL: ${{ secrets.FILADELFIA_DATABASE_URL }}
       run: |
         # Transferir JAR para o servidor
-        scp -P $VPS_PORT $JAR_FILE $VPS_USER@$VPS_HOST:/tmp/filadelfiastore.jar
+        scp -i ~/.ssh/filadelfia_key -P ${VPS_PORT:-22} -o StrictHostKeyChecking=no $JAR_FILE $VPS_USER@$VPS_HOST:/tmp/filadelfiastore.jar
         
         # Executar deployment no servidor
-        ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << 'ENDSSH'
+        ssh -i ~/.ssh/filadelfia_key -p ${VPS_PORT:-22} -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << 'ENDSSH'
           set -e
           
           echo "🚀 Iniciando deployment do Filadelfia Store..."
