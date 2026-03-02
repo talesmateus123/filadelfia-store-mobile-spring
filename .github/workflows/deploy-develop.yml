@@ -1,0 +1,181 @@
+name: 🚀 Deploy Filadelfia Store to VPS
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+  APPLICATION_NAME: filadelfiastore
+
+jobs:
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: ☕ Setup Java 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ env.JAVA_VERSION }}
+        cache: maven
+    
+    - name: 🧪 Run tests
+      run: ./mvnw test --batch-mode --fail-at-end
+    
+    - name: 📊 Publish test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Maven Tests
+        path: target/surefire-reports/*.xml
+        reporter: java-junit
+        fail-on-error: true
+
+  build-and-deploy:
+    name: 🏗️ Build & Deploy
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: ☕ Setup Java 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ env.JAVA_VERSION }}
+        cache: maven
+    
+    - name: 🏗️ Build application
+      run: |
+        ./mvnw clean package -DskipTests --batch-mode
+        echo "JAR_FILE=$(find target -name '*.jar' -not -name '*sources.jar' -not -name '*javadoc.jar' | head -1)" >> $GITHUB_ENV
+    
+    - name: 📦 Upload artifact info
+      run: |
+        echo "Built JAR: $JAR_FILE"
+        ls -la target/*.jar
+    
+    - name: 🔐 Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.FILADELFIA_VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.FILADELFIA_VPS_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: 🚀 Deploy to VPS
+      env:
+        VPS_HOST: ${{ secrets.FILADELFIA_VPS_HOST }}
+        VPS_USER: ${{ secrets.FILADELFIA_VPS_USER }}
+        VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT }}
+        DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD }}
+        DATABASE_URL: ${{ secrets.FILADELFIA_DATABASE_URL }}
+      run: |
+        # Transferir JAR para o servidor
+        scp -P $VPS_PORT $JAR_FILE $VPS_USER@$VPS_HOST:/tmp/filadelfiastore.jar
+        
+        # Executar deployment no servidor
+        ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << 'ENDSSH'
+          set -e
+          
+          echo "🚀 Iniciando deployment do Filadelfia Store..."
+          
+          # Definir variáveis
+          APP_DIR="/var/www/filadelfiastore"
+          BACKUP_DIR="/var/www/backups/filadelfiastore"
+          SERVICE_NAME="filadelfiastore"
+          
+          # Criar backup da versão atual se existir
+          if [ -f "$APP_DIR/filadelfiastore.jar" ]; then
+            echo "📦 Criando backup da versão atual..."
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            cp "$APP_DIR/filadelfiastore.jar" "$BACKUP_DIR/filadelfiastore_backup_$TIMESTAMP.jar"
+            
+            # Manter apenas os últimos 5 backups
+            ls -t "$BACKUP_DIR"/filadelfiastore_backup_*.jar | tail -n +6 | xargs -r rm
+          fi
+          
+          # Parar o serviço
+          echo "⏹️ Parando serviço $SERVICE_NAME..."
+          sudo systemctl stop $SERVICE_NAME || true
+          
+          # Mover novo JAR
+          echo "📁 Instalando nova versão..."
+          mv /tmp/filadelfiastore.jar "$APP_DIR/filadelfiastore.jar"
+          
+          # Configurar permissões
+          chown filadelfia:filadelfia "$APP_DIR/filadelfiastore.jar"
+          chmod 755 "$APP_DIR/filadelfiastore.jar"
+          
+          # Configurar variáveis de ambiente
+          echo "⚙️ Configurando variáveis de ambiente..."
+          sudo tee /etc/systemd/system/filadelfiastore.env > /dev/null << EOF
+        DATABASE_URL=${DATABASE_URL:-jdbc:mysql://localhost:3306/filadelfia_store_prod}
+        DATABASE_USERNAME=filadelfia_prod_user
+        DATABASE_PASSWORD=${DATABASE_PASSWORD}
+        DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
+        DDL_AUTO=validate
+        DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+        SPRING_PROFILES_ACTIVE=production
+        EOF
+          
+          # Recarregar systemd e iniciar serviço
+          echo "🔄 Recarregando systemd..."
+          sudo systemctl daemon-reload
+          
+          echo "🚀 Iniciando serviço $SERVICE_NAME..."
+          sudo systemctl start $SERVICE_NAME
+          sudo systemctl enable $SERVICE_NAME
+          
+          # Aguardar inicialização
+          echo "⏳ Aguardando inicialização..."
+          sleep 10
+          
+          # Verificar status do serviço
+          if sudo systemctl is-active --quiet $SERVICE_NAME; then
+            echo "✅ Serviço está ativo!"
+            
+            # Teste de conectividade
+            if curl -f -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              echo "✅ Health check passou!"
+            else
+              echo "⚠️ Health check falhou, mas serviço está rodando"
+            fi
+            
+            # Status final
+            sudo systemctl status $SERVICE_NAME --no-pager -l
+            
+          else
+            echo "❌ Falha ao iniciar o serviço!"
+            echo "📋 Logs do serviço:"
+            sudo journalctl -u $SERVICE_NAME --no-pager -l --since "5 minutes ago"
+            exit 1
+          fi
+          
+          echo "🎉 Deploy concluído com sucesso!"
+        ENDSSH
+    
+    - name: 🎯 Deployment Summary
+      if: always()
+      run: |
+        echo "## 📊 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Application**: ${{ env.APPLICATION_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **JAR File**: \`$(basename $JAR_FILE)\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Java Version**: ${{ env.JAVA_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Target Server**: ${{ secrets.FILADELFIA_VPS_HOST }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ **Status**: Deployment successful!" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 **URL**: http://${{ secrets.FILADELFIA_VPS_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Status**: Deployment failed!" >> $GITHUB_STEP_SUMMARY
+        fi

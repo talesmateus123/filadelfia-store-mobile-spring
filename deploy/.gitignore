@@ -1,0 +1,25 @@
+# Deploy automation files
+*.log
+*.tmp
+*.bak
+*~
+
+# Sensitive files
+*.key
+*.pem
+*.env
+config.local.*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Local test scripts
+local-*.sh
+test-local-*
