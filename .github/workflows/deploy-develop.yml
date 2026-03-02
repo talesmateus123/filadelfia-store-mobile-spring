@@ -72,12 +72,28 @@ jobs:
     
     - name: 🔍 Verify secrets
       run: |
-        echo "Verificando configuração dos secrets..."
+        echo "🔍 Verificando configuração dos secrets..."
         echo "VPS_HOST: ${{ secrets.FILADELFIA_VPS_HOST != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
         echo "VPS_USER: ${{ secrets.FILADELFIA_VPS_USER != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
         echo "VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT != '' && 'configurado' || 'NÃO CONFIGURADO (padrão: 22)' }}"
         echo "VPS_SSH_KEY: ${{ secrets.FILADELFIA_VPS_SSH_KEY != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
         echo "DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        
+        # Mostrar valores mascarados para debug (não mostra valores reais)
+        if [ -n "${{ secrets.FILADELFIA_VPS_HOST }}" ]; then
+          HOST="${{ secrets.FILADELFIA_VPS_HOST }}"
+          echo "Host (primeiros 3 dígitos): ${HOST:0:3}***"
+        fi
+        
+        if [ -n "${{ secrets.FILADELFIA_VPS_SSH_KEY }}" ]; then
+          KEY="${{ secrets.FILADELFIA_VPS_SSH_KEY }}"
+          echo "SSH Key (início): ${KEY:0:20}..."
+          if [[ $KEY == *"BEGIN"* ]]; then
+            echo "✅ SSH Key parece válida (contém BEGIN)"
+          else
+            echo "❌ SSH Key pode estar malformada (não contém BEGIN)"
+          fi
+        fi
     
     - name: 🔐 Setup SSH
       run: |
@@ -85,16 +101,42 @@ jobs:
         echo "${{ secrets.FILADELFIA_VPS_SSH_KEY }}" > ~/.ssh/filadelfia_key
         chmod 600 ~/.ssh/filadelfia_key
         
+        echo "🔍 Testando conectividade de rede..."
+        echo "Host: ${{ secrets.FILADELFIA_VPS_HOST }}"
+        echo "Port: ${{ secrets.FILADELFIA_VPS_PORT || '22' }}"
+        echo "User: ${{ secrets.FILADELFIA_VPS_USER }}"
+        
+        # Teste básico de conectividade TCP
+        timeout 10 nc -zv ${{ secrets.FILADELFIA_VPS_HOST }} ${{ secrets.FILADELFIA_VPS_PORT || '22' }} || {
+          echo "❌ ERRO: Não é possível conectar no servidor!"
+          echo "Possíveis causas:"
+          echo "1. IP incorreto no secret FILADELFIA_VPS_HOST"
+          echo "2. Porta incorreta no secret FILADELFIA_VPS_PORT" 
+          echo "3. Servidor desligado/inacessível"
+          echo "4. Firewall bloqueando GitHub Actions"
+          echo "5. Provedor VPS bloqueando conexões externas"
+          echo ""
+          echo "🛠️ Soluções:"
+          echo "- Verifique se o servidor está ligado e acessível"
+          echo "- Teste SSH do seu computador: ssh ${{ secrets.FILADELFIA_VPS_USER }}@${{ secrets.FILADELFIA_VPS_HOST }}"
+          echo "- Configure firewall para aceitar conexões na porta SSH"
+          echo "- Entre em contato com provedor VPS sobre whitelist de IPs"
+          exit 1
+        }
+        
+        echo "✅ Conectividade TCP OK. Testando SSH..."
+        
         # Adicionar host às known_hosts
         ssh-keyscan -p ${{ secrets.FILADELFIA_VPS_PORT || '22' }} -H ${{ secrets.FILADELFIA_VPS_HOST }} >> ~/.ssh/known_hosts || true
         
         # Teste de conectividade SSH
         ssh -i ~/.ssh/filadelfia_key -p ${{ secrets.FILADELFIA_VPS_PORT || '22' }} -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${{ secrets.FILADELFIA_VPS_USER }}@${{ secrets.FILADELFIA_VPS_HOST }} "echo 'SSH connection successful'" || {
-          echo "❌ SSH connection failed. Verifique:"
-          echo "1. GitHub Secrets configurados corretamente"
-          echo "2. Usuário 'filadelfia' existe no servidor"
-          echo "3. Chave pública adicionada em ~/.ssh/authorized_keys"
-          echo "4. IP/porta/usuário corretos"
+          echo "❌ SSH connection failed após conectividade OK"
+          echo "Problemas de autenticação SSH:"
+          echo "1. Usuário '${{ secrets.FILADELFIA_VPS_USER }}' não existe no servidor"
+          echo "2. Chave pública não está em ~/.ssh/authorized_keys"
+          echo "3. Chave privada incorreta no secret FILADELFIA_VPS_SSH_KEY"
+          echo "4. Permissões incorretas no servidor"
           exit 1
         }
     
