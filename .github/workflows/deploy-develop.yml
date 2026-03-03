@@ -181,19 +181,7 @@ jobs:
           # Configurar permissões
           chown filadelfia:filadelfia "$APP_DIR/filadelfiastore.jar"
           chmod 755 "$APP_DIR/filadelfiastore.jar"
-          
-          # Configurar variáveis de ambiente
-          echo "⚙️ Configurando variáveis de ambiente..."
-          sudo tee /etc/systemd/system/filadelfiastore.env > /dev/null << EOF
-        DATABASE_URL=jdbc:mysql://localhost:3306/filadelfia_prod
-        DATABASE_USERNAME=filadelfia_prod_user
-        DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
-        DDL_AUTO=update
-        DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
-        SPRING_PROFILES_ACTIVE=production
-        SERVER_PORT=8081
-        EOF
-          
+                    
           # Recarregar systemd e iniciar serviço
           echo "🔄 Recarregando systemd..."
           sudo systemctl daemon-reload
