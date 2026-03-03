@@ -168,15 +168,15 @@ jobs:
           
           # Create database and user
           echo "🔧 Criando database e usuário..."
-          sudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS filadelfia_store_prod;"
+          sudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS filadelfia_prod;"
           sudo mysql -u root -e "DROP USER IF EXISTS 'filadelfia_prod_user'@'localhost';"
           sudo mysql -u root -e "CREATE USER 'filadelfia_prod_user'@'localhost' IDENTIFIED BY '${DATABASE_PASSWORD}';"
-          sudo mysql -u root -e "GRANT ALL PRIVILEGES ON filadelfia_store_prod.* TO 'filadelfia_prod_user'@'localhost';"
+          sudo mysql -u root -e "GRANT ALL PRIVILEGES ON filadelfia_prod.* TO 'filadelfia_prod_user'@'localhost';"
           sudo mysql -u root -e "FLUSH PRIVILEGES;"
           
           # Test connection
           echo "✅ Testando conexão..."
-          mysql -u filadelfia_prod_user -p"${DATABASE_PASSWORD}" -e "SHOW DATABASES;" | grep filadelfia_store_prod
+          mysql -u filadelfia_prod_user -p"${DATABASE_PASSWORD}" -e "SHOW DATABASES;" | grep filadelfia_prod
           echo "✅ Database configurado com sucesso!"
         ENDSSH
 
@@ -186,7 +186,7 @@ jobs:
         VPS_USER: ${{ secrets.FILADELFIA_VPS_USER }}
         VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT }}
         DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD }}
-        DATABASE_URL: jdbc:mysql://localhost:3306/filadelfia_store_prod
+        DATABASE_URL: jdbc:mysql://localhost:3306/filadelfia_prod
       run: |
         # Transferir JAR para o servidor
         scp -i ~/.ssh/filadelfia_key -P ${VPS_PORT:-22} -o StrictHostKeyChecking=no $JAR_FILE $VPS_USER@$VPS_HOST:/tmp/filadelfiastore.jar
@@ -227,7 +227,7 @@ jobs:
           # Configurar variáveis de ambiente
           echo "⚙️ Configurando variáveis de ambiente..."
           sudo tee /etc/systemd/system/filadelfiastore.env > /dev/null << EOF
-        DATABASE_URL=jdbc:mysql://localhost:3306/filadelfia_store_prod
+        DATABASE_URL=jdbc:mysql://localhost:3306/filadelfia_prod
         DATABASE_USERNAME=filadelfia_prod_user
         DATABASE_PASSWORD=${DATABASE_PASSWORD}
         DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
