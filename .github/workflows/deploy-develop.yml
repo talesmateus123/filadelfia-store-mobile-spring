@@ -139,14 +139,54 @@ jobs:
           echo "4. Permissões incorretas no servidor"
           exit 1
         }
-    
+
+    - name: 🗄️ Setup MySQL Database
+      env:
+        VPS_HOST: ${{ secrets.FILADELFIA_VPS_HOST }}
+        VPS_USER: ${{ secrets.FILADELFIA_VPS_USER }}
+        VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT }}
+        DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD }}
+      run: |
+        echo "🗄️ Configurando MySQL database..."
+        
+        ssh -i ~/.ssh/filadelfia_key -p ${VPS_PORT:-22} -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << ENDSSH
+          set -e
+          
+          echo "📝 Configurando MySQL..."
+          
+          # Check if MySQL is installed
+          if ! command -v mysql &> /dev/null; then
+            echo "📦 Instalando MySQL..."
+            sudo apt-get update
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
+            sudo systemctl start mysql
+            sudo systemctl enable mysql
+          fi
+          
+          # Ensure MySQL is running
+          sudo systemctl start mysql
+          
+          # Create database and user
+          echo "🔧 Criando database e usuário..."
+          sudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS filadelfia_store_prod;"
+          sudo mysql -u root -e "DROP USER IF EXISTS 'filadelfia_prod_user'@'localhost';"
+          sudo mysql -u root -e "CREATE USER 'filadelfia_prod_user'@'localhost' IDENTIFIED BY '${DATABASE_PASSWORD}';"
+          sudo mysql -u root -e "GRANT ALL PRIVILEGES ON filadelfia_store_prod.* TO 'filadelfia_prod_user'@'localhost';"
+          sudo mysql -u root -e "FLUSH PRIVILEGES;"
+          
+          # Test connection
+          echo "✅ Testando conexão..."
+          mysql -u filadelfia_prod_user -p"${DATABASE_PASSWORD}" -e "SHOW DATABASES;" | grep filadelfia_store_prod
+          echo "✅ Database configurado com sucesso!"
+        ENDSSH
+
     - name: 🚀 Deploy to VPS
       env:
         VPS_HOST: ${{ secrets.FILADELFIA_VPS_HOST }}
         VPS_USER: ${{ secrets.FILADELFIA_VPS_USER }}
         VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT }}
         DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD }}
-        DATABASE_URL: ${{ secrets.FILADELFIA_DATABASE_URL }}
+        DATABASE_URL: jdbc:mysql://localhost:3306/filadelfia_store_prod
       run: |
         # Transferir JAR para o servidor
         scp -i ~/.ssh/filadelfia_key -P ${VPS_PORT:-22} -o StrictHostKeyChecking=no $JAR_FILE $VPS_USER@$VPS_HOST:/tmp/filadelfiastore.jar
@@ -187,13 +227,14 @@ jobs:
           # Configurar variáveis de ambiente
           echo "⚙️ Configurando variáveis de ambiente..."
           sudo tee /etc/systemd/system/filadelfiastore.env > /dev/null << EOF
-        DATABASE_URL=${DATABASE_URL:-jdbc:mysql://localhost:3306/filadelfia_store_prod}
+        DATABASE_URL=jdbc:mysql://localhost:3306/filadelfia_store_prod
         DATABASE_USERNAME=filadelfia_prod_user
         DATABASE_PASSWORD=${DATABASE_PASSWORD}
         DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
-        DDL_AUTO=validate
+        DDL_AUTO=update
         DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
         SPRING_PROFILES_ACTIVE=production
+        SERVER_PORT=8081
         EOF
           
           # Recarregar systemd e iniciar serviço
@@ -213,7 +254,7 @@ jobs:
             echo "✅ Serviço está ativo!"
             
             # Teste de conectividade
-            if curl -f -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
+            if curl -f -s http://localhost:8081/actuator/health > /dev/null 2>&1; then
               echo "✅ Health check passou!"
             else
               echo "⚠️ Health check falhou, mas serviço está rodando"
@@ -245,7 +286,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         if [ "${{ job.status }}" == "success" ]; then
           echo "✅ **Status**: Deployment successful!" >> $GITHUB_STEP_SUMMARY
-          echo "🌐 **URL**: http://${{ secrets.FILADELFIA_VPS_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 **URL**: http://${{ secrets.FILADELFIA_VPS_HOST }}" >> $GITHUB_STEP_SUMMARY
         else
           echo "❌ **Status**: Deployment failed!" >> $GITHUB_STEP_SUMMARY
         fi
