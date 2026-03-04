@@ -13,6 +13,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,11 +25,12 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "stripe.enabled", havingValue = "true", matchIfMissing = true)
 public class StripePaymentService {
 
     private final PaymentRepository paymentRepository;
 
-    @Value("${stripe.public.key}")
+    @Value("${stripe.public.key:}")
     private String publicKey;
 
     @Value("${app.base.url:http://localhost:8080}")
@@ -41,6 +43,7 @@ public class StripePaymentService {
      * Create a Stripe Checkout Session for card payments
      */
     public Session createCheckoutSession(Order order) throws StripeException {
+        validateStripeConfiguration();
         log.info("Creating Stripe checkout session for order: {}", order.getId());
 
         String actualBaseUrl = getActualBaseUrl();
@@ -82,6 +85,7 @@ public class StripePaymentService {
      * Create a Payment Intent for direct card payments
      */
     public PaymentIntent createPaymentIntent(Order order) throws StripeException {
+        validateStripeConfiguration();
         log.info("Creating Stripe payment intent for order: {}", order.getId());
 
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
@@ -104,6 +108,7 @@ public class StripePaymentService {
      * Create a PIX Payment Intent
      */
     public PaymentIntent createPixPaymentIntent(Order order) throws StripeException {
+        validateStripeConfiguration();
         log.info("Creating Stripe PIX payment intent for order: {}", order.getId());
 
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
@@ -203,5 +208,14 @@ public class StripePaymentService {
             return baseUrl.replace("http://", "https://");
         }
         return baseUrl;
+    }
+
+    /**
+     * Validate that Stripe is properly configured
+     */
+    private void validateStripeConfiguration() {
+        if (publicKey == null || publicKey.trim().isEmpty() || publicKey.equals("pk_test_your_publishable_key_here")) {
+            throw new IllegalStateException("Stripe public key is not configured. Please set stripe.public.key in your environment variables.");
+        }
     }
 }
