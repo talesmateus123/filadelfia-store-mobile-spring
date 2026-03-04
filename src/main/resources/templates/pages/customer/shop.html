@@ -11,87 +11,126 @@
         <div class="container">
             <div th:replace="~{layout :: notifications}"></div>
             
-            <!-- Page Header -->
-            <div class="section-title">
-                <h2 th:text="${pageTitle}">Produtos</h2>
-                <a th:href="@{/shop}" class="btn btn-outline">Ver Todos</a>
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h2><span th:text="${pageTitle}">Loja de Produtos</span></h2>
+                <p class="dashboard-subtitle">Explore nossa coleção de produtos únicos</p>
             </div>
 
-            <!-- Search Bar -->
-            <div class="product-search">
-                <form th:action="@{/shop/search}" method="get" class="search-form">
-                    <input type="text" name="q" class="search-input" 
-                           placeholder="Pesquisar produtos..." 
-                           th:value="${searchTerm}">
-                    <button type="submit" class="search-btn">🔍 Pesquisar</button>
-                </form>
-            </div>
+            <!-- Filters and Search -->
+            <div class="shop-filters-container">
+                <!-- Search Bar -->
+                <div class="search-section">
+                    <form th:action="@{/shop/search}" method="get" class="search-form">
+                        <div class="search-input-group">
+                            <input type="text" name="q" class="search-input" 
+                                   placeholder="Pesquisar produtos..." 
+                                   th:value="${searchTerm}">
+                            <button type="submit" class="search-btn">
+                                🔍 Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-            <!-- Category Filter -->
-            <div class="category-filter" th:if="${categories != null and not #lists.isEmpty(categories)}">
-                <a th:href="@{/shop}" 
-                   class="category-btn"
-                   th:classappend="${selectedCategory == null} ? 'active' : ''">
-                    Todas as Categorias
-                </a>
-                <a th:each="category : ${categories}"
-                   th:href="@{/shop/category/{name}(name=${category.name})}"
-                   class="category-btn"
-                   th:classappend="${selectedCategory == category.name} ? 'active' : ''"
-                   th:text="${category.name}">
-                    Categoria
-                </a>
+                <!-- Category Filter -->
+                <div class="category-section" th:if="${categories != null and not #lists.isEmpty(categories)}">
+                    <div class="category-filter">
+                        <a th:href="@{/shop}" 
+                           class="category-btn"
+                           th:classappend="${selectedCategory == null} ? 'active' : ''">
+                             Todas as Categorias
+                        </a>
+                        <a th:each="category : ${categories}"
+                           th:href="@{/shop/category/{name}(name=${category.name})}"
+                           class="category-btn"
+                           th:classappend="${selectedCategory == category.name} ? 'active' : ''"
+                           th:text="${category.name}">
+                            Categoria
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a th:href="@{/shop}" class="btn btn-outline btn-sm">
+                        Limpar Filtros
+                    </a>
+                </div>
             </div>
 
             <!-- Results Info -->
-            <div th:if="${totalProducts != null}" class="results-info">
-                <p class="text-muted">
-                    <span th:text="${totalProducts}">0</span> 
-                    <span th:text="${totalProducts == 1} ? 'produto encontrado' : 'produtos encontrados'">produtos encontrados</span>
-                    <span th:if="${searchTerm != null}"> para "<span th:text="${searchTerm}"></span>"</span>
-                    <span th:if="${selectedCategory != null}"> na categoria "<span th:text="${selectedCategory}"></span>"</span>
-                </p>
+            <div th:if="${totalProducts != null}" class="results-info-card">
+                <div class="results-content">
+                    <span class="results-count">
+                        <strong th:text="${totalProducts}">0</strong> 
+                        <span th:text="${totalProducts == 1} ? 'produto encontrado' : 'produtos encontrados'">produtos</span>
+                    </span>
+                    <div class="results-filters" th:if="${searchTerm != null or selectedCategory != null}">
+                        <span th:if="${searchTerm != null}" class="filter-tag">
+                            🔍 "<span th:text="${searchTerm}"></span>"
+                        </span>
+                        <span th:if="${selectedCategory != null}" class="filter-tag">
+                            <span th:text="${selectedCategory}"></span>
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <!-- Products Grid -->
-            <div th:if="${products != null and not #lists.isEmpty(products)}" class="featured-products">
+            <div th:if="${products != null and not #lists.isEmpty(products)}" class="products-container">
                 <div class="products-grid">
                     <div th:each="product : ${products}" class="product-card">
-                        <div class="product-image">
+                        <div class="product-card-image">
                             <img th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}" 
                                  th:src="${product.imageUrl}" 
-                                 th:alt="${product.name}">
-                            <span th:unless="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
-                                📦 Sem imagem
-                            </span>
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-name" th:text="${product.name}">Nome do Produto</h3>
-                            <p class="product-description" th:text="${product.description}">Descrição do produto</p>
-                            <div class="product-price" th:text="${product.priceFormatted}">R$ 0,00</div>
-                            <div class="product-stock"
-                                 th:classappend="${product.stock > 10} ? 'in-stock' : (${product.stock > 0} ? 'low-stock' : 'out-of-stock')">
-                                <span th:if="${product.stock > 10}">✅ Em estoque</span>
-                                <span th:if="${product.stock > 0 and product.stock <= 10}">⚠️ Restam apenas <span th:text="${product.stock}">0</span> unidades</span>
-                                <span th:if="${product.stock == 0}">❌ Fora de estoque</span>
+                                 th:alt="${product.name}"
+                                 class="product-image">
+                            <div th:unless="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}"
+                                 class="product-image-placeholder">
                             </div>
+                            <div class="product-status-badge"
+                                 th:classappend="${product.stock > 10} ? 'in-stock' : (${product.stock > 0} ? 'low-stock' : 'out-of-stock')">
+                                <span th:if="${product.stock > 10}">Disponível</span>
+                                <span th:if="${product.stock > 0 and product.stock <= 10}">Últimas <span th:text="${product.stock}">0</span></span>
+                                <span th:if="${product.stock == 0}">Esgotado</span>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card-content">
+                            <div class="product-header">
+                                <h3 class="product-name" th:text="${product.name}">Nome do Produto</h3>
+                                <div class="product-price" th:text="${product.priceFormatted}">R$ 0,00</div>
+                            </div>
+                            
+                            <div class="product-description-section">
+                                <p class="product-description" th:text="${product.description}">Descrição do produto</p>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card-footer">
                             <div class="product-actions">
-                                <a th:href="@{/shop/product/{id}(id=${product.id})}" class="btn-view-details">
-                                    Ver Detalhes
+                                <a th:href="@{/shop/product/{id}(id=${product.id})}" 
+                                   class="btn btn-outline product-details-btn">
+                                    👁️ Ver Detalhes
                                 </a>
-                                <form th:if="${product.stock > 0}" 
-                                      sec:authorize="isAuthenticated()"
-                                      th:action="@{/cart/add}" method="post" style="flex: 1;">
-                                    <input type="hidden" name="productId" th:value="${product.id}">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn-add-cart">
-                                        🛒 Adicionar
+                                
+                                <div class="cart-action">
+                                    <form th:if="${product.stock > 0}" 
+                                          sec:authorize="isAuthenticated()"
+                                          th:action="@{/cart/add}" method="post">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-primary add-to-cart-btn">
+                                            🛒 Adicionar ao Carrinho
+                                        </button>
+                                    </form>
+                                    
+                                    <button th:unless="${product.stock > 0}" 
+                                            class="btn btn-secondary add-to-cart-btn" disabled>
+                                        Fora de Estoque
                                     </button>
-                                </form>
-                                <a th:unless="${product.stock > 0}" 
-                                   class="btn-add-cart" style="background: #d1d5db; cursor: not-allowed;">
-                                    Esgotado
-                                </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -99,31 +138,423 @@
             </div>
 
             <!-- No Products Message -->
-            <div th:unless="${products != null and not #lists.isEmpty(products)}" class="no-products">
-                <h3>🔍 Nenhum produto encontrado</h3>
-                <p th:if="${searchTerm != null}">
-                    Não encontramos produtos para "<strong th:text="${searchTerm}"></strong>".
-                </p>
-                <p th:if="${selectedCategory != null}">
-                    Não há produtos disponíveis na categoria "<strong th:text="${selectedCategory}"></strong>".
-                </p>
-                <p th:unless="${searchTerm != null or selectedCategory != null}">
-                    Não há produtos disponíveis no momento.
-                </p>
-                <a th:href="@{/shop}" class="btn btn-primary">Ver Todos os Produtos</a>
+            <div th:unless="${products != null and not #lists.isEmpty(products)}" class="no-products-container">
+                <div class="no-products-card">
+                    <div class="no-products-icon">🔍</div>
+                    <h3>Nenhum produto encontrado</h3>
+                    <div class="no-products-message">
+                        <p th:if="${searchTerm != null}">
+                            Não encontramos produtos para "<strong th:text="${searchTerm}"></strong>".
+                        </p>
+                        <p th:if="${selectedCategory != null}">
+                            Não há produtos disponíveis na categoria "<strong th:text="${selectedCategory}"></strong>".
+                        </p>
+                        <p th:unless="${searchTerm != null or selectedCategory != null}">
+                            Não há produtos disponíveis no momento.
+                        </p>
+                    </div>
+                    <div class="no-products-actions">
+                        <a th:href="@{/shop}" class="btn btn-primary">Ver Todos os Produtos</a>
+                    </div>
+                </div>
             </div>
 
             <!-- Login prompt for non-authenticated users -->
-            <div sec:authorize="!isAuthenticated()" class="mt-4 p-4 bg-light rounded text-center">
-                <h4>💡 Dica</h4>
-                <p>Faça login para adicionar produtos ao seu carrinho e finalizar compras!</p>
-                <a th:href="@{/login}" class="btn btn-primary">Fazer Login</a>
-                <a th:href="@{/register}" class="btn btn-outline ml-2">Cadastrar-se</a>
+            <div sec:authorize="!isAuthenticated()" class="login-prompt-container">
+                <div class="login-prompt-card">
+                    <div class="prompt-icon">💡</div>
+                    <h4>Faça login para comprar!</h4>
+                    <p>Entre na sua conta para adicionar produtos ao carrinho e finalizar suas compras.</p>
+                    <div class="prompt-actions">
+                        <a th:href="@{/login}" class="btn btn-primary">🔐 Fazer Login</a>
+                        <a th:href="@{/register}" class="btn btn-outline">📝 Cadastrar-se</a>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
     
     <div th:replace="~{layout :: footer}"></div>
     <div th:replace="~{layout :: scripts}"></div>
+
+    <style>
+        .shop-filters-container {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            margin: 2rem 0;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-section {
+            flex: 1;
+        }
+
+        .search-form {
+            width: 100%;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 500px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .search-btn {
+            padding: 0.75rem 1.5rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            background: #0056b3;
+        }
+
+        .category-section {
+            grid-column: 1 / -1;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            font-size: 0.9rem;
+        }
+
+        .category-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .category-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .quick-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .results-info-card {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .results-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .results-count {
+            font-size: 1rem;
+            color: #495057;
+        }
+
+        .results-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .products-container {
+            margin-top: 2rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .product-card-image {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .product-image-placeholder {
+            font-size: 3rem;
+            color: #6c757d;
+            opacity: 0.5;
+        }
+
+        .product-status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .product-status-badge.in-stock {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .product-status-badge.low-stock {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .product-status-badge.out-of-stock {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .product-card-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-header {
+            margin-bottom: 1rem;
+        }
+
+        .product-name {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .product-description-section {
+            flex: 1;
+        }
+
+        .product-description {
+            margin: 0;
+            color: #6c757d;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+
+        .product-card-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .product-details-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .cart-action {
+            width: 100%;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .no-products-container,
+        .login-prompt-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        .no-products-card,
+        .login-prompt-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .no-products-icon,
+        .prompt-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .no-products-card h3,
+        .login-prompt-card h4 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .no-products-message,
+        .login-prompt-card p {
+            margin: 0 0 2rem 0;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .no-products-actions,
+        .prompt-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .shop-filters-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .search-input-group {
+                max-width: none;
+            }
+
+            .results-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .prompt-actions {
+                flex-direction: column;
+            }
+
+            .prompt-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-filter {
+                justify-content: center;
+            }
+        }
+    </style>
 </body>
 </html>

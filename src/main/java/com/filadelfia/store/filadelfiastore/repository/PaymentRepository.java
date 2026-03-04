@@ -130,8 +130,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     /**
      * Count payments by status for today
      */
-    @Query("SELECT COUNT(p) FROM Payment p WHERE p.status = :status AND DATE(p.createdAt) = CURRENT_DATE")
-    long countTodayPaymentsByStatus(@Param("status") PaymentStatus status);
+    @Query("SELECT COUNT(p) FROM Payment p WHERE p.status = :status " +
+           "AND p.createdAt >= :startOfDay AND p.createdAt < :endOfDay")
+    long countTodayPaymentsByStatus(@Param("status") PaymentStatus status, 
+                                  @Param("startOfDay") LocalDateTime startOfDay,
+                                  @Param("endOfDay") LocalDateTime endOfDay);
     
     /**
      * Find payments that need processing (pending for more than X minutes)

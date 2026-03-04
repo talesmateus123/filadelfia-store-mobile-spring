@@ -1,0 +1,35 @@
+[Unit]
+Description=Filadelfia Store Spring Boot Application  
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=filadelfia
+Group=filadelfia
+Environment=SPRING_PROFILES_ACTIVE=production
+EnvironmentFile=/etc/systemd/system/filadelfiastore.env
+ExecStart=/usr/bin/java -jar /var/www/filadelfiastore/filadelfiastore.jar
+ExecStop=/bin/kill -15 $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=filadelfiastore
+KillMode=mixed
+KillSignal=SIGTERM
+SendSIGKILL=yes
+
+# Configurações de segurança
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/www/filadelfiastore /var/www/backups/filadelfiastore /opt/filadelfia-store/production/logs
+ProtectHome=yes
+
+# Configurações de recursos
+MemoryMax=1G
+TasksMax=100
+
+[Install]
+WantedBy=multi-user.target

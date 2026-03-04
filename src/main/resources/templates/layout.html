@@ -52,14 +52,14 @@
                 <a class="tab" 
                    th:classappend="${activePage == 'home'} ? 'active'" 
                    th:href="@{/}">
-                    🏠 Início
+                    Início
                 </a>
                 
                 <!-- Shop tab - always visible -->
                 <a class="tab" 
                    th:classappend="${activePage == 'shop'} ? 'active'" 
                    th:href="@{/shop}">
-                    🛍️ Produtos
+                    Produtos
                 </a>
                 
                 <!-- ADMIN Dashboard -->
@@ -91,7 +91,7 @@
                    sec:authorize="hasRole('USER')"
                    th:classappend="${activePage == 'cart'} ? 'active'" 
                    th:href="@{/cart}">
-                    🛒 Carrinho
+                    Carrinho
                     <span class="cart-badge" th:if="${totalItems != null and totalItems > 0}" 
                           th:text="${totalItems}">0</span>
                 </a>
@@ -109,45 +109,44 @@
                    sec:authorize="hasRole('USER')"
                    th:classappend="${activePage == 'payments'} ? 'active'" 
                    th:href="@{/payments/history}">
-                    💳 Meus Pagamentos
+                    Meus Pagamentos
                 </a>
                 
-                <!-- Management sections for ADMIN and MANAGER -->
+                <!-- Management sections for MANAGER only (ADMIN access via dashboard) -->
                 <a class="tab" 
-                   sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
+                   sec:authorize="hasRole('MANAGER')"
                    th:classappend="${activePage == 'products'} ? 'active'" 
                    th:href="@{/products}">
-                    Produtos
+                    Gerenciar Produtos
+                </a>
+                
+                <a class="tab" 
+                   sec:authorize="hasRole('MANAGER')"
+                   th:classappend="${activePage == 'featured'} ? 'active'" 
+                   th:href="@{/products/featured}">
+                    Gerenciar Destaques
                 </a>
                 
                 <a class="tab"
-                   sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
+                   sec:authorize="hasRole('MANAGER')"
                    th:classappend="${activePage == 'categories'} ? 'active'" 
                    th:href="@{/categories}">
-                    Categorias
+                    Gerenciar Categorias
                 </a>
                 
                 <a class="tab" 
-                   sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
+                   sec:authorize="hasRole('MANAGER')"
                    th:classappend="${activePage == 'orders'} ? 'active'" 
                    th:href="@{/orders/manage}">
                     Gerenciar Pedidos
                 </a>
                 
-                <!-- Users management - ADMIN only -->
+                <!-- Payments management - MANAGER only (ADMIN access via dashboard) -->
                 <a class="tab" 
-                   sec:authorize="hasRole('ADMIN')"
-                   th:classappend="${activePage == 'users'} ? 'active'" 
-                   th:href="@{/users}">
-                    Usuários
-                </a>
-                
-                <!-- Payments management - ADMIN and MANAGER -->
-                <a class="tab" 
-                   sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
+                   sec:authorize="hasRole('MANAGER')"
                    th:classappend="${activePage == 'admin-payments'} ? 'active'" 
                    th:href="@{/admin/payments}">
-                    💰 Gerenciar Pagamentos
+                    Gerenciar Pagamentos
                 </a>
             </div>
         </div>

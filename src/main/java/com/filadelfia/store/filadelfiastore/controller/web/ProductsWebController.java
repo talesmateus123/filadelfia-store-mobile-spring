@@ -284,6 +284,7 @@ public class ProductsWebController {
         model.addAttribute("pageTitle", "Produtos em Destaque");
         model.addAttribute("products", featuredProducts);
         model.addAttribute("showFeaturedOnly", true);
+        String activePage = "featured";
         model.addAttribute("activePage", activePage);
         
         return "pages/product/products";

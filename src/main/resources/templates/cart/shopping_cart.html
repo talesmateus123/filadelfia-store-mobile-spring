@@ -11,48 +11,63 @@
         <div class="container">
             <div th:replace="~{layout :: notifications}"></div>
             
-            <!-- Page Header -->
-            <div class="section-title">
-                <h2>🛒 Carrinho de Compras</h2>
-                <p>Revise seus itens antes de finalizar a compra</p>
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h2>Carrinho de Compras</h2>
+                <p class="dashboard-subtitle">Revise seus itens antes de finalizar a compra</p>
             </div>
 
             <!-- Cart Content -->
             <div class="cart-container">
                 <!-- Cart Items -->
                 <div th:if="${cart != null and !cart.empty}" class="cart-items">
-                    <div class="cart-item" th:each="item : ${cart.items}">
-                        <div class="item-image">
-                            <img th:if="${item.productImageUrl != null and !#strings.isEmpty(item.productImageUrl)}"
-                                 th:src="${item.productImageUrl}" 
-                                 th:alt="${item.productName}">
-                            <div th:unless="${item.productImageUrl != null and !#strings.isEmpty(item.productImageUrl)}"
-                                 class="product-image">
-                                📦
+                    <div class="cart-item-card" th:each="item : ${cart.items}">
+                        <div class="cart-item-header">
+                            <div class="item-image">
+                                <img th:if="${item.productImageUrl != null and !#strings.isEmpty(item.productImageUrl)}"
+                                     th:src="${item.productImageUrl}" 
+                                     th:alt="${item.productName}"
+                                     class="product-image">
+                                <div th:unless="${item.productImageUrl != null and !#strings.isEmpty(item.productImageUrl)}"
+                                     class="product-image placeholder">
+                                </div>
+                            </div>
+                            <div class="item-info">
+                                <h4 class="item-name" th:text="${item.productName}">Nome do Produto</h4>
+                                <p class="item-description" th:if="${item.productDescription}" th:text="${item.productDescription}">Descrição</p>
+                                <p class="item-price">R$ <span th:text="${#numbers.formatDecimal(item.productPrice, 1, 2)}">0,00</span> / unidade</p>
                             </div>
                         </div>
-                        <div class="item-details">
-                            <h4 th:text="${item.productName}">Nome do Produto</h4>
-                            <p th:if="${item.productDescription}" th:text="${item.productDescription}">Descrição do produto</p>
-                            <p class="item-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.productPrice, 1, 2)}">R$ 0,00</p>
+                        
+                        <div class="cart-item-body">
+                            <div class="quantity-controls">
+                                <span class="control-label">Quantidade:</span>
+                                <form th:action="@{/cart/update}" method="post" class="quantity-form">
+                                    <input type="hidden" name="productId" th:value="${item.productId}">
+                                    <div class="quantity-input-group">
+                                        <button type="submit" name="quantity" th:value="${item.quantity - 1}" 
+                                                class="qty-btn minus" th:disabled="${item.quantity <= 1}" title="Diminuir quantidade">-</button>
+                                        <input type="number" th:value="${item.quantity}" min="1" readonly class="qty-input">
+                                        <button type="submit" name="quantity" th:value="${item.quantity + 1}" 
+                                                class="qty-btn plus" title="Aumentar quantidade">+</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div class="item-total-section">
+                                <div class="subtotal">
+                                    <span class="subtotal-label">Subtotal:</span>
+                                    <span class="subtotal-value">R$ <span th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)}">0,00</span></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="item-quantity">
-                            <form th:action="@{/cart/update}" method="post" style="display: flex; align-items: center; gap: 0.5rem;">
+                        
+                        <div class="cart-item-footer">
+                            <form th:action="@{/cart/remove}" method="post" class="remove-form">
                                 <input type="hidden" name="productId" th:value="${item.productId}">
-                                <button type="submit" name="quantity" th:value="${item.quantity - 1}" 
-                                        class="qty-btn" th:disabled="${item.quantity <= 1}">-</button>
-                                <input type="number" th:value="${item.quantity}" min="1" readonly class="qty-input">
-                                <button type="submit" name="quantity" th:value="${item.quantity + 1}" class="qty-btn">+</button>
-                            </form>
-                        </div>
-                        <div class="item-total">
-                            <p class="subtotal-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 0,00</p>
-                        </div>
-                        <div class="item-actions">
-                            <form th:action="@{/cart/remove}" method="post" style="display: inline;">
-                                <input type="hidden" name="productId" th:value="${item.productId}">
-                                <button type="submit" class="btn btn-danger btn-sm" 
-                                        onclick="return confirm('Deseja remover este item do carrinho?')">
+                                <button type="submit" class="btn btn-danger btn-sm remove-btn" 
+                                        onclick="return confirm('Deseja remover este item do carrinho?')"
+                                        title="Remover item">
                                     🗑️ Remover
                                 </button>
                             </form>
@@ -61,45 +76,65 @@
                 </div>
 
                 <!-- Empty Cart -->
-                <div th:if="${cart == null or cart.empty}" class="empty-cart">
-                    <div class="empty-cart-icon">🛒</div>
-                    <h3>Seu carrinho está vazio</h3>
-                    <p>Adicione alguns produtos para começar suas compras!</p>
-                    <a href="/" class="btn btn-primary">Continuar Comprando</a>
+                <div th:if="${cart == null or cart.empty}" class="empty-cart-container">
+                    <div class="empty-cart-card">
+                        <div class="empty-cart-icon">🛒</div>
+                        <h3>Seu carrinho está vazio</h3>
+                        <p>Adicione alguns produtos para começar suas compras!</p>
+                        <div class="empty-cart-actions">
+                            <a href="/shop" class="btn btn-primary">🛍️ Explorar Produtos</a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Cart Summary -->
-                <div th:if="${cart != null and !cart.empty}" class="cart-summary">
+                <div th:if="${cart != null and !cart.empty}" class="cart-summary-container">
                     <div class="summary-card">
-                        <h3>📋 Resumo do Pedido</h3>
-                        <div class="summary-row">
-                            <span>Subtotal (<span th:text="${cart.totalItems}">0</span> itens):</span>
-                            <span th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}">R$ 0,00</span>
+                        <div class="summary-header">
+                            <h3>Resumo do Pedido</h3>
                         </div>
-                        <div class="summary-row">
-                            <span>Frete:</span>
-                            <span class="text-success">Grátis</span>
+                        
+                        <div class="summary-body">
+                            <div class="summary-row">
+                                <span>Subtotal (<span th:text="${cart.totalItems}">0</span> <span th:text="${cart.totalItems == 1} ? 'item' : 'itens'">itens</span>):</span>
+                                <span class="value">R$ <span th:text="${#numbers.formatDecimal(cart.total, 1, 2)}">0,00</span></span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Frete:</span>
+                                <span class="value free-shipping">Grátis</span>
+                            </div>
+                            <div class="summary-row discount">
+                                <span>Desconto:</span>
+                                <span class="value">- R$ 0,00</span>
+                            </div>
                         </div>
-                        <hr>
-                        <div class="summary-row total">
-                            <strong>Total:</strong>
-                            <strong th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}">R$ 0,00</strong>
+                        
+                        <div class="summary-divider"></div>
+                        
+                        <div class="summary-footer">
+                            <div class="summary-total">
+                                <span class="total-label">Total:</span>
+                                <span class="total-value">R$ <span th:text="${#numbers.formatDecimal(cart.total, 1, 2)}">0,00</span></span>
+                            </div>
                         </div>
                         
                         <div class="cart-actions">
-                            <a href="/shop" class="btn btn-outline">Continuar Comprando</a>
-                            <a th:href="@{/cart/checkout}" class="btn btn-primary">
-                                💳 Finalizar Compra
+                            <a href="/shop" class="btn btn-outline">← Continuar Comprando</a>
+                            <a th:href="@{/cart/checkout}" class="btn btn-primary checkout-btn">
+                                Finalizar Compra
                             </a>
                         </div>
 
-                        <!-- Clear Cart -->
-                        <form th:action="@{/cart/clear}" method="post" style="margin-top: 1rem;">
-                            <button type="submit" class="btn btn-secondary btn-sm" 
-                                    onclick="return confirm('Deseja limpar todo o carrinho?')">
-                                🗑️ Limpar Carrinho
-                            </button>
-                        </form>
+                        <!-- Additional Actions -->
+                        <div class="additional-actions">
+                            <form th:action="@{/cart/clear}" method="post" class="clear-cart-form">
+                                <button type="submit" class="btn btn-secondary btn-sm clear-cart-btn" 
+                                        onclick="return confirm('Deseja limpar todo o carrinho?')"
+                                        title="Limpar carrinho">
+                                    🗑️ Limpar Carrinho
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,5 +143,381 @@
 
     <div th:replace="~{layout :: footer}"></div>
     <div th:replace="~{layout :: scripts}"></div>
+
+    <style>
+        .cart-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .cart-item-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cart-item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .cart-item-header {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .item-image {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-image.placeholder {
+            font-size: 2rem;
+            color: #6c757d;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.4;
+        }
+
+        .item-description {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .item-price {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #28a745;
+        }
+
+        .cart-item-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-label {
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .quantity-form {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-input-group {
+            display: flex;
+            align-items: center;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .qty-btn {
+            background: #f8f9fa;
+            border: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .qty-btn:hover:not(:disabled) {
+            background: #e9ecef;
+        }
+
+        .qty-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .qty-input {
+            border: none;
+            width: 60px;
+            height: 36px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .item-total-section {
+            text-align: right;
+        }
+
+        .subtotal-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtotal-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .cart-item-footer {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .remove-btn {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .empty-cart-container {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .empty-cart-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .empty-cart-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .empty-cart-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .empty-cart-card p {
+            margin: 0 0 2rem 0;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .cart-summary-container {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .summary-header {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+
+        .summary-body {
+            padding: 1.5rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .summary-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-row .value {
+            font-weight: 500;
+        }
+
+        .free-shipping {
+            color: #28a745 !important;
+            font-weight: 600;
+        }
+
+        .summary-row.discount {
+            color: #28a745;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: #dee2e6;
+            margin: 1rem 1.5rem;
+        }
+
+        .summary-footer {
+            padding: 1.5rem;
+            background: #f8f9fa;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .total-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .cart-actions {
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .cart-actions .btn {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .checkout-btn {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .additional-actions {
+            padding: 0 1.5rem 1.5rem;
+            text-align: center;
+        }
+
+        .clear-cart-btn {
+            background: transparent;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .clear-cart-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .cart-item-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .item-image {
+                align-self: center;
+            }
+
+            .cart-item-body {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .item-total-section {
+                text-align: left;
+                width: 100%;
+            }
+
+            .cart-actions {
+                flex-direction: column;
+            }
+
+            .summary-card {
+                order: -1;
+            }
+        }
+    </style>
 </body>
 </html>

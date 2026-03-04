@@ -32,7 +32,7 @@ public class CustomerProductController {
             @RequestParam(value = "search", required = false) String search,
             Model model) {
         
-        model.addAttribute("pageTitle", "Filadelfia Store - Produtos");
+        model.addAttribute("pageTitle", "Produtos");
         model.addAttribute("activePage", "shop");
 
         // Get all categories for filter
@@ -53,7 +53,7 @@ public class CustomerProductController {
         } else {
             // Show only featured products in the main shop page
             products = productService.getFeaturedProducts();
-            model.addAttribute("pageTitle", "Filadelfia Store - Produtos em Destaque");
+            model.addAttribute("pageTitle", "Produtos em Destaque");
             model.addAttribute("showingFeatured", true);
         }
 

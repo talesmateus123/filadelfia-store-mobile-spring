@@ -59,6 +59,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     BigDecimal getTotalRevenue();    
     @Query("SELECT SUM(o.total) FROM Order o WHERE o.status = 'DELIVERED' AND o.createdAt >= :fromDate")
     BigDecimal getRevenueFromDate(@Param("fromDate") java.sql.Date fromDate);    
-    @Query("SELECT SUM(o.total) FROM Order o WHERE o.status IN ('DELIVERED', 'CONFIRMED') AND DATE(o.createdAt) = DATE(:date)")
+    @Query("SELECT SUM(o.total) FROM Order o WHERE o.status IN ('DELIVERED', 'CONFIRMED') AND o.createdAt = :date")
     BigDecimal getSalesFromDate(@Param("date") java.sql.Date date);
 }
