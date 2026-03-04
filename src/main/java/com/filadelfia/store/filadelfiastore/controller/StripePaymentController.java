@@ -9,6 +9,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,7 @@ import java.util.Map;
 @RequestMapping("/payments/stripe")
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "stripe.enabled", havingValue = "true", matchIfMissing = false)
 public class StripePaymentController {
 
     private final StripePaymentService stripePaymentService;
