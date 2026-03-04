@@ -9,7 +9,9 @@ public enum PaymentMethod {
     PIX("PIX"),
     BOLETO("Boleto Bancário"),
     BANK_TRANSFER("Transferência Bancária"),
-    CASH("Dinheiro");
+    CASH("Dinheiro"),
+    STRIPE_CARD("Stripe - Cartão de Crédito"),
+    STRIPE_PIX("Stripe - PIX");
 
     private final String displayName;
 
@@ -25,14 +27,16 @@ public enum PaymentMethod {
      * Check if payment method requires online processing
      */
     public boolean requiresOnlineProcessing() {
-        return this == CREDIT_CARD || this == DEBIT_CARD || this == PIX;
+        return this == CREDIT_CARD || this == DEBIT_CARD || this == PIX || 
+               this == STRIPE_CARD || this == STRIPE_PIX;
     }
 
     /**
      * Check if payment method is instant
      */
     public boolean requiresInstantPayment() {
-        return this == CREDIT_CARD || this == DEBIT_CARD || this == PIX || this == CASH;
+        return this == CREDIT_CARD || this == DEBIT_CARD || this == PIX || 
+               this == CASH || this == STRIPE_CARD || this == STRIPE_PIX;
     }
 
     /**
@@ -59,6 +63,10 @@ public enum PaymentMethod {
                 return "Transferência bancária - Confirmação manual";
             case CASH:
                 return "Pagamento em dinheiro - Na entrega";
+            case STRIPE_CARD:
+                return "Stripe - Cartão de crédito internacional - Aprovação instantânea";
+            case STRIPE_PIX:
+                return "Stripe - PIX - Pagamento instantâneo via Stripe";
             default:
                 return displayName;
         }
@@ -73,6 +81,8 @@ public enum PaymentMethod {
             case DEBIT_CARD:
             case PIX:
             case CASH:
+            case STRIPE_CARD:
+            case STRIPE_PIX:
                 return 0; // Instant
             case BOLETO:
                 return 72; // 3 days

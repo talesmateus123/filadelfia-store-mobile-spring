@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Stripe - Filadelfia Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Pagamento via Stripe</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="orderSelect" class="form-label">Selecionar Pedido:</label>
+                            <select class="form-select" id="orderSelect">
+                                <option value="">Selecione um pedido...</option>
+                                <!-- Orders will be loaded dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button id="checkout-button" class="btn btn-primary w-100 mb-3">
+                                    <i class="fas fa-credit-card"></i> Pagar com Cartão (Checkout)
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button id="card-payment-button" class="btn btn-success w-100 mb-3">
+                                    <i class="fas fa-credit-card"></i> Pagar com Cartão (Direto)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button id="pix-payment-button" class="btn btn-warning w-100 mb-3">
+                            <i class="fas fa-qrcode"></i> Pagar com PIX
+                        </button>
+                        
+                        <!-- Card payment form (for direct integration) -->
+                        <div id="card-payment-form" style="display: none;">
+                            <hr>
+                            <h5>Dados do Cartão</h5>
+                            <form id="payment-form">
+                                <div id="card-element" class="form-control mb-3" style="padding: 12px;">
+                                    <!-- Stripe Elements will create form elements here -->
+                                </div>
+                                <div id="card-errors" role="alert" class="text-danger"></div>
+                                <button type="submit" id="submit-payment" class="btn btn-primary w-100">
+                                    <span id="button-text">Confirmar Pagamento</span>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- PIX payment form -->
+                        <div id="pix-payment-form" style="display: none;">
+                            <hr>
+                            <h5>Pagamento PIX</h5>
+                            <div id="pix-element" class="text-center">
+                                <!-- PIX QR Code will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stripe;
+        let elements;
+        let cardElement;
+        let selectedOrderId = null;
+
+        // Initialize Stripe
+        async function initializeStripe() {
+            try {
+                const response = await fetch('/payments/stripe/public-key');
+                const { publicKey } = await response.json();
+                stripe = Stripe(publicKey);
+                elements = stripe.elements();
+                
+                // Create card element
+                cardElement = elements.create('card');
+                cardElement.mount('#card-element');
+                
+                // Handle real-time validation errors from the card Element
+                cardElement.on('change', function(event) {
+                    const displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing Stripe:', error);
+                alert('Erro ao inicializar Stripe: ' + error.message);
+            }
+        }
+
+        // Checkout Session (Redirect to Stripe)
+        document.getElementById('checkout-button').addEventListener('click', async function() {
+            if (!selectedOrderId) {
+                alert('Por favor, selecione um pedido primeiro.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/payments/stripe/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `orderId=${selectedOrderId}`
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    alert('Erro: ' + data.error);
+                } else {
+                    window.location.href = data.url;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erro ao criar sessão de pagamento: ' + error.message);
+            }
+        });
+
+        // Direct Card Payment
+        document.getElementById('card-payment-button').addEventListener('click', function() {
+            if (!selectedOrderId) {
+                alert('Por favor, selecione um pedido primeiro.');
+                return;
+            }
+            document.getElementById('card-payment-form').style.display = 'block';
+            document.getElementById('pix-payment-form').style.display = 'none';
+        });
+
+        // PIX Payment
+        document.getElementById('pix-payment-button').addEventListener('click', async function() {
+            if (!selectedOrderId) {
+                alert('Por favor, selecione um pedido primeiro.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/payments/stripe/create-pix-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `orderId=${selectedOrderId}`
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    alert('Erro: ' + data.error);
+                } else {
+                    document.getElementById('pix-payment-form').style.display = 'block';
+                    document.getElementById('card-payment-form').style.display = 'none';
+                    
+                    // Handle PIX payment with client secret
+                    const {error} = await stripe.confirmPixPayment(data.clientSecret);
+                    if (error) {
+                        alert('Erro no pagamento PIX: ' + error.message);
+                    } else {
+                        alert('Pagamento PIX iniciado com sucesso!');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erro ao criar pagamento PIX: ' + error.message);
+            }
+        });
+
+        // Handle card payment form submission
+        document.getElementById('payment-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            if (!selectedOrderId) {
+                alert('Por favor, selecione um pedido primeiro.');
+                return;
+            }
+
+            // Create payment intent
+            try {
+                const response = await fetch('/payments/stripe/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `orderId=${selectedOrderId}`
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    alert('Erro: ' + data.error);
+                    return;
+                }
+
+                // Confirm payment
+                const {error} = await stripe.confirmCardPayment(data.clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: 'Cliente Filadelfia Store',
+                        },
+                    }
+                });
+
+                if (error) {
+                    document.getElementById('card-errors').textContent = error.message;
+                } else {
+                    alert('Pagamento realizado com sucesso!');
+                    window.location.href = '/orders/my';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erro ao processar pagamento: ' + error.message);
+            }
+        });
+
+        // Order selection handler
+        document.getElementById('orderSelect').addEventListener('change', function() {
+            selectedOrderId = this.value;
+        });
+
+        // Load sample orders (for testing)
+        function loadSampleOrders() {
+            const orderSelect = document.getElementById('orderSelect');
+            const sampleOrders = [
+                { id: 1, description: 'Pedido #1 - R$ 150,00' },
+                { id: 2, description: 'Pedido #2 - R$ 299,90' },
+                { id: 3, description: 'Pedido #3 - R$ 89,50' }
+            ];
+
+            sampleOrders.forEach(order => {
+                const option = document.createElement('option');
+                option.value = order.id;
+                option.textContent = order.description;
+                orderSelect.appendChild(option);
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeStripe();
+            loadSampleOrders();
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body>
+</html>
