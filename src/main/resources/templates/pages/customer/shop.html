@@ -112,7 +112,7 @@
                             <div class="product-actions">
                                 <a th:href="@{/shop/product/{id}(id=${product.id})}" 
                                    class="button btn btn-outline product-details-btn">
-                                    👁️ Ver Detalhes
+                                    Ver Detalhes
                                 </a>
                                 
                                 <div class="cart-action">
@@ -166,8 +166,8 @@
                     <h4>Faça login para comprar!</h4>
                     <p>Entre na sua conta para adicionar produtos ao carrinho e finalizar suas compras.</p>
                     <div class="prompt-actions">
-                        <a th:href="@{/login}" class="button btn btn-primary">🔐 Fazer Login</a>
-                        <a th:href="@{/register}" class="button btn btn-outline">📝 Cadastrar-se</a>
+                        <a th:href="@{/login}" class="button btn btn-primary">Fazer Login</a>
+                        <a th:href="@{/register}" class="button btn btn-outline">Cadastrar-se</a>
                     </div>
                 </div>
             </div>
@@ -179,9 +179,9 @@
 
     <style>
         .shop-filters-container {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;            
             margin: 2rem 0;
             background: white;
             padding: 1.5rem;
@@ -235,14 +235,17 @@
         }
 
         .category-section {
-            grid-column: 1 / -1;
+            flex: 1;
+             display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .category-filter {
             display: flex;
-            flex-wrap: wrap;
             gap: 0.75rem;
-            margin-top: 1rem;
+            margin: unset;
+            padding: unset;
         }
 
         .category-btn {
@@ -462,8 +465,6 @@
         .add-to-cart-btn {
             width: 100%;
             padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-            font-weight: 600;
             border-radius: 8px;
             border: none;
             cursor: pointer;

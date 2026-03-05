@@ -90,8 +90,8 @@ public class OrderServiceImpl implements OrderService {
         order.calculateTotals();
         order = orderRepository.save(order);
         
-        // Clear cart after order creation
-        cartService.clearCart(userId);
+        // Do NOT clear cart here - only clear when payment is confirmed
+        // cartService.clearCart(userId);
         
         return orderMapper.toDTO(order);
     }
@@ -145,8 +145,8 @@ public class OrderServiceImpl implements OrderService {
         order.calculateTotals();
         order = orderRepository.save(order);
         
-        // Clear cart after order creation
-        cartService.clearCart(userId);
+        // Do NOT clear cart here - only clear when payment is confirmed
+        // cartService.clearCart(userId);
         
         return orderMapper.toDTO(order);
     }
@@ -192,12 +192,18 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
         
+        OrderStatus previousStatus = order.getStatus();
         order.setStatus(status);
         
         if (status == OrderStatus.SHIPPED) {
             order.setShippedAt(new Date(System.currentTimeMillis()));
         } else if (status == OrderStatus.DELIVERED) {
             order.setDeliveredAt(new Date(System.currentTimeMillis()));
+        }
+        
+        // Clear cart only when payment is confirmed (status changes to CONFIRMED)
+        if (status == OrderStatus.CONFIRMED && previousStatus != OrderStatus.CONFIRMED) {
+            cartService.clearCart(order.getUser().getId());
         }
         
         order = orderRepository.save(order);
@@ -380,5 +386,26 @@ public class OrderServiceImpl implements OrderService {
     
     private String generateOrderNumber() {
         return "ORD-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    @Override
+    public OrderDTO confirmPayment(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+        
+        // Only confirm if order is in PENDING status
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException("Order cannot be confirmed. Current status: " + order.getStatus());
+        }
+        
+        // Update status to CONFIRMED
+        order.setStatus(OrderStatus.CONFIRMED);
+        order.setPaymentConfirmed(true);
+        
+        // Clear the user's cart since payment is confirmed
+        cartService.clearCart(order.getUser().getId());
+        
+        order = orderRepository.save(order);
+        return orderMapper.toDTO(order);
     }
 }

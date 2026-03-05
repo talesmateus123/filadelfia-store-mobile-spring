@@ -66,6 +66,15 @@
                             <strong th:text="'R$ ' + ${#numbers.formatDecimal(order.total, 1, 2)}">R$ 100,00</strong>
                         </div>
                     </div>
+                    
+                    <!-- Important Information -->
+                    <div class="alert alert-info mt-3" role="alert">
+                        <h6><i class="fas fa-info-circle"></i> Informação Importante:</h6>
+                        <p class="mb-0">
+                            Seus itens permanecem no carrinho até que o pagamento seja <strong>confirmado</strong>. 
+                            Somente após a aprovação do pagamento os itens serão removidos do carrinho automaticamente.
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Payment Instructions -->

@@ -374,7 +374,7 @@
             </div>
             
             <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
-                ⏰ O pagamento PIX é processado instantaneamente. Você receberá a confirmação em poucos segundos.
+                O pagamento PIX é processado instantaneamente. Você receberá a confirmação em poucos segundos.
             </p>
         </div>
         
@@ -382,7 +382,7 @@
         <div th:if="${payment.method.name() == 'BOLETO' and (payment.status.name() == 'PENDING' or payment.status.name() == 'PROCESSING')}" 
              class="boleto-instructions">
             <div class="instructions-title">
-                📄 Como pagar o boleto
+                Como pagar o boleto
             </div>
             
             <ol class="steps-list">
@@ -465,11 +465,11 @@
         <!-- Action Buttons -->
         <div class="action-buttons">
             <a th:href="@{/orders/{id}(id=${payment.orderId})}" class="button btn btn-primary">
-                📦 Ver Pedido
+                Ver Pedido
             </a>
             
             <a th:href="@{/payments/{id}(id=${payment.id})}" class="button btn btn-outline">
-                👁️ Detalhes do Pagamento
+                Detalhes do Pagamento
             </a>
             
             <a th:if="${payment.method.name() == 'BOLETO' and (payment.status.name() == 'PENDING' or payment.status.name() == 'PROCESSING')}" 
@@ -482,11 +482,11 @@
             <a th:if="${payment.status.name() == 'FAILED'}" 
                th:href="@{/payments/new(orderId=${payment.orderId})}" 
                class="button btn btn-primary">
-                🔄 Tentar Novamente
+                Tentar Novamente
             </a>
             
             <a th:href="@{/shop}" class="button btn btn-outline">
-                🛍️ Continuar Comprando
+                Continuar Comprando
             </a>
         </div>
     </div>

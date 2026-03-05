@@ -30,15 +30,6 @@ main {
     padding: 20px;
 }
 
-/* Basic link styles */
-a:link, a:visited {
-    color: unset;
-}
-
-a:active, a:hover {
-    color: unset;
-}
-
 /* Basic form styles */
 .form-group {
     margin-bottom: 15px;

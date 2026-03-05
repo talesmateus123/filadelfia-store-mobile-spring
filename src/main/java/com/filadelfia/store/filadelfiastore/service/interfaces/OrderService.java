@@ -22,6 +22,7 @@ public interface OrderService {
                                            String shippingZipCode);
     OrderDTO createOrder(Long userId, List<OrderItemDTO> items, PaymentMethod paymentMethod, String shippingAddress);
     OrderDTO updateOrderStatus(Long orderId, OrderStatus status);
+    OrderDTO confirmPayment(Long orderId);
     OrderDTO getOrderById(Long orderId);
     Optional<Order> findOrderById(Long orderId);
     

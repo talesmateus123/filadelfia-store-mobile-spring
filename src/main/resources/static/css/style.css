@@ -395,20 +395,6 @@
     color: #2c3e50;
 }
 
-/* Link styling compatibility */
-a:link, a:visited {
-    color: unset;
-}
-
-a:active, a:hover {
-    color: unset;
-}
-
-/* Button specific element styling */
-.button {
-    margin-left: 10px;
-}
-
 /* Section title with flex layout */
 .section-title {
     margin-bottom: 20px;

@@ -16,6 +16,9 @@
     border: none;
     font-size: 1rem;
     font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .tab:hover {

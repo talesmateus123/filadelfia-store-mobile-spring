@@ -3,6 +3,7 @@ package com.filadelfia.store.filadelfiastore.controller;
 import com.filadelfia.store.filadelfiastore.model.entity.Order;
 import com.filadelfia.store.filadelfiastore.model.entity.Payment;
 import com.filadelfia.store.filadelfiastore.repository.OrderRepository;
+import com.filadelfia.store.filadelfiastore.service.interfaces.OrderService;
 import com.filadelfia.store.filadelfiastore.service.implementations.StripePaymentService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -30,6 +31,7 @@ public class StripePaymentController {
 
     private final StripePaymentService stripePaymentService;
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
     /**
      * Create Stripe Checkout Session for card payments
@@ -159,9 +161,24 @@ public class StripePaymentController {
     @ResponseBody
     public ResponseEntity<String> stripeWebhook(@RequestBody String payload,
                                                @RequestHeader("Stripe-Signature") String sigHeader) {
-        // TODO: Implement webhook verification and payment status updates
-        log.info("Received Stripe webhook");
-        return ResponseEntity.ok("OK");
+        try {
+            log.info("Received Stripe webhook");
+            
+            // TODO: Implement full webhook verification and payment status updates
+            // For now, just log the event
+            // When implementing:
+            // 1. Verify webhook signature
+            // 2. Parse event type (checkout.session.completed, payment_intent.succeeded, etc.)
+            // 3. Extract order ID from metadata
+            // 4. Call orderService.confirmPayment(orderId) for successful payments
+            
+            log.debug("Webhook payload: {}", payload);
+            
+            return ResponseEntity.ok("OK");
+        } catch (Exception e) {
+            log.error("Error processing Stripe webhook: ", e);
+            return ResponseEntity.status(400).body("Webhook processing failed");
+        }
     }
 
     /**
