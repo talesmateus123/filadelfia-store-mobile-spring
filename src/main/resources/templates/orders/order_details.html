@@ -52,7 +52,7 @@
                                     <span th:text="${order.paymentMethod.name() == 'CREDIT_CARD' ? 'Cartão de Crédito' : 
                                                    order.paymentMethod.name() == 'DEBIT_CARD' ? 'Cartão de Débito' : 
                                                    order.paymentMethod.name() == 'PIX' ? 'PIX' : 
-                                                   order.paymentMethod.name() == 'BANK_SLIP' ? 'Boleto Bancário' : order.paymentMethod}"></span>
+                                                   order.paymentMethod.name() == 'BOLETO' ? 'Boleto Bancário' : order.paymentMethod}"></span>
                                 </p>
                                 <p><strong>Pagamento Confirmado:</strong> 
                                     <span th:if="${order.paymentConfirmed}" class="text-success">Sim</span>
