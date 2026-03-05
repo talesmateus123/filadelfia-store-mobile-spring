@@ -3,277 +3,6 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <div th:replace="~{layout :: head}"></div>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        /* Mobile-first checkout styles */
-        .checkout-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        
-        .checkout-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-        
-        @media (min-width: 992px) {
-            .checkout-grid {
-                grid-template-columns: 1fr 400px;
-            }
-        }
-        
-        .summary-card,
-        .form-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 1px solid #e9ecef;
-        }
-        
-        .summary-card h3,
-        .form-card h3 {
-            margin: 0 0 1.5rem 0;
-            color: #2c3e50;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        
-        .order-items {
-            margin-bottom: 1rem;
-        }
-        
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f8f9fa;
-        }
-        
-        .order-item:last-child {
-            border-bottom: none;
-        }
-        
-        .item-info {
-            flex: 1;
-        }
-        
-        .item-info strong {
-            display: block;
-            color: #2c3e50;
-            margin-bottom: 0.25rem;
-        }
-        
-        .item-qty {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .item-price {
-            font-weight: 600;
-            color: #27ae60;
-        }
-        
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 0.5rem 0;
-        }
-        
-        .summary-row.total {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 2px solid #dee2e6;
-            font-size: 1.1rem;
-        }
-        
-        .form-section {
-            margin-bottom: 2rem;
-        }
-        
-        .form-section:last-child {
-            margin-bottom: 0;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        @media (min-width: 576px) {
-            .form-row.two-cols {
-                grid-template-columns: 1fr auto;
-            }
-            
-            .form-row.three-cols {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .form-row.address-row {
-                grid-template-columns: 1fr auto auto;
-            }
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-group label {
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #495057;
-        }
-        
-        .form-control {
-            padding: 0.75rem;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-        
-        .payment-methods {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-        }
-        
-        @media (min-width: 576px) {
-            .payment-methods {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        .payment-option {
-            position: relative;
-        }
-        
-        .payment-option input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .payment-label {
-            display: block;
-            padding: 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            margin: 0;
-        }
-        
-        .payment-option input[type="radio"]:checked + .payment-label {
-            border-color: #3498db;
-            background-color: #f8fbff;
-            color: #3498db;
-        }
-        
-        .payment-label:hover {
-            border-color: #3498db;
-        }
-        
-        .checkout-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        @media (min-width: 576px) {
-            .checkout-actions {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-        }
-        
-        .btn {
-            padding: 0.875rem 2rem;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        
-        .btn-primary {
-            background-color: #3498db;
-            color: white;
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            background-color: #2980b9;
-        }
-        
-        .btn-primary:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            color: #3498db;
-            border: 2px solid #3498db;
-        }
-        
-        .btn-outline:hover {
-            background-color: #3498db;
-            color: white;
-        }
-        
-        .text-success {
-            color: #27ae60 !important;
-        }
-        
-        .text-muted {
-            color: #6c757d !important;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        @media (max-width: 575px) {
-            .checkout-container {
-                padding: 0.5rem;
-            }
-            
-            .summary-card,
-            .form-card {
-                padding: 1rem;
-                border-radius: 8px;
-            }
-            
-            .dashboard-header {
-                text-align: center;
-                margin-bottom: 1.5rem;
-            }
-        }
-    </style>
 </head>
 <body>
     <div th:replace="~{layout :: header}"></div>
@@ -282,76 +11,115 @@
         <div class="container">
             <div th:replace="~{layout :: notifications}"></div>
             
-            <div class="dashboard-header">
-                <h2 th:text="${pageTitle}">Finalizar Pedido</h2>
-                <p class="dashboard-subtitle">Revise seu pedido e complete sua compra</p>
-            </div>
 
+        <div class="dashboard-header">
+            <h2 th:text="${pageTitle}">Meu Perfil</h2>
+            <p class="dashboard-subtitle">Efetue o pagamento para finalizar o pedido</p>
+        </div>
+
+            <!-- Checkout Container -->
             <div class="checkout-container">
-                <div class="checkout-grid">
-                    <!-- Formulário principal -->
-                    <div class="main-content">
-                        <form th:action="@{/orders/create}" method="post">
-                            <!-- Endereço de Entrega -->
-                            <div class="form-card">
-                                <div class="form-section">
-                                    <h3>📍 Endereço de Entrega</h3>
-                                    
-                                    <div class="form-row two-cols">
-                                        <div class="form-group">
-                                            <label for="shippingStreet">Rua *</label>
-                                            <input type="text" id="shippingStreet" name="shippingStreet" 
-                                                class="form-control" required placeholder="Nome da rua">
-                                        </div>
-                                        <div class="form-group" style="min-width: 100px;">
-                                            <label for="shippingNumber">Número *</label>
-                                            <input type="text" id="shippingNumber" name="shippingNumber" 
-                                                class="form-control" required placeholder="123">
-                                        </div>
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="summary-card">
+                        <h3>Resumo do Pedido</h3>
+                        <div th:if="${cart != null and !cart.empty}">
+                            <div class="order-items">
+                                <div th:each="item : ${cart.items}" class="order-item">
+                                    <div class="item-info">
+                                        <strong th:text="${item.productName}"></strong>
+                                        <span class="item-qty" th:text="'Qtd: ' + ${item.quantity}"></span>
                                     </div>
-                                    
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="shippingComplement">Complemento</label>
-                                            <input type="text" id="shippingComplement" name="shippingComplement" 
-                                                class="form-control" placeholder="Apto, bloco, etc. (opcional)">
-                                        </div>
+                                    <div class="item-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}"></div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}"></span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Frete:</span>
+                                <span class="text-success">Grátis</span>
+                            </div>
+                            <hr>
+                            <div class="summary-row total">
+                                <strong>Total:</strong>
+                                <strong th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}"></strong>
+                            </div>
+                        </div>
+                        <div th:if="${cart == null or cart.empty}" class="text-center text-muted">
+                            <p>Carrinho vazio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+
+                <form th:action="@{/orders/create}" method="post">
+                    <div class="card checkout-form">
+                        <!-- Address Section -->
+                        <div class="summary-card">
+                        
+                            <div class="form-section">
+                                <h3>Endereço de Entrega</h3>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="shippingStreet">Rua</label>
+                                        <input type="text" id="shippingStreet" name="shippingStreet" 
+                                            class="form-control" required placeholder="Nome da rua">
                                     </div>
-                                    
-                                    <div class="form-row three-cols">
-                                        <div class="form-group">
-                                            <label for="shippingNeighborhood">Bairro *</label>
-                                            <input type="text" id="shippingNeighborhood" name="shippingNeighborhood" 
-                                                class="form-control" required placeholder="Nome do bairro">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="shippingCity">Cidade *</label>
-                                            <input type="text" id="shippingCity" name="shippingCity" 
-                                                class="form-control" required placeholder="Nome da cidade">
-                                        </div>
+                                    <div class="form-group" id="shippingNumberGroup">
+                                        <label for="shippingNumber">Número</label>
+                                        <input type="text" id="shippingNumber" name="shippingNumber" 
+                                            class="form-control" required placeholder="123">
                                     </div>
-                                    
-                                    <div class="form-row address-row">
-                                        <div class="form-group">
-                                            <label for="shippingZipCode">CEP *</label>
-                                            <input type="text" id="shippingZipCode" name="shippingZipCode" 
-                                                class="form-control" required placeholder="12345-678" 
-                                                pattern="[0-9]{5}-?[0-9]{3}" title="CEP no formato 12345-678">
-                                        </div>
-                                        <div class="form-group" style="min-width: 80px;">
-                                            <label for="shippingState">UF *</label>
-                                            <input type="text" id="shippingState" name="shippingState" 
-                                                class="form-control" required placeholder="SP" maxlength="2" 
-                                                style="text-transform: uppercase;">
-                                        </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="shippingComplement">Complemento</label>
+                                    <input type="text" id="shippingComplement" name="shippingComplement" 
+                                        class="form-control" placeholder="Apartamento, bloco, etc. (opcional)">
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="shippingNeighborhood">Bairro</label>
+                                        <input type="text" id="shippingNeighborhood" name="shippingNeighborhood" 
+                                            class="form-control" required placeholder="Nome do bairro">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="shippingCity">Cidade</label>
+                                        <input type="text" id="shippingCity" name="shippingCity" 
+                                            class="form-control" required placeholder="Nome da cidade">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group" id="shippingStateGroup">
+                                        <label for="shippingState">UF</label>
+                                        <input type="text" id="shippingState" name="shippingState" 
+                                            class="form-control" required placeholder="SP" maxlength="2" 
+                                            style="text-transform: uppercase;">
+                                    </div>
+                                    <div class="form-group" id="shippingZipCodeGroup">
+                                        <label for="shippingZipCode">CEP</label>
+                                        <input type="text" id="shippingZipCode" name="shippingZipCode" 
+                                            class="form-control" required placeholder="12345-678" 
+                                            pattern="[0-9]{5}-?[0-9]{3}" title="CEP no formato 12345-678">
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Forma de Pagamento -->
-                            <div class="form-card">
+                        <!-- Payment Method Section -->
+                        <div class="card form-section">
+                            <div class="summary-card">
+                        
                                 <div class="form-section">
-                                    <h3>💳 Forma de Pagamento</h3>
+                                    <h3>Forma de Pagamento</h3>                                
                                     <div class="payment-methods">
                                         <div class="payment-option">
                                             <input type="radio" id="credit_card" name="paymentMethod" 
@@ -378,67 +146,28 @@
                                         </div>
                                         
                                         <div class="payment-option">
-                                            <input type="radio" id="boleto" name="paymentMethod" 
-                                                value="BOLETO">
-                                            <label for="boleto" class="payment-label">
+                                            <input type="radio" id="bank_slip" name="paymentMethod" 
+                                                value="BANK_SLIP">
+                                            <label for="bank_slip" class="payment-label">
                                                 📄 Boleto Bancário
                                             </label>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Botões de ação -->
-                            <div class="checkout-actions">
-                                <a th:href="@{/cart}" class="btn btn-outline">
-                                    ← Voltar ao Carrinho
-                                </a>
-                                <button type="submit" class="btn btn-primary" 
-                                        th:disabled="${cart == null or cart.empty}">
-                                    🛒 Finalizar Pedido
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Resumo do pedido (sidebar) -->
-                    <div class="sidebar">
-                        <div class="summary-card">
-                            <h3>📋 Resumo do Pedido</h3>
-                            <div th:if="${cart != null and !cart.empty}">
-                                <div class="order-items">
-                                    <div th:each="item : ${cart.items}" class="order-item">
-                                        <div class="item-info">
-                                            <strong th:text="${item.productName}">Nome do Produto</strong>
-                                            <span class="item-qty" th:text="'Qtd: ' + ${item.quantity}">Qtd: 1</span>
-                                        </div>
-                                        <div class="item-price" th:text="'R$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">R$ 100,00</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="summary-row">
-                                    <span>Subtotal:</span>
-                                    <span th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}">R$ 100,00</span>
-                                </div>
-                                <div class="summary-row">
-                                    <span>Frete:</span>
-                                    <span class="text-success">Grátis</span>
-                                </div>
-                                
-                                <div class="summary-row total">
-                                    <strong>Total:</strong>
-                                    <strong th:text="'R$ ' + ${#numbers.formatDecimal(cart.total, 1, 2)}">R$ 100,00</strong>
-                                </div>
-                            </div>
-                            
-                            <div th:if="${cart == null or cart.empty}" class="text-center text-muted">
-                                <p>Carrinho vazio</p>
-                                <a th:href="@{/shop}" class="btn btn-primary">
-                                    Ir às Compras
-                                </a>
+                                </div> 
                             </div>
                         </div>
-                    </div>
+
+                        <!-- Action Buttons -->
+                        <div class="checkout-actions">
+                            <a th:href="@{/cart}" class="button btn btn-outline">
+                                Voltar ao Carrinho
+                            </a>
+                            <button type="submit" class="button btn btn-primary" 
+                                    th:disabled="${cart == null or cart.empty}">
+                                🛒 Finalizar Pedido
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -446,6 +175,41 @@
 
     <div th:replace="~{layout :: footer}"></div>
     <div th:replace="~{layout :: scripts}"></div>
+
+    <style>
+        .checkout-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        #shippingNumberGroup, shippingZipCodeGroup {
+            max-width: 150px;
+        }
+
+        #shippingStateGroup {
+            max-width: 100px;
+        }
+
+        div.form-group label {
+            text-align: start;
+        }
+
+        @media screen and (max-width: 768px) {
+            div.form-group label {
+                text-align: center;
+            }
+            #shippingNumberGroup, #shippingZipCodeGroup {
+                max-width: unset;
+            }
+
+            #shippingStateGroup {
+                max-width: unset;
+            }
+
+        }
+    </style>
     
     <script>
         // Format CEP input
@@ -461,24 +225,6 @@
         document.getElementById('shippingState').addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase();
         });
-        
-        // Mobile: Move summary to top on small screens
-        function adjustLayoutForMobile() {
-            const grid = document.querySelector('.checkout-grid');
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
-            if (window.innerWidth < 992) {
-                // Move sidebar to top on mobile
-                if (sidebar && mainContent) {
-                    grid.insertBefore(sidebar, mainContent);
-                }
-            }
-        }
-        
-        // Run on load and resize
-        adjustLayoutForMobile();
-        window.addEventListener('resize', adjustLayoutForMobile);
     </script>
 </body>
 </html>

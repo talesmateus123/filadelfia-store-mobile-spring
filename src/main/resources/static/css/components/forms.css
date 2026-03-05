@@ -176,6 +176,7 @@ fieldset legend {
     
     .form-row .form-group {
         margin-bottom: 1.5rem;
+        width: 100%;
     }
     
     .search-container {
