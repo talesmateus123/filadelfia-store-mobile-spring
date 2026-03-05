@@ -34,6 +34,58 @@ public class StripePaymentController {
     private final OrderService orderService;
 
     /**
+     * Create Boleto Payment Intent
+     */
+    @PostMapping("/create-boleto-payment")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> createBoletoPayment(@RequestParam Long orderId) {
+        try {
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+
+            PaymentIntent intent = stripePaymentService.createBoletoPaymentIntent(order);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("clientSecret", intent.getClientSecret());
+            response.put("publishableKey", stripePaymentService.getPublicKey());
+
+            return ResponseEntity.ok(response);
+        } catch (StripeException e) {
+            log.error("Error creating Stripe Boleto payment: ", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to create Boleto payment: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    /**
+     * Check PIX payment status (for polling)
+     */
+    @GetMapping("/check-pix-status")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> checkPixStatus(@RequestParam Long orderId) {
+        try {
+            var payments = stripePaymentService.getPaymentsByOrderId(orderId);
+            Map<String, String> response = new HashMap<>();
+            
+            if (!payments.isEmpty()) {
+                var latestPayment = payments.get(0);
+                response.put("status", latestPayment.getStatus().name().toLowerCase());
+            } else {
+                response.put("status", "pending");
+            }
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error checking PIX status: ", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("status", "error");
+            error.put("error", e.getMessage());
+            return ResponseEntity.ok(error);
+        }
+    }
+
+    /**
      * Create Stripe Checkout Session for card payments
      */
     @PostMapping("/create-checkout-session")

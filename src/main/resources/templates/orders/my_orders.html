@@ -38,7 +38,7 @@
                     <div class="order-items">
                         <div class="item-summary" th:each="item : ${order.items}">
                             <div class="item-image">
-                                <img th:src="@{/images/product-placeholder.png}" alt="Produto">
+                                <img th:src="@{/images/product-placeholder.svg}" alt="Produto">
                             </div>
                             <div class="item-details">
                                 <p class="item-name" th:text="${item.productName}">Nome do Produto</p>

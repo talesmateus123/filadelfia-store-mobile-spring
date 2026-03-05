@@ -119,38 +119,74 @@
                             <div class="summary-card">
                         
                                 <div class="form-section">
-                                    <h3>Forma de Pagamento</h3>                                
-                                    <div class="payment-methods">
-                                        <div class="payment-option">
-                                            <input type="radio" id="credit_card" name="paymentMethod" 
-                                                value="CREDIT_CARD" checked>
-                                            <label for="credit_card" class="payment-label">
-                                                💳 Cartão de Crédito
-                                            </label>
+                                    <h3>Forma de Pagamento</h3>
+                                    
+                                    <!-- Stripe Payment Methods -->
+                                    <div class="payment-methods-stripe">
+                                        <div class="stripe-info">
+                                            <p class="stripe-badge">🔒 Pagamentos seguros via Stripe</p>
                                         </div>
                                         
-                                        <div class="payment-option">
-                                            <input type="radio" id="debit_card" name="paymentMethod" 
-                                                value="DEBIT_CARD">
-                                            <label for="debit_card" class="payment-label">
-                                                💳 Cartão de Débito
-                                            </label>
+                                        <!-- Card Payment Options -->
+                                        <div class="payment-group">
+                                            <h4>💳 Cartões</h4>
+                                            <div class="payment-cards">
+                                                <div class="payment-option">
+                                                    <input type="radio" id="credit_card" name="paymentMethod" 
+                                                        value="CREDIT_CARD" checked>
+                                                    <label for="credit_card" class="payment-label">
+                                                        <span class="payment-icon">💳</span>
+                                                        <span class="payment-text">
+                                                            <strong>Cartão de Crédito</strong>
+                                                            <small>Visa, Mastercard, Elo</small>
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="payment-option">
+                                                    <input type="radio" id="debit_card" name="paymentMethod" 
+                                                        value="DEBIT_CARD">
+                                                    <label for="debit_card" class="payment-label">
+                                                        <span class="payment-icon">💳</span>
+                                                        <span class="payment-text">
+                                                            <strong>Cartão de Débito</strong>
+                                                            <small>Débito instantâneo</small>
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                         
-                                        <div class="payment-option">
-                                            <input type="radio" id="pix" name="paymentMethod" 
-                                                value="PIX">
-                                            <label for="pix" class="payment-label">
-                                                📱 PIX
-                                            </label>
+                                        <!-- PIX Payment -->
+                                        <div class="payment-group">
+                                            <h4>📱 Pagamento Instantâneo</h4>
+                                            <div class="payment-option">
+                                                <input type="radio" id="pix" name="paymentMethod" 
+                                                    value="PIX">
+                                                <label for="pix" class="payment-label">
+                                                    <span class="payment-icon">📱</span>
+                                                    <span class="payment-text">
+                                                        <strong>PIX</strong>
+                                                        <small>Aprovação instantânea</small>
+                                                    </span>
+                                                </label>
+                                            </div>
                                         </div>
                                         
-                                        <div class="payment-option">
-                                            <input type="radio" id="bank_slip" name="paymentMethod" 
-                                                value="BANK_SLIP">
-                                            <label for="bank_slip" class="payment-label">
-                                                📄 Boleto Bancário
-                                            </label>
+                                        <!-- Traditional Payment -->
+                                        <div class="payment-group">
+                                            <h4>📄 Outros Métodos</h4>
+                                            <div class="payment-option">
+                                                <input type="radio" id="bank_slip" name="paymentMethod" 
+                                                    value="BOLETO">
+                                                <label for="bank_slip" class="payment-label">
+                                                    <span class="payment-icon">📄</span>
+                                                    <span class="payment-text">
+                                                        <strong>Boleto Bancário</strong>
+                                                        <small>Vencimento em 3 dias úteis</small>
+                                                    </span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div> 
@@ -162,7 +198,8 @@
                             <a th:href="@{/cart}" class="button btn btn-outline">
                                 Voltar ao Carrinho
                             </a>
-                            <button type="submit" class="button btn btn-primary" 
+                            <button type="submit" class="button btn btn-primary"
+                                    id="finalizarPedido" 
                                     th:disabled="${cart == null or cart.empty}">
                                 🛒 Finalizar Pedido
                             </button>
@@ -175,6 +212,9 @@
 
     <div th:replace="~{layout :: footer}"></div>
     <div th:replace="~{layout :: scripts}"></div>
+    
+    <!-- Stripe JS SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
 
     <style>
         .checkout-actions {
@@ -184,7 +224,7 @@
             margin-top: 1.5rem;
         }
 
-        #shippingNumberGroup, shippingZipCodeGroup {
+        #shippingNumberGroup, #shippingZipCodeGroup {
             max-width: 150px;
         }
 
@@ -194,6 +234,98 @@
 
         div.form-group label {
             text-align: start;
+        }
+
+        /* Enhanced Payment Methods Styling */
+        .payment-methods-stripe {
+            margin-top: 1rem;
+        }
+
+        .stripe-badge {
+            background: linear-gradient(135deg, #6772e5, #5469d4);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .payment-group {
+            margin-bottom: 1.5rem;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #fafbfc;
+        }
+
+        .payment-group h4 {
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+            color: #4a5568;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .payment-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .payment-option {
+            position: relative;
+        }
+
+        .payment-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .payment-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .payment-label:hover {
+            border-color: #6772e5;
+            background: #f8f9ff;
+        }
+
+        .payment-option input[type="radio"]:checked + .payment-label {
+            border-color: #6772e5;
+            background: #f8f9ff;
+            box-shadow: 0 0 0 3px rgba(103, 114, 229, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 1.5rem;
+            min-width: 1.5rem;
+        }
+
+        .payment-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .payment-text strong {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .payment-text small {
+            color: #718096;
+            font-size: 0.75rem;
         }
 
         @media screen and (max-width: 768px) {
@@ -208,6 +340,21 @@
                 max-width: unset;
             }
 
+            .payment-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-label {
+                padding: 0.75rem;
+            }
+
+            .checkout-actions {
+                flex-direction: column;
+            }
+
+            .checkout-actions .btn {
+                width: 100%;
+            }
         }
     </style>
     
@@ -224,6 +371,97 @@
         // Format state input (uppercase)
         document.getElementById('shippingState').addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Stripe Integration
+        let stripeInitialized = false;
+        let stripe = null;
+        let stripePublicKey = null;
+
+        // Initialize Stripe
+        async function initializeStripe() {
+            if (stripeInitialized) return;
+            
+            try {
+                // Get Stripe public key
+                const response = await fetch('/payments/stripe/public-key');
+                if (response.ok) {
+                    const data = await response.json();
+                    stripePublicKey = data.publicKey;
+                    stripe = Stripe(stripePublicKey);
+                    stripeInitialized = true;
+                    console.log('Stripe initialized successfully');
+                }
+            } catch (error) {
+                console.warn('Stripe not available:', error);
+            }
+        }
+
+        // Enhanced form submission with Stripe integration
+        document.querySelector('form').addEventListener('submit', async function(e) {
+            const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            // Show loading state
+            submitButton.disabled = true;
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '🔄 Processando...';
+
+            // For all methods, we let the backend handle the routing.
+            // The backend will redirect to Stripe Checkout for card/PIX,
+            // or to the payment page for boleto.
+            // We just restore the button state on any error.
+            
+            // Add CSRF token to form if using fetch-based redirect detection
+            // For standard form submit, Spring Security handles CSRF via hidden input
+            // Just let the form submit happen normally
+            
+            // Re-enable button after a short delay (for navigation cases that stay on page)
+            setTimeout(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            }, 10000);
+            
+            // Form submits normally - backend handles all routing/redirects
+        });
+
+        // Initialize Stripe on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeStripe();
+        });
+
+        // Add visual feedback for payment method selection
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const method = this.value;
+                const submitButton = document.querySelector('button#finalizarPedido');
+                
+                // Update submit button text based on payment method
+                switch(method) {
+                    case 'CREDIT_CARD':
+                        submitButton.innerHTML = '💳 Pagar com Cartão de Crédito';
+                        break;
+                    case 'DEBIT_CARD':
+                        submitButton.innerHTML = '💳 Pagar com Cartão de Débito';
+                        break;
+                    case 'PIX':
+                        submitButton.innerHTML = '📱 Pagar com PIX';
+                        break;
+                    case 'BOLETO':
+                        submitButton.innerHTML = '📄 Gerar Boleto';
+                        break;
+                    default:
+                        submitButton.innerHTML = '🛒 Finalizar Pedido';
+                }
+            });
+        });
+
+        // Set initial button text
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkedRadio = document.querySelector('input[name="paymentMethod"]:checked');
+            if (checkedRadio) {
+                checkedRadio.dispatchEvent(new Event('change'));
+            }
         });
     </script>
 </body>

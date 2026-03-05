@@ -151,6 +151,39 @@ public class StripePaymentService {
     }
 
     /**
+     * Create a Boleto Payment
+     */
+    public PaymentIntent createBoletoPaymentIntent(Order order) throws StripeException {
+        validateStripeConfiguration();
+        log.info("Creating Stripe Boleto payment intent for order: {}", order.getId());
+
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setAmount((long) (order.getTotal().doubleValue() * 100))
+                .setCurrency("brl")
+                .addPaymentMethodType("boleto")
+                .setDescription("Boleto para pedido #" + order.getId() + " - Filadelfia Store")
+                .setPaymentMethodOptions(
+                        PaymentIntentCreateParams.PaymentMethodOptions.builder()
+                                .setBoleto(
+                                        PaymentIntentCreateParams.PaymentMethodOptions.Boleto.builder()
+                                                .setExpiresAfterDays(3L)
+                                                .build()
+                                )
+                                .build()
+                )
+                .putMetadata("order_id", order.getId().toString())
+                .build();
+
+        PaymentIntent intent = PaymentIntent.create(params);
+        log.info("Stripe Boleto payment intent created: {}", intent.getId());
+
+        // Create payment record
+        createPaymentRecord(order, intent.getId(), PaymentMethod.BOLETO);
+
+        return intent;
+    }
+
+    /**
      * Handle payment cancellation
      */
     public Payment processCancelledPayment(Long orderId) {
@@ -186,6 +219,13 @@ public class StripePaymentService {
 
         paymentRepository.save(payment);
         log.info("Payment record created for order: {} with transaction ID: {}", order.getId(), payment.getTransactionId());
+    }
+
+    /**
+     * Get payments by order ID
+     */
+    public java.util.List<Payment> getPaymentsByOrderId(Long orderId) {
+        return paymentRepository.findByOrderIdOrderByCreatedAtDesc(orderId);
     }
 
     /**

@@ -7,6 +7,9 @@ import com.filadelfia.store.filadelfiastore.model.enums.OrderStatus;
 import com.filadelfia.store.filadelfiastore.model.enums.PaymentMethod;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CartService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.OrderService;
+import com.filadelfia.store.filadelfiastore.service.implementations.StripePaymentService;
+import com.stripe.model.checkout.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,12 +26,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/orders")
 public class OrderWebController {
     
-    private OrderService orderService;
-    private CartService cartService;
+    private final OrderService orderService;
+    private final CartService cartService;
+    private final StripePaymentService stripePaymentService;
 
-    public OrderWebController(OrderService orderService, CartService cartService) {
+    public OrderWebController(OrderService orderService, CartService cartService, 
+                             @Autowired(required = false) StripePaymentService stripePaymentService) {
         this.orderService = orderService;
         this.cartService = cartService;
+        this.stripePaymentService = stripePaymentService;
     }
     
     @GetMapping("/my")
@@ -110,9 +116,36 @@ public class OrderWebController {
                 return "redirect:/cart";
             }
             
-            OrderDTO order = orderService.createOrderFromCartWithAddress(userId, paymentMethod, 
+            // Map traditional payment methods to Stripe equivalents
+            PaymentMethod processedPaymentMethod = mapToStripePaymentMethod(paymentMethod);
+            
+            OrderDTO order = orderService.createOrderFromCartWithAddress(userId, processedPaymentMethod, 
                 addressId, shippingStreet, shippingNumber, shippingComplement, 
                 shippingNeighborhood, shippingCity, shippingState, shippingZipCode);
+            
+            // Handle Stripe payments
+            if (isStripePayment(processedPaymentMethod) && stripePaymentService != null) {
+                try {
+                    // Get the actual order entity for Stripe
+                    com.filadelfia.store.filadelfiastore.model.entity.Order orderEntity = 
+                        orderService.findOrderById(order.getId()).orElseThrow();
+                    
+                    if (processedPaymentMethod == PaymentMethod.STRIPE_CARD) {
+                        // Create Stripe checkout session for card payments
+                        Session session = stripePaymentService.createCheckoutSession(orderEntity);
+                        return "redirect:" + session.getUrl();
+                    } else if (processedPaymentMethod == PaymentMethod.STRIPE_PIX) {
+                        // Create PIX payment intent
+                        var paymentIntent = stripePaymentService.createPaymentIntent(orderEntity);
+                        redirectAttributes.addFlashAttribute("paymentIntent", paymentIntent);
+                        return "redirect:/orders/" + order.getId() + "/payment";
+                    }
+                } catch (Exception stripeException) {
+                    // If Stripe fails, fall back to regular payment flow
+                    redirectAttributes.addFlashAttribute("warningMessage", 
+                        "Processamento Stripe indisponível. Prosseguindo com método tradicional.");
+                }
+            }
             
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Pedido criado com sucesso! Número: " + order.getOrderNumber());
@@ -123,6 +156,32 @@ public class OrderWebController {
                 "Erro ao criar pedido: " + e.getMessage());
             return "redirect:/cart/checkout";
         }
+    }
+    
+    /**
+     * Map traditional payment methods to Stripe equivalents when Stripe is available
+     */
+    private PaymentMethod mapToStripePaymentMethod(PaymentMethod originalMethod) {
+        if (stripePaymentService == null) {
+            return originalMethod; // Keep original if Stripe not available
+        }
+        
+        switch (originalMethod) {
+            case CREDIT_CARD:
+            case DEBIT_CARD:
+                return PaymentMethod.STRIPE_CARD;
+            case PIX:
+                return PaymentMethod.STRIPE_PIX;
+            default:
+                return originalMethod; // Keep boleto and other methods as-is
+        }
+    }
+    
+    /**
+     * Check if the payment method uses Stripe
+     */
+    private boolean isStripePayment(PaymentMethod method) {
+        return method == PaymentMethod.STRIPE_CARD || method == PaymentMethod.STRIPE_PIX;
     }
     
     @GetMapping("/{id}/payment")

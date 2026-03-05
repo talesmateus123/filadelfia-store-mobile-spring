@@ -80,65 +80,68 @@
                 <!-- Payment Instructions -->
                 <div class="payment-instructions">
                     <!-- Credit Card Payment -->
-                    <div th:if="${order.paymentMethod.name() == 'CREDIT_CARD'}" class="payment-method">
+                    <div th:if="${order.paymentMethod.name() == 'CREDIT_CARD' or order.paymentMethod.name() == 'STRIPE_CARD'}" class="payment-method">
                         <h3>💳 Pagamento com Cartão de Crédito</h3>
                         <div class="payment-info">
                             <div class="info-card">
                                 <p><strong>Instruções:</strong></p>
                                 <ol>
-                                    <li>Você será redirecionado para o processador de pagamentos</li>
+                                    <li>Clique no botão abaixo para ir para o processamento seguro</li>
                                     <li>Insira os dados do seu cartão de crédito</li>
                                     <li>Confirme o pagamento</li>
                                     <li>Aguarde a confirmação</li>
                                 </ol>
                                 
                                 <div class="payment-security">
-                                    <p>🔒 <strong>Pagamento Seguro</strong></p>
-                                    <p>Seus dados são protegidos por criptografia SSL</p>
+                                    <p>🔒 <strong>Pagamento Seguro via Stripe</strong></p>
+                                    <p>Seus dados são protegidos por criptografia SSL de nível bancário</p>
+                                    <p>💳 Aceitamos: Visa, Mastercard, Elo</p>
                                 </div>
                                 
-                                <button class="btn btn-primary btn-large" disabled>
+                                <button class="btn btn-primary btn-large" id="stripeCheckoutBtn" 
+                                        th:data-order-id="${order.id}">
                                     💳 Pagar com Cartão
-                                    <small>(Em breve)</small>
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Debit Card Payment -->
-                    <div th:if="${order.paymentMethod.name() == 'DEBIT_CARD'}" class="payment-method">
+                    <div th:if="${order.paymentMethod.name() == 'DEBIT_CARD' or order.paymentMethod.name() == 'STRIPE_CARD'}" class="payment-method">
                         <h3>💳 Pagamento com Cartão de Débito</h3>
                         <div class="payment-info">
                             <div class="info-card">
                                 <p><strong>Instruções:</strong></p>
                                 <ol>
-                                    <li>Você será redirecionado para o processador de pagamentos</li>
+                                    <li>Clique no botão abaixo para ir para o processamento seguro</li>
                                     <li>Insira os dados do seu cartão de débito</li>
                                     <li>Confirme o pagamento</li>
                                     <li>O valor será debitado imediatamente</li>
                                 </ol>
                                 
                                 <div class="payment-security">
-                                    <p>🔒 <strong>Pagamento Seguro</strong></p>
-                                    <p>Seus dados são protegidos por criptografia SSL</p>
+                                    <p>🔒 <strong>Pagamento Seguro via Stripe</strong></p>
+                                    <p>Seus dados são protegidos por criptografia SSL de nível bancário</p>
+                                    <p>💳 Débito instantâneo</p>
                                 </div>
                                 
-                                <button class="btn btn-primary btn-large" disabled>
+                                <button class="btn btn-primary btn-large" id="stripeCheckoutBtn" 
+                                        th:data-order-id="${order.id}">
                                     💳 Pagar com Débito
-                                    <small>(Em breve)</small>
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- PIX Payment -->
-                    <div th:if="${order.paymentMethod.name() == 'PIX'}" class="payment-method">
+                    <div th:if="${order.paymentMethod.name() == 'PIX' or order.paymentMethod.name() == 'STRIPE_PIX'}" class="payment-method">
                         <h3>📱 Pagamento via PIX</h3>
                         <div class="payment-info">
                             <div class="info-card">
                                 <div class="pix-instructions">
                                     <p><strong>Como pagar:</strong></p>
                                     <ol>
+                                        <li>Clique em "Gerar PIX" para criar seu código de pagamento</li>
                                         <li>Abra o aplicativo do seu banco</li>
                                         <li>Escolha a opção PIX</li>
                                         <li>Escaneie o QR Code ou copie o código</li>
@@ -146,32 +149,38 @@
                                     </ol>
                                 </div>
                                 
-                                <div class="pix-qr">
-                                    <div class="qr-placeholder">
-                                        <div class="qr-code">
-                                            📱<br>
-                                            QR CODE<br>
-                                            (Simulado)
+                                <!-- PIX Payment Container -->
+                                <div id="pixPaymentContainer" style="display: none;">
+                                    <div class="pix-qr">
+                                        <div class="qr-placeholder">
+                                            <div id="pixQrCode" class="qr-code">
+                                                📱<br>
+                                                Carregando QR Code...
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="pix-code">
+                                            <label>Código PIX:</label>
+                                            <div class="code-container">
+                                                <input type="text" readonly id="pixCodeInput" value="">
+                                                <button class="btn btn-outline btn-sm" onclick="copyPixCode()">
+                                                    📋 Copiar
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="pix-code">
-                                        <label>Código PIX:</label>
-                                        <div class="code-container">
-                                            <input type="text" readonly 
-                                                   value="00020126330014BR.GOV.BCB.PIX0114+55119999999990204000053039865802BR5913FILADELFIA STORE6009SAO PAULO61080540900062070503***6304XXXX"
-                                                   id="pixCode">
-                                            <button class="btn btn-outline btn-sm" onclick="copyPixCode()">
-                                                📋 Copiar
-                                            </button>
-                                        </div>
+                                    <div class="pix-info">
+                                        <p>⏰ <strong>Pagamento PIX:</strong> Instantâneo</p>
+                                        <p>💡 O pedido será confirmado automaticamente após o pagamento</p>
                                     </div>
                                 </div>
                                 
-                                <div class="pix-info">
-                                    <p>⏰ <strong>Pagamento PIX:</strong> Instantâneo</p>
-                                    <p>💡 O pedido será confirmado automaticamente após o pagamento</p>
-                                </div>
+                                <!-- PIX Action Button -->
+                                <button class="btn btn-primary btn-large" id="generatePixBtn" 
+                                        th:data-order-id="${order.id}">
+                                    📱 Gerar PIX
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -192,26 +201,36 @@
                                             <span>Vencimento:</span>
                                             <strong>3 dias úteis</strong>
                                         </div>
-                                        <div class="detail-row">
-                                            <span>Código de Barras:</span>
-                                            <code>34191.09008 12345.678901 23456.789012 3 98760000010000</code>
+                                    </div>
+                                </div>
+                                
+                                <!-- Boleto content container (shown after generation) -->
+                                <div id="boletoContainer" style="display: none;">
+                                    <div class="boleto-code-section">
+                                        <label>Linha digitável:</label>
+                                        <div class="code-container">
+                                            <input type="text" readonly id="boletoCodeInput" value="">
+                                            <button class="btn btn-outline btn-sm" onclick="copyBoletoCode()">
+                                                📋 Copiar
+                                            </button>
                                         </div>
                                     </div>
+                                    <div id="boletoPdfLink" style="margin-top: 1rem;"></div>
                                 </div>
                                 
                                 <div class="boleto-instructions">
                                     <p><strong>Como pagar:</strong></p>
                                     <ol>
-                                        <li>Baixe o boleto clicando no botão abaixo</li>
+                                        <li>Clique em "Gerar Boleto" para criar o seu boleto</li>
                                         <li>Pague em qualquer banco, lotérica ou internet banking</li>
                                         <li>O prazo de compensação é de 1 a 3 dias úteis</li>
                                         <li>Guarde o comprovante de pagamento</li>
                                     </ol>
                                 </div>
                                 
-                                <button class="btn btn-primary btn-large" disabled>
-                                    📄 Baixar Boleto
-                                    <small>(Em breve)</small>
+                                <button class="btn btn-primary btn-large" id="generateBoletoBtn" 
+                                        th:data-order-id="${order.id}">
+                                    📄 Gerar Boleto
                                 </button>
                             </div>
                         </div>
@@ -245,23 +264,331 @@
     <div th:replace="~{layout :: footer}"></div>
     <div th:replace="~{layout :: scripts}"></div>
     
+    <!-- Stripe JS SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
     <script>
         function copyPixCode() {
-            const pixCode = document.getElementById('pixCode');
+            const pixCode = document.getElementById('pixCodeInput') || document.getElementById('pixCode');
+            if (!pixCode) return;
             pixCode.select();
             pixCode.setSelectionRange(0, 99999);
             document.execCommand('copy');
-            
-            const button = event.target;
+            flashCopied(event.target);
+        }
+
+        function copyBoletoCode() {
+            const boletoCode = document.getElementById('boletoCodeInput');
+            if (!boletoCode) return;
+            boletoCode.select();
+            boletoCode.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            flashCopied(event.target);
+        }
+
+        function flashCopied(button) {
             const originalText = button.innerHTML;
             button.innerHTML = '✅ Copiado!';
             button.classList.add('success');
-            
             setTimeout(() => {
                 button.innerHTML = originalText;
                 button.classList.remove('success');
             }, 2000);
         }
+
+        // Helper to get CSRF token from cookie (set by Spring Security)
+        function getCsrfToken() {
+            const cookie = document.cookie.split(';').find(c => c.trim().startsWith('XSRF-TOKEN='));
+            return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+        }
+
+        // Stripe integration
+        let stripe = null;
+        let stripeInitialized = false;
+
+        // Initialize Stripe
+        async function initializeStripe() {
+            if (stripeInitialized) return;
+            
+            try {
+                const response = await fetch('/payments/stripe/public-key');
+                if (response.ok) {
+                    const data = await response.json();
+                    stripe = Stripe(data.publicKey);
+                    stripeInitialized = true;
+                    console.log('Stripe initialized successfully');
+                }
+            } catch (error) {
+                console.warn('Stripe not available:', error);
+            }
+        }
+
+        // Handle Stripe Checkout for card payments
+        async function handleStripeCheckout(orderId) {
+            const button = document.getElementById('stripeCheckoutBtn');
+            const originalText = button.innerHTML;
+            
+            try {
+                button.disabled = true;
+                button.innerHTML = '🔄 Processando...';
+
+                if (!stripeInitialized) {
+                    await initializeStripe();
+                }
+
+                if (!stripe) {
+                    throw new Error('Stripe não está disponível');
+                }
+
+                // Create checkout session
+                const response = await fetch('/payments/stripe/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-XSRF-TOKEN': getCsrfToken()
+                    },
+                    body: `orderId=${orderId}`
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao criar sessão de pagamento');
+                }
+
+                const sessionData = await response.json();
+                
+                // Redirect to Stripe Checkout
+                window.location.href = sessionData.url;
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Erro ao processar pagamento: ' + error.message);
+                
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // Handle PIX payment generation
+        async function generatePixPayment(orderId) {
+            const button = document.getElementById('generatePixBtn');
+            const originalText = button.innerHTML;
+            const container = document.getElementById('pixPaymentContainer');
+            
+            try {
+                button.disabled = true;
+                button.innerHTML = '🔄 Gerando PIX...';
+
+                if (!stripeInitialized) {
+                    await initializeStripe();
+                }
+
+                if (!stripe) {
+                    throw new Error('Stripe não está disponível');
+                }
+
+                // Create PIX payment intent
+                const response = await fetch('/payments/stripe/create-pix-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-XSRF-TOKEN': getCsrfToken()
+                    },
+                    body: `orderId=${orderId}`
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao gerar PIX');
+                }
+
+                const pixData = await response.json();
+
+                // Use Stripe Elements to confirm PIX payment
+                const result = await stripe.confirmPixPayment(pixData.clientSecret, {
+                    payment_method: {}
+                });
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+
+                const paymentIntent = result.paymentIntent;
+
+                // Show PIX payment container
+                container.style.display = 'block';
+                button.style.display = 'none';
+
+                // Get PIX display information from Stripe
+                const pixDisplayData = paymentIntent?.next_action?.pix_display_qr_code;
+                
+                const qrCodeDiv = document.getElementById('pixQrCode');
+                const pixCodeInput = document.getElementById('pixCodeInput');
+
+                if (pixDisplayData) {
+                    // Real Stripe PIX data
+                    if (pixDisplayData.image_url_svg) {
+                        qrCodeDiv.innerHTML = `<img src="${pixDisplayData.image_url_svg}" alt="QR Code PIX" style="max-width: 200px;">`;
+                    } else {
+                        qrCodeDiv.innerHTML = '📱<br>QR Code gerado com sucesso';
+                    }
+                    pixCodeInput.value = pixDisplayData.data || '';
+                } else {
+                    qrCodeDiv.innerHTML = '📱<br>PIX gerado - consulte seu banco';
+                    pixCodeInput.value = 'Use seu aplicativo bancário para pagar este PIX';
+                }
+
+                // Start polling for payment confirmation
+                pollPixPaymentStatus(orderId, paymentIntent.id);
+
+            } catch (error) {
+                console.error('PIX generation error:', error);
+                alert('Erro ao gerar PIX: ' + error.message);
+                
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // Poll for PIX payment confirmation
+        async function pollPixPaymentStatus(orderId, paymentIntentId) {
+            const pollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/payments/stripe/check-pix-status?orderId=${orderId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.status === 'paid' || data.status === 'confirmed') {
+                            clearInterval(pollInterval);
+                            window.location.href = `/payments/stripe/success?session_id=${paymentIntentId}&order_id=${orderId}`;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Error polling payment status:', error);
+                }
+            }, 5000); // Check every 5 seconds
+
+            // Stop polling after 15 minutes
+            setTimeout(() => clearInterval(pollInterval), 15 * 60 * 1000);
+        }
+
+        // Handle Boleto generation
+        async function generateBoletoPayment(orderId) {
+            const button = document.getElementById('generateBoletoBtn');
+            const originalText = button.innerHTML;
+            const container = document.getElementById('boletoContainer');
+
+            try {
+                button.disabled = true;
+                button.innerHTML = '🔄 Gerando Boleto...';
+
+                if (!stripeInitialized) {
+                    await initializeStripe();
+                }
+
+                if (!stripe) {
+                    throw new Error('Stripe não está disponível');
+                }
+
+                const response = await fetch('/payments/stripe/create-boleto-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-XSRF-TOKEN': getCsrfToken()
+                    },
+                    body: `orderId=${orderId}`
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao gerar boleto');
+                }
+
+                const boletoData = await response.json();
+
+                // Confirm boleto payment with customer details using Stripe Elements
+                const result = await stripe.confirmBoletoPayment(boletoData.clientSecret, {
+                    payment_method: {
+                        boleto: {
+                            tax_id: '000.000.000-00' // Placeholder - in production, collect from user
+                        },
+                        billing_details: {
+                            name: document.querySelector('meta[name="user-name"]')?.content || 'Cliente',
+                            email: document.querySelector('meta[name="user-email"]')?.content || '',
+                            address: {
+                                country: 'BR'
+                            }
+                        }
+                    }
+                });
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+
+                const paymentIntent = result.paymentIntent;
+                const boletoDetails = paymentIntent?.next_action?.boleto_display_details;
+
+                // Show boleto content
+                container.style.display = 'block';
+                button.style.display = 'none';
+
+                const boletoCodeInput = document.getElementById('boletoCodeInput');
+                const boletoPdfLink = document.getElementById('boletoPdfLink');
+
+                if (boletoDetails) {
+                    boletoCodeInput.value = boletoDetails.number || '';
+
+                    if (boletoDetails.hosted_voucher_url) {
+                        boletoPdfLink.innerHTML = `
+                            <a href="${boletoDetails.hosted_voucher_url}" target="_blank" class="btn btn-outline btn-large">
+                                📄 Abrir / Baixar Boleto
+                            </a>
+                        `;
+                    }
+                } else {
+                    boletoCodeInput.value = 'Boleto gerado - aguarde o envio por email';
+                }
+
+            } catch (error) {
+                console.error('Boleto generation error:', error);
+                alert('Erro ao gerar boleto: ' + error.message);
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Stripe
+            initializeStripe();
+
+            // Stripe Checkout button
+            const checkoutBtn = document.getElementById('stripeCheckoutBtn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    handleStripeCheckout(orderId);
+                });
+            }
+
+            // PIX generation button
+            const pixBtn = document.getElementById('generatePixBtn');
+            if (pixBtn) {
+                pixBtn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    generatePixPayment(orderId);
+                });
+            }
+
+            // Boleto generation button
+            const boletoBtn = document.getElementById('generateBoletoBtn');
+            if (boletoBtn) {
+                boletoBtn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    generateBoletoPayment(orderId);
+                });
+            }
+        });
     </script>
 </body>
 </html>
