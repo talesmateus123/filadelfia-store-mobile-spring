@@ -55,7 +55,7 @@
                             <strong>Total: R$ <span th:text="${order.total}">0,00</span></strong>
                         </div>
                         <div class="order-actions">
-                            <a th:href="@{'/orders/my/' + ${order.id}}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                            <a th:href="@{'/orders/my/' + ${order.id}}" class="button btn btn-primary btn-sm">Ver Detalhes</a>
                             <button class="btn btn-outline btn-sm" th:if="${order.status == 'DELIVERED'}">Avaliar</button>
                             <button class="btn btn-danger btn-sm" th:if="${order.status == 'PENDING'}">Cancelar</button>
                         </div>
@@ -66,7 +66,7 @@
             <div class="no-orders" th:if="${orders == null or #lists.isEmpty(orders)}">
                 <h3>Você ainda não fez nenhum pedido</h3>
                 <p>Que tal começar suas compras agora?</p>
-                <a href="/" class="btn btn-primary">Explorar Produtos</a>
+                <a href="/" class="button btn btn-primary">Explorar Produtos</a>
             </div>
         </div>
     </div>

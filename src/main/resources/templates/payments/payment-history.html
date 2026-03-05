@@ -256,11 +256,11 @@
                     </div>
                     
                     <div class="filter-group">
-                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                        <button type="submit" class="button btn btn-primary">Filtrar</button>
                     </div>
                     
                     <div class="filter-group">
-                        <a th:href="@{/payments/history}" class="btn btn-secondary">Limpar</a>
+                        <a th:href="@{/payments/history}" class="button btn btn-secondary">Limpar</a>
                     </div>
                 </div>
             </form>
@@ -335,26 +335,26 @@
                 </div>
                 
                 <div class="payment-actions">
-                    <a th:href="@{/payments/{id}(id=${payment.id})}" class="btn-sm btn-primary">
+                    <a th:href="@{/payments/{id}(id=${payment.id})}" class="button btn-sm btn-primary">
                         👁️ Ver Detalhes
                     </a>
                     
                     <a th:if="${payment.canCancel()}" 
                        th:href="@{/payments/{id}/cancel(id=${payment.id})}" 
-                       class="btn-sm btn-warning"
+                       class="button btn-sm btn-warning"
                        onclick="return confirm('Deseja realmente cancelar este pagamento?')">
                         ❌ Cancelar
                     </a>
                     
                     <a th:if="${payment.method == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentMethod).BOLETO and payment.status == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentStatus).PENDING}" 
                        th:href="@{/payments/{id}/boleto(id=${payment.id})}" 
-                       class="btn-sm btn-secondary"
+                       class="button btn-sm btn-secondary"
                        target="_blank">
                         📄 Baixar Boleto
                     </a>
                     
                     <button th:if="${payment.method == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentMethod).PIX and payment.status == T(com.filadelfia.store.filadelfiastore.model.enums.PaymentStatus).PENDING}" 
-                            class="btn-sm btn-secondary"
+                            class="button btn-sm btn-secondary"
                             th:onclick="'copyPixKey(\'' + ${payment.pixKey} + '\')'">
                         📋 Copiar PIX
                     </button>
@@ -367,7 +367,7 @@
             <div class="empty-state-icon">💳</div>
             <h3>Nenhum pagamento encontrado</h3>
             <p>Você ainda não realizou nenhum pagamento ou não há resultados para os filtros aplicados.</p>
-            <a th:href="@{/shop}" class="btn btn-primary">Continuar Comprando</a>
+            <a th:href="@{/shop}" class="button btn btn-primary">Continuar Comprando</a>
         </div>
         
         <!-- Pagination -->

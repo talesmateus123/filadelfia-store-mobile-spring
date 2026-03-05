@@ -176,10 +176,10 @@
         
         <!-- Export and Action Buttons -->
         <div class="export-buttons">
-            <a th:href="@{/admin/payments/export}" class="btn btn-secondary">
+            <a th:href="@{/admin/payments/export}" class="button btn btn-secondary">
                 📊 Exportar Relatório
             </a>
-            <a th:href="@{/admin/payments/reconcile}" class="btn btn-info">
+            <a th:href="@{/admin/payments/reconcile}" class="button btn btn-info">
                 🔍 Reconciliar Pagamentos
             </a>
         </div>
@@ -230,7 +230,7 @@
                     
                     <div class="filter-group">
                         <label>&nbsp;</label>
-                        <a th:href="@{/admin/payments}" class="btn btn-secondary">Limpar</a>
+                        <a th:href="@{/admin/payments}" class="button btn btn-secondary">Limpar</a>
                     </div>
                 </div>
             </form>
@@ -276,7 +276,7 @@
                         <td>
                             <div class="action-buttons">
                                 <a th:href="@{/admin/payments/{id}(id=${payment.id})}" 
-                                   class="btn-sm btn-view" title="Ver Detalhes">
+                                   class="button btn-sm btn-view" title="Ver Detalhes">
                                     👁️
                                 </a>
                                 <button th:if="${payment.canRefund()}" 

@@ -43,7 +43,7 @@ public class DataLoader implements ApplicationRunner {
         userService.createUser(admin);
 
         System.out.println("Usuário administrador criado com sucesso!");
-        System.out.println("Email: admin@filadelfia.com");
+        System.out.println("Email: admin@admin.com");
         System.out.println("Senha: 12345678");
         System.out.println("IMPORTANTE: Altere a senha após o primeiro login!");
     }

@@ -296,7 +296,7 @@
                         </div>
                         
                         <div class="mt-3">
-                            <a th:href="${payment.boletoUrl}" target="_blank" class="btn btn-primary">
+                            <a th:href="${payment.boletoUrl}" target="_blank" class="button btn btn-primary">
                                 <i class="ion-document"></i> Visualizar Boleto
                             </a>
                             <button class="copy-button" onclick="copyToClipboard('boletoBarcode')">
@@ -352,7 +352,7 @@
                         </div>
                         
                         <div class="mt-3">
-                            <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-outline-primary btn-sm">
+                            <a th:href="@{/orders/{id}(id=${order.id})}" class="bbutton tn btn-outline-primary btn-sm">
                                 <i class="ion-eye"></i> Ver Pedido Completo
                             </a>
                         </div>
@@ -364,17 +364,17 @@
             <div class="row mt-4">
                 <div class="col-12">
                     <div class="text-center">
-                        <a th:href="@{/orders}" class="btn btn-secondary">
+                        <a th:href="@{/orders}" class="button btn btn-secondary">
                             <i class="ion-arrow-left-c"></i> Voltar aos Pedidos
                         </a>
-                        <a th:href="@{/payments/history}" class="btn btn-outline-primary">
+                        <a th:href="@{/payments/history}" class="button btn btn-outline-primary">
                             <i class="ion-card"></i> Histórico de Pagamentos
                         </a>
                         
                         <!-- Retry payment button for failed payments -->
-                        <a th:if="${payment.status.hasFailed()}" 
-                           th:href="@{/payments/order/{orderId}(orderId=${order.id})}" 
-                           class="btn btn-warning">
+                        <a th:if="${payment.status.hasFailed()}"
+                           th:href="@{/payments/order/{orderId}(orderId=${order.id})}"
+                           class="button btn btn-warning">
                             <i class="ion-refresh"></i> Tentar Novamente
                         </a>
                     </div>

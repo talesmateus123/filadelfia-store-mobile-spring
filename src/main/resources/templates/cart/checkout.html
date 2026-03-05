@@ -156,10 +156,10 @@
 
                         <!-- Action Buttons -->
                         <div class="checkout-actions">
-                            <a th:href="@{/cart}" class="btn btn-outline">
+                            <a th:href="@{/cart}" class="button btn btn-outline">
                                 ← Voltar ao Carrinho
                             </a>
-                            <button type="submit" class="btn btn-primary" 
+                            <button type="submit" class="button btn btn-primary" 
                                     th:disabled="${cart == null or cart.empty}">
                                 🛒 Finalizar Pedido
                             </button>

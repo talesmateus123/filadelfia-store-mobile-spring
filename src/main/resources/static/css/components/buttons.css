@@ -141,7 +141,8 @@
 }
 
 /* Legacy button styles */
-button {
+button, a.button {
+    height: 50px;
     background-color: #3498db;
     color: white;
     border: none;
@@ -152,23 +153,23 @@ button {
     transition: background-color 0.3s;
 }
 
-button:hover {
+button:hover, a.button:hover {
     background-color: #2980b9;
 }
 
-button.danger {
+button.danger, a.button.danger {
     background-color: #e74c3c;
 }
 
-button.danger:hover {
+button.danger:hover, a.button.danger:hover {
     background-color: #c0392b;
 }
 
-button.success {
+button.success, a.button.success {
     background-color: #20a957;
 }
 
-button.success:hover {
+button.success:hover, a.button.success:hover {
     background-color: #0e873e;
 }
 

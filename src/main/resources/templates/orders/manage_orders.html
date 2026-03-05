@@ -80,7 +80,7 @@
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <a th:href="@{'/orders/manage/' + ${order.id}}" class="btn btn-info btn-sm">Ver</a>
+                                    <a th:href="@{'/orders/manage/' + ${order.id}}" class="button btn btn-info btn-sm">Ver</a>
                                     
                                     <button class="btn btn-success btn-sm" 
                                             th:if="${order.status == 'PENDING'}"

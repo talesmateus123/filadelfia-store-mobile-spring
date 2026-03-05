@@ -53,19 +53,19 @@
         <div class="dashboard-actions">
             <h3>Ações Rápidas</h3>
             <div class="action-buttons">
-                <a href="/products/create" class="btn btn-success">
+                <a href="/products/create" class="button btn btn-success">
                     <img th:src="@{/images/ion-icons/svg/add-outline.svg}" alt="Adicionar"> 
                     Novo Produto
                 </a>
-                <a href="/categories/create" class="btn btn-info">
+                <a href="/categories/create" class="button btn btn-info">
                     <img th:src="@{/images/ion-icons/svg/folder-outline.svg}" alt="Adicionar"> 
                     Nova Categoria
                 </a>
-                <a href="/orders/manage" class="btn btn-warning">
+                <a href="/orders/manage" class="button btn btn-warning">
                     <img th:src="@{/images/ion-icons/svg/list-outline.svg}" alt="Ver"> 
                     Processar Pedidos
                 </a>
-                <a href="/products?filter=low-stock" class="btn btn-danger">
+                <a href="/products?filter=low-stock" class="button btn btn-danger">
                     <img th:src="@{/images/ion-icons/svg/alert-outline.svg}" alt="Alerta"> 
                     Repor Estoque
                 </a>
@@ -83,8 +83,8 @@
                             <p class="task-date" th:text="${#dates.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Data</p>
                         </div>
                         <div class="task-actions">
-                            <a th:href="@{'/orders/' + ${order.id}}" class="btn btn-sm btn-primary">Ver Detalhes</a>
-                            <a th:href="@{'/orders/' + ${order.id} + '/process'}" class="btn btn-sm btn-success">Processar</a>
+                            <a th:href="@{'/orders/' + ${order.id}}" class="button btn btn-sm btn-primary">Ver Detalhes</a>
+                            <a th:href="@{'/orders/' + ${order.id} + '/process'}" class="button btn btn-sm btn-success">Processar</a>
                         </div>
                     </div>
                 </div>
@@ -102,7 +102,7 @@
                             <p class="task-details">Estoque: <span th:text="${product.stock}">0</span> unidades</p>
                         </div>
                         <div class="task-actions">
-                            <a th:href="@{'/products/edit/' + ${product.id}}" class="btn btn-sm btn-warning">Repor Estoque</a>
+                            <a th:href="@{'/products/edit/' + ${product.id}}" class="button btn btn-sm btn-warning">Repor Estoque</a>
                         </div>
                     </div>
                 </div>

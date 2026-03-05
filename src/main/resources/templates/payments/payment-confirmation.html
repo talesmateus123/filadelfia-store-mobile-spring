@@ -464,28 +464,28 @@
         
         <!-- Action Buttons -->
         <div class="action-buttons">
-            <a th:href="@{/orders/{id}(id=${payment.orderId})}" class="btn btn-primary">
+            <a th:href="@{/orders/{id}(id=${payment.orderId})}" class="button btn btn-primary">
                 📦 Ver Pedido
             </a>
             
-            <a th:href="@{/payments/{id}(id=${payment.id})}" class="btn btn-outline">
+            <a th:href="@{/payments/{id}(id=${payment.id})}" class="button btn btn-outline">
                 👁️ Detalhes do Pagamento
             </a>
             
             <a th:if="${payment.method.name() == 'BOLETO' and (payment.status.name() == 'PENDING' or payment.status.name() == 'PROCESSING')}" 
                th:href="@{/payments/{id}/boleto(id=${payment.id})}" 
-               class="btn btn-secondary" 
+               class="button btn btn-secondary" 
                target="_blank">
                 📄 Baixar Boleto
             </a>
             
             <a th:if="${payment.status.name() == 'FAILED'}" 
                th:href="@{/payments/new(orderId=${payment.orderId})}" 
-               class="btn btn-primary">
+               class="button btn btn-primary">
                 🔄 Tentar Novamente
             </a>
             
-            <a th:href="@{/shop}" class="btn btn-outline">
+            <a th:href="@{/shop}" class="button btn btn-outline">
                 🛍️ Continuar Comprando
             </a>
         </div>

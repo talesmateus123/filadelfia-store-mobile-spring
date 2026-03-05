@@ -62,10 +62,10 @@
                             </div>
                             
                             <div class="add-to-cart-section">
-                                <button type="submit" class="btn-add-cart-large">
+                                <button type="submit" class="button btn-add-cart-large">
                                     🛒 Adicionar ao Carrinho
                                 </button>
-                                <a th:href="@{/shop}" class="btn btn-outline">Continuar Comprando</a>
+                                <a th:href="@{/shop}" class="button btn btn-outline">Continuar Comprando</a>
                             </div>
                         </form>
                     </div>
@@ -75,7 +75,7 @@
                         <button class="btn-add-cart-large" disabled>
                             ❌ Produto Esgotado
                         </button>
-                        <a th:href="@{/shop}" class="btn btn-outline">Ver Outros Produtos</a>
+                        <a th:href="@{/shop}" class="bbutton btn btn-outline">Ver Outros Produtos</a>
                     </div>
 
                     <!-- Login prompt for non-authenticated users -->
@@ -83,8 +83,8 @@
                         <div class="alert alert-info">
                             <h4>💡 Faça login para comprar</h4>
                             <p>Você precisa estar logado para adicionar produtos ao carrinho.</p>
-                            <a th:href="@{/login}" class="btn btn-primary">Fazer Login</a>
-                            <a th:href="@{/register}" class="btn btn-outline">Cadastrar-se</a>
+                            <a th:href="@{/login}" class="button btn btn-primary">Fazer Login</a>
+                            <a th:href="@{/register}" class="button btn btn-outline">Cadastrar-se</a>
                         </div>
                     </div>
 
@@ -116,7 +116,7 @@
                             <p class="product-description" th:text="${relatedProduct.description}">Descrição</p>
                             <div class="product-price" th:text="${relatedProduct.priceFormatted}">R$ 0,00</div>
                             <div class="product-actions">
-                                <a th:href="@{/shop/product/{id}(id=${relatedProduct.id})}" class="btn-view-details">
+                                <a th:href="@{/shop/product/{id}(id=${relatedProduct.id})}" class="button btn-view-details">
                                     Ver Detalhes
                                 </a>
                                 <form th:if="${relatedProduct.stock > 0}" 

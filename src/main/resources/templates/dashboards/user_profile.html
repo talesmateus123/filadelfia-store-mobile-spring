@@ -114,16 +114,16 @@
                                     <span th:text="${order.total}">R$ 0,00</span>
                                 </div>
                                 <div class="order-actions">
-                                    <a th:href="@{'/orders/my/' + ${order.id}}" class="btn btn-sm btn-outline">Ver Detalhes</a>
+                                    <a th:href="@{'/orders/my/' + ${order.id}}" class="button btn btn-sm btn-outline">Ver Detalhes</a>
                                 </div>
                             </div>
                         </div>
-                        <a href="/orders/my" class="btn btn-outline">Ver Todos os Pedidos</a>
+                        <a href="/orders/my" class="button btn btn-outline">Ver Todos os Pedidos</a>
                     </div>
                     
                     <p th:if="${recentUserOrders == null or #lists.isEmpty(recentUserOrders)}" class="no-orders">
                         Você ainda não fez nenhum pedido.
-                        <a href="/" class="btn btn-primary">Começar a Comprar</a>
+                        <a href="/" class="button btn btn-primary">Começar a Comprar</a>
                     </p>
                 </div>
             </div>
