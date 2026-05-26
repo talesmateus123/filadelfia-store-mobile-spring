@@ -1,5 +1,6 @@
 package com.filadelfia.store.filadelfiastore.controller.web;
 
+import com.filadelfia.store.filadelfiastore.model.dto.CategoryDTO;
 import com.filadelfia.store.filadelfiastore.model.dto.ProductDTO;
 import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
@@ -67,7 +68,7 @@ public class ProductsWebController {
     public String createProduct(Model model) {        
         model.addAttribute("pageTitle", "Novo Produto");          
         model.addAttribute("productDTO", new ProductDTO()); // Objeto para o formulário
-        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("categories", categoryService.getAllActiveCategories());
         model.addAttribute("isEdit", false);
         
         model.addAttribute("activePage", activePage);
@@ -84,14 +85,27 @@ public class ProductsWebController {
         
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Novo Produto");
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllActiveCategories());
+            model.addAttribute("isEdit", false);
+            model.addAttribute("activePage", activePage);
+            return "pages/product/create_product";
+        }
+
+        if ((productDTO.getCategoryId() == null || productDTO.getCategoryId() <= 0) &&
+            (productDTO.getNewCategoryName() == null || productDTO.getNewCategoryName().isBlank())) {
+            bindingResult.rejectValue("categoryId", "NotNull.productDTO.categoryId", "Selecione uma categoria ou informe uma nova categoria.");
+            model.addAttribute("pageTitle", "Novo Produto");
+            model.addAttribute("categories", categoryService.getAllActiveCategories());
             model.addAttribute("isEdit", false);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
         }
         
         try {
-            // Create product first
+            // Resolve category selection or create a new category if requested
+            Long resolvedCategoryId = resolveCategoryId(productDTO);
+            productDTO.setCategoryId(resolvedCategoryId);
+
             ProductDTO createdProduct = productService.createProduct(productDTO);
             
             // Upload image if provided
@@ -112,7 +126,7 @@ public class ProductsWebController {
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar produto: " + e.getMessage());
             model.addAttribute("pageTitle", "Novo Produto");
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllActiveCategories());
             model.addAttribute("isEdit", false);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
@@ -129,7 +143,7 @@ public class ProductsWebController {
         }
         
         model.addAttribute("pageTitle", "Editar Produto");
-        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("categories", categoryService.getAllActiveCategories());
         model.addAttribute("productDTO", productOpt.get());
         model.addAttribute("isEdit", true);        
         model.addAttribute("activePage", activePage);
@@ -148,14 +162,25 @@ public class ProductsWebController {
         
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Editar Produto");
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllActiveCategories());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("activePage", activePage);
+            return "pages/product/create_product";
+        }
+
+        if ((productDTO.getCategoryId() == null || productDTO.getCategoryId() <= 0) &&
+            (productDTO.getNewCategoryName() == null || productDTO.getNewCategoryName().isBlank())) {
+            bindingResult.rejectValue("categoryId", "NotNull.productDTO.categoryId", "Selecione uma categoria ou informe uma nova categoria.");
+            model.addAttribute("pageTitle", "Editar Produto");
+            model.addAttribute("categories", categoryService.getAllActiveCategories());
             model.addAttribute("isEdit", true);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
         }
         
         try {
-            // Update product first
+            Long resolvedCategoryId = resolveCategoryId(productDTO);
+            productDTO.setCategoryId(resolvedCategoryId);
             productService.updateProduct(id, productDTO);
             
             // Upload new image if provided
@@ -176,11 +201,22 @@ public class ProductsWebController {
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao atualizar produto: " + e.getMessage());
             model.addAttribute("pageTitle", "Editar Produto");
-            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("categories", categoryService.getAllActiveCategories());
             model.addAttribute("isEdit", true);
             model.addAttribute("activePage", activePage);
             return "pages/product/create_product";
         }
+    }
+
+    private Long resolveCategoryId(ProductDTO productDTO) {
+        if (productDTO.getNewCategoryName() != null && !productDTO.getNewCategoryName().isBlank()) {
+            CategoryDTO categoryDTO = new CategoryDTO();
+            categoryDTO.setName(productDTO.getNewCategoryName().trim());
+            categoryDTO.setDescription(productDTO.getNewCategoryDescription());
+            CategoryDTO createdCategory = categoryService.createCategory(categoryDTO);
+            return createdCategory.getId();
+        }
+        return productDTO.getCategoryId();
     }
 
     @GetMapping("/{id}")

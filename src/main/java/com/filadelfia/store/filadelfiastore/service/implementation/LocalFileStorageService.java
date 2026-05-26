@@ -19,6 +19,7 @@ import java.util.UUID;
 public class LocalFileStorageService implements FileStorageService {
 
     private final String uploadDir;
+    private final Path uploadPath;
     private final String baseUrl;
     
     // Allowed image types
@@ -33,15 +34,15 @@ public class LocalFileStorageService implements FileStorageService {
             @Value("${server.base-url:http://localhost:8080}") String baseUrl) {
         this.uploadDir = uploadDir;
         this.baseUrl = baseUrl;
+        this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         
         // Create upload directory if it doesn't exist
         try {
-            Path path = Paths.get(uploadDir);
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Could not create upload directory: " + uploadDir, e);
+            throw new RuntimeException("Could not create upload directory: " + uploadPath, e);
         }
     }
 
@@ -65,7 +66,7 @@ public class LocalFileStorageService implements FileStorageService {
             }
 
             // Copy file to upload directory
-            Path targetLocation = Paths.get(uploadDir).resolve(uniqueFileName);
+            Path targetLocation = uploadPath.resolve(uniqueFileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             return getFileUrl(uniqueFileName);
@@ -80,7 +81,7 @@ public class LocalFileStorageService implements FileStorageService {
         try {
             // Extract filename from URL if needed
             String actualFileName = extractFileNameFromUrl(fileName);
-            Path filePath = Paths.get(uploadDir).resolve(actualFileName);
+            Path filePath = uploadPath.resolve(actualFileName);
             return Files.deleteIfExists(filePath);
         } catch (IOException e) {
             return false;
@@ -90,7 +91,7 @@ public class LocalFileStorageService implements FileStorageService {
     @Override
     public boolean fileExists(String fileName) {
         String actualFileName = extractFileNameFromUrl(fileName);
-        Path filePath = Paths.get(uploadDir).resolve(actualFileName);
+        Path filePath = uploadPath.resolve(actualFileName);
         return Files.exists(filePath);
     }
 

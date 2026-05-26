@@ -181,8 +181,16 @@ public class ProductServiceImpl implements ProductService  {
         existing.setCategory(categoryMapper.toEntity(category));
         existing.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));
 
-        // Copy properties from request to existing entity, ignoring id and password
-        BeanUtils.copyProperties(request, existing, "id", "createdAt");
+        // Preserve existing image URL unless a new one is provided in the request
+        String existingImageUrl = existing.getImageUrl();
+        // Copy properties from request to existing entity, ignoring id, createdAt and imageUrl (handled separately)
+        BeanUtils.copyProperties(request, existing, "id", "createdAt", "imageUrl");
+        if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
+            existing.setImageUrl(request.getImageUrl());
+        } else {
+            existing.setImageUrl(existingImageUrl);
+        }
+
         Product updated = productRepository.save(existing);
         return productMapper.toDTO(updated);
     }

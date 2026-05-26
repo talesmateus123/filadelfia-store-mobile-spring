@@ -144,6 +144,10 @@ public class CategoryServiceImpl implements CategoryService  {
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+
+        if (category.getProducts() != null && !category.getProducts().isEmpty()) {
+            throw new IllegalStateException("Não é possível excluir uma categoria que possui produtos vinculados.");
+        }
                 
         category.setActive(false);
         category.setUpdatedAt(new java.sql.Date(System.currentTimeMillis()));

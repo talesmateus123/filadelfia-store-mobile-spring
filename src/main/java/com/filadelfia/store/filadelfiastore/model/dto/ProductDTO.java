@@ -31,9 +31,10 @@ public class ProductDTO {
     private BigDecimal price;
     private Integer stock = 0;
     private String imageUrl;
-    @NotNull
     private Long categoryId;
     private String categoryName;
+    private String newCategoryName;
+    private String newCategoryDescription;
     private Boolean active = true;
     private Boolean featured = false;
 

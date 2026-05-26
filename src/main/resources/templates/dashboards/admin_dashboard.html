@@ -33,6 +33,15 @@
             </div>
 
             <div class="stat-card">
+                <div class="stat-icon">🗂️</div>
+                <div class="stat-content">
+                    <h3>Categorias</h3>
+                    <p class="stat-number" th:text="${totalCategories} ?: '0'">0</p>
+                    <a href="/categories" class="stat-link">Gerenciar Categorias</a>
+                </div>
+            </div>
+
+            <div class="stat-card">
                 <div class="stat-icon">🛒</div>
                 <div class="stat-content">
                     <h3>Pedidos</h3>
@@ -57,32 +66,6 @@
                     <p class="stat-number" th:text="${totalPayments} ?: '0'">0</p>
                     <a href="/admin/payments" class="stat-link">Gerenciar Pagamentos</a>
                 </div>
-            </div>
-        </div>
-
-        <div class="dashboard-actions">
-            <h3>Ações Rápidas</h3>
-            <div class="action-buttons">
-                <a href="/users/create" class="button btn btn-primary">
-                    <img th:src="@{/images/ion-icons/svg/person-add-outline.svg}" alt="Adicionar"> 
-                    Novo Usuário
-                </a>
-                <a href="/products/create" class="button btn btn-success">
-                    <img th:src="@{/images/ion-icons/svg/add-outline.svg}" alt="Adicionar"> 
-                    Novo Produto
-                </a>
-                <a href="/categories/create" class="button btn btn-info">
-                    <img th:src="@{/images/ion-icons/svg/folder-outline.svg}" alt="Adicionar"> 
-                    Nova Categoria
-                </a>
-                <a href="/orders/manage" class="button btn btn-warning">
-                    <img th:src="@{/images/ion-icons/svg/list-outline.svg}" alt="Ver"> 
-                    Ver Pedidos
-                </a>
-                <a href="/admin/payments" class="button btn btn-success">
-                    <img th:src="@{/images/ion-icons/svg/card-outline.svg}" alt="Ver"> 
-                    Gerenciar Pagamentos
-                </a>
             </div>
         </div>
 

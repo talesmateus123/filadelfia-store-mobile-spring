@@ -111,7 +111,7 @@ public class CustomerProductController {
                 .toList();
 
         // Get all categories for filter
-        List<CategoryDTO> categories = categoryService.getAllCategories();
+        List<CategoryDTO> categories = categoryService.getAllActiveActiveCategories();
         model.addAttribute("categories", categories);
         
         model.addAttribute("products", products);
@@ -131,7 +131,7 @@ public class CustomerProductController {
                 .toList();
         
         // Get all categories for filter
-        List<CategoryDTO> categories = categoryService.getAllCategories();
+        List<CategoryDTO> categories = categoryService.getAllActiveCategories();
         model.addAttribute("categories", categories);
 
         model.addAttribute("products", products);

@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.filadelfia.store.filadelfiastore.model.enums.OrderStatus;
+import com.filadelfia.store.filadelfiastore.service.interfaces.CategoryService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.OrderService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.ProductService;
 import com.filadelfia.store.filadelfiastore.service.interfaces.UserService;
@@ -17,11 +18,13 @@ public class DashboardController {
     private UserService userService;
     private OrderService orderService;
     private ProductService productService;
+    private CategoryService categoryService;
 
-    public DashboardController(UserService userService, OrderService orderService, ProductService productService) {
+    public DashboardController(UserService userService, OrderService orderService, ProductService productService, CategoryService categoryService) {
         this.userService = userService;
         this.orderService = orderService;
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/admin")
@@ -36,6 +39,7 @@ public class DashboardController {
         model.addAttribute("recentOrders", orderService.getRecentOrders(7));
         model.addAttribute("pendingOrders", orderService.getOrderCountByStatus(OrderStatus.PENDING));
         model.addAttribute("totalProducts", productService.getAllProducts().size());
+        model.addAttribute("totalCategories", categoryService.getAllCategories().size());
         model.addAttribute("totalUsers", userService.getAllUsers().size());
 
         return "dashboards/admin_dashboard";

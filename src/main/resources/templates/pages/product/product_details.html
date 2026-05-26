@@ -11,35 +11,34 @@
         <div id="produtos" class="tab-content active">
             <div class="section-title">
                 <h2 th:text="${pageTitle}"></h2>
-                <div>
-                    <a class="button" th:href="@{/products/edit/{id}(id=${product.id})}">
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary btn-sm" th:onclick="|window.location.href='@{/products/edit/{id}(id=${product.id})}'|">
                         <img th:src="@{/images/ion-icons/svg/create-outline.svg}" alt="Editar">
-                    </a>
-                    <form th:if="${product.active}" style="display: inline;" th:action="@{/products/delete/{id}(id=${product.id})}" method="post" 
+                    </button>
+                    <form th:if="${product.active}" th:action="@{/products/delete/{id}(id=${product.id})}" method="post" 
                           onsubmit="return confirm('Tem certeza que deseja desabilitar este produto?')">
-                        <button type="submit" class="button" style="border: none; background: none; padding: 0;">
-                            <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="Desabilitar">
+                        <button type="submit" class="btn btn-danger btn-sm" title="Desabilitar produto">
+                            <img th:src="@{/images/ion-icons/svg/trash-outline.svg}" alt="">
                         </button>
                     </form>
-                    <form th:if="${!product.active}" style="display: inline;" th:action="@{/products/activate/{id}(id=${product.id})}" method="post" 
+                    <form th:if="${!product.active}" th:action="@{/products/activate/{id}(id=${product.id})}" method="post" 
                           onsubmit="return confirm('Tem certeza que deseja ativar este produto?')">
-                        <button type="submit" class="button" style="border: none; background: none; padding: 0;">
-                            <img th:src="@{/images/ion-icons/svg/checkmark-circle-outline.svg}" alt="Ativar">
+                        <button type="submit" class="btn btn-success btn-sm" title="Ativar produto">
+                            <img th:src="@{/images/ion-icons/svg/checkmark-circle-outline.svg}" alt="">
                         </button>
                     </form>
-                    <!-- Featured Toggle Button -->
-                    <form th:if="${product.featured}" style="display: inline;" th:action="@{/products/set-featured/{id}(id=${product.id})}" method="post" 
+                    <form th:if="${product.featured}" th:action="@{/products/set-featured/{id}(id=${product.id})}" method="post" 
                           onsubmit="return confirm('Remover produto dos destaques?')">
                         <input type="hidden" name="featured" value="false">
-                        <button type="submit" class="button" style="border: none; background: none; padding: 0;" title="Remover dos Destaques">
-                            <img th:src="@{/images/ion-icons/svg/star.svg}" alt="Remover Destaque">
+                        <button type="submit" class="btn btn-warning btn-sm" title="Remover dos destaques">
+                            <img th:src="@{/images/ion-icons/svg/star.svg}" alt="">
                         </button>
                     </form>
-                    <form th:if="${!product.featured}" style="display: inline;" th:action="@{/products/set-featured/{id}(id=${product.id})}" method="post" 
+                    <form th:if="${!product.featured}" th:action="@{/products/set-featured/{id}(id=${product.id})}" method="post" 
                           onsubmit="return confirm('Marcar produto como destaque?')">
                         <input type="hidden" name="featured" value="true">
-                        <button type="submit" class="button" style="border: none; background: none; padding: 0;" title="Marcar como Destaque">
-                            <img th:src="@{/images/ion-icons/svg/star-outline.svg}" alt="Marcar Destaque">
+                        <button type="submit" class="btn btn-outline-warning btn-sm" title="Marcar como destaque">
+                            <img th:src="@{/images/ion-icons/svg/star-outline.svg}" alt="">
                         </button>
                     </form>
                 </div>
@@ -66,7 +65,18 @@
                     
                     <!-- Current Image Display -->
                     <div class="current-image">
-                        <div class="image-container" th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
+                        <div class="image-container" th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}" 
+                             style="position: relative; display: inline-block;">
+                            <form th:action="@{/products/{id}/delete-image(id=${product.id})}" 
+                                  method="post" 
+                                  th:onsubmit="return confirm('Tem certeza que deseja remover a imagem do produto?')"
+                                  style="position: absolute; top: 8px; right: 8px; z-index: 2;">
+                                <button type="submit" 
+                                        class="btn btn-danger btn-sm" 
+                                        style="width: 32px; height: 32px; min-width: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1rem; line-height: 1;">
+                                    ×
+                                </button>
+                            </form>
                             <img th:src="${product.imageUrl}" 
                                  th:alt="${product.name}" 
                                  class="product-image-preview">
@@ -81,7 +91,7 @@
                     </div>
 
                     <!-- Image Upload Form -->
-                    <div class="image-upload-section">
+                    <div class="image-upload-section" th:if="${product.imageUrl == null or #strings.isEmpty(product.imageUrl)}">
                         <h4>Enviar Nova Imagem</h4>
                         <form th:action="@{/products/{id}/upload-image(id=${product.id})}" 
                               method="post" 
@@ -120,17 +130,6 @@
                         </form>
                     </div>
 
-                    <!-- Delete Image Form -->
-                    <div class="image-delete-section" th:if="${product.imageUrl != null and not #strings.isEmpty(product.imageUrl)}">
-                        <h4>Remover Imagem</h4>
-                        <form th:action="@{/products/{id}/delete-image(id=${product.id})}" 
-                              method="post" 
-                              onsubmit="return confirm('Tem certeza que deseja remover a imagem do produto?')">
-                            <button type="submit" class="btn btn-danger">
-                                Remover Imagem Atual
-                            </button>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>

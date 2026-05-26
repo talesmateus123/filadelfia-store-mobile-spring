@@ -52,6 +52,13 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 5. Run with `mvn spring-boot:run` or the IDE run configuration.
 6. Seed initial data (products, admin user) or create via admin UI.
 
+## Recent updates
+- Added product highlight toggle on product details and create/edit forms.
+- Preserved existing product image during edits when no new image is uploaded.
+- Fixed admin category counts and ensured product forms use only active categories.
+- Prevented deletion of categories that still have linked products.
+- Implemented real-time BRL currency masking for product price input and corrected edit-mode formatting.
+
 ## TODO
 
 ### Phase 1: MVC User Management & Role-Based Access (Priority: High)

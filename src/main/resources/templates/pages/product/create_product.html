@@ -28,18 +28,33 @@
                     </div>
                     <div class="form-group">
                         <label for="produto-categoria">Categoria</label>
-                        <select id="produto-categoria" th:field="*{categoryId}" required>
+                        <select id="produto-categoria" th:field="*{categoryId}">
                             <option value="">Selecione uma categoria</option>
+                            <option value="0">Nova Categoria</option>
                             <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
                         </select>
+                        <small class="form-text">Selecione uma categoria existente ou escolha "Nova Categoria" para informar uma categoria nova.</small>
+                    </div>
+                    <div id="new-category-fields" class="form-group" style="display: none;">
+                        <label for="new-category-name">Nome da nova categoria</label>
+                        <input type="text" id="new-category-name" th:field="*{newCategoryName}" placeholder="Nome da nova categoria">
+                    </div>
+                    <div id="new-category-description-group" class="form-group" style="display: none;">
+                        <label for="new-category-description">Descrição da Nova Categoria</label>
+                        <textarea id="new-category-description" th:field="*{newCategoryDescription}" rows="2" placeholder="Descrição opcional"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="produto-preco">Preço (R$)</label>
-                        <input type="number" id="produto-preco" th:field="*{price}" step="0.01" min="0" required>
+                        <input type="text" id="produto-preco" th:field="*{price}" placeholder="R$ 0,00" inputmode="decimal" required
+                               onfocus="unformatCurrency(this)" onblur="formatCurrency(this)" oninput="maskCurrencyOnInput(this)">
                     </div>
                     <div class="form-group">
                         <label for="produto-estoque">Quantidade em Estoque</label>
                         <input type="number" id="produto-estoque" th:field="*{stock}" min="0" required>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="produto-featured" th:field="*{featured}">
+                        <label for="produto-featured">Destacar produto</label>
                     </div>
                     <div class="form-group">
                         <label for="produto-ativo">Ativo</label>
@@ -126,6 +141,114 @@
                 previewImg.src = '';
             }
         }
+
+        function toggleNewCategoryFields() {
+            const categoriaSelect = document.getElementById('produto-categoria');
+            const newCategoryFields = document.getElementById('new-category-fields');
+            const newCategoryDescriptionGroup = document.getElementById('new-category-description-group');
+            const selectedValue = categoriaSelect.value;
+
+            if (selectedValue === '0') {
+                newCategoryFields.style.display = 'block';
+                newCategoryDescriptionGroup.style.display = 'block';
+            } else {
+                newCategoryFields.style.display = 'none';
+                newCategoryDescriptionGroup.style.display = 'none';
+            }
+        }
+
+        function maskCurrencyOnInput(input) {
+            if (!input) return;
+            const numeric = parseCurrencyValue(input.value);
+            if (isNaN(numeric)) {
+                input.value = '';
+                return;
+            }
+            input.value = numeric.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function parseCurrencyValue(value) {
+            if (!value) return NaN;
+            let cleaned = value.toString().trim();
+            cleaned = cleaned.replace(/\s/g, '');
+            cleaned = cleaned.replace(/[^0-9.,]/g, '');
+
+            if (cleaned === '') {
+                return NaN;
+            }
+
+            if (cleaned.includes(',') && cleaned.includes('.')) {
+                cleaned = cleaned.replace(/\./g, '');
+                cleaned = cleaned.replace(/,/g, '.');
+            } else if (cleaned.includes(',') && !cleaned.includes('.')) {
+                cleaned = cleaned.replace(/,/g, '.');
+            } else if (!cleaned.includes(',') && cleaned.includes('.')) {
+                const lastDot = cleaned.lastIndexOf('.');
+                cleaned = cleaned.slice(0, lastDot).replace(/\./g, '') + '.' + cleaned.slice(lastDot + 1);
+            }
+
+            return parseFloat(cleaned);
+        }
+
+        function formatCurrency(input) {
+            if (!input) return;
+            const numeric = parseCurrencyValue(input.value);
+            if (isNaN(numeric)) {
+                input.value = '';
+                return;
+            }
+            input.value = numeric.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function unformatCurrency(input) {
+            if (!input) return;
+            const numeric = parseCurrencyValue(input.value);
+            if (isNaN(numeric)) {
+                input.value = '';
+                return;
+            }
+            input.value = numeric.toFixed(2);
+        }
+
+        function normalizePriceField() {
+            const priceInput = document.getElementById('produto-preco');
+            if (!priceInput) return;
+            const numeric = parseCurrencyValue(priceInput.value);
+            priceInput.value = isNaN(numeric) ? '' : numeric.toFixed(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const priceInput = document.getElementById('produto-preco');
+            if (priceInput && priceInput.value) {
+                formatCurrency(priceInput);
+            }
+            const categoriaSelect = document.getElementById('produto-categoria');
+            const form = document.getElementById('form-produto');
+
+            if (categoriaSelect) {
+                categoriaSelect.addEventListener('change', toggleNewCategoryFields);
+                toggleNewCategoryFields();
+            }
+
+            if (form) {
+                form.addEventListener('submit', function() {
+                    normalizePriceField();
+                    if (categoriaSelect && categoriaSelect.value === '0') {
+                        // Keep the sentinel value so backend can detect a new category.
+                    }
+                });
+            }
+        });
     </script>
     
 </body>
