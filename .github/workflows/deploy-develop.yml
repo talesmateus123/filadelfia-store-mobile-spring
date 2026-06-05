@@ -156,7 +156,7 @@ jobs:
         DATABASE_URL: ${{ secrets.FILADELFIA_DATABASE_URL }}
         DATABASE_USERNAME: ${{ secrets.FILADELFIA_DATABASE_USERNAME }}
         DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD }}
-        DATABASE_DRIVER: ${{ secrets.FILADELFIA_DATABASE_DRIVER }}
+        DATABASE_DRIVER: ${{ secrets.FILADELFIA_DATABASE_DRIVER || 'com.mysql.cj.jdbc.Driver' }}
         MAIL_HOST: ${{ secrets.FILADELFIA_MAIL_HOST }}
         MAIL_PORT: ${{ secrets.FILADELFIA_MAIL_PORT }}
         MAIL_USERNAME: ${{ secrets.FILADELFIA_MAIL_USERNAME }}
@@ -201,7 +201,7 @@ jobs:
           chmod 755 "$APP_DIR/filadelfiastore.jar"
           
           # Atualizar arquivo de ambiente do systemd
-          cat > /tmp/filadelfiastore.env <<'ENV'
+          cat > /tmp/filadelfiastore.env <<ENV
 DATABASE_URL=${DATABASE_URL}
 DATABASE_USERNAME=${DATABASE_USERNAME}
 DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -215,6 +215,7 @@ BASE_URL=${BASE_URL}
 ENV
           sudo mv /tmp/filadelfiastore.env /etc/systemd/system/filadelfiastore.env
           sudo chmod 600 /etc/systemd/system/filadelfiastore.env
+          echo "✅ Arquivo de ambiente criado em /etc/systemd/system/filadelfiastore.env"
           echo "🚀 Iniciando serviço $SERVICE_NAME..."
           sudo systemctl start $SERVICE_NAME
           sudo systemctl enable $SERVICE_NAME
