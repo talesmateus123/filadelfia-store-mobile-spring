@@ -28,7 +28,11 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
 ## Getting started (developer notes)
 1. Clone the repository.
 2. Configure application properties (MySQL connection, port).
-3. Set up the following environment variables for local development:
+3. Copy `.env.example` to `.env` and update the values for your environment.
+   ```bash
+   cp .env.example .env
+   ```
+   Then set the actual values:
    ```env
    DATABASE_URL=jdbc:mysql://localhost:3306/database
    DATABASE_USERNAME=username
@@ -36,20 +40,21 @@ Filadelfia Store is a virtual store being developed for the church to sell cloth
    DDL_AUTO=update
    DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
    DATABASE_DRIVER=com.mysql.cj.jdbc.Driver
-   
+
    # Email Configuration (for password reset)
-   MAIL_HOST=smtp.gmail.com
+   MAIL_HOST=smtp.hostinger.com
    MAIL_PORT=587
-   MAIL_USERNAME=your-email@gmail.com
-   MAIL_PASSWORD=your-app-password
-   EMAIL_FROM=noreply@filadelfiastore.com
+   MAIL_USERNAME=your-email@your-domain.com
+   MAIL_PASSWORD=your-email-password
+   EMAIL_FROM=your-email@your-domain.com
    BASE_URL=http://localhost:8080
    ```
-4. **Email Setup for Gmail:**
+4. The app reads mail settings from environment variables, so the same `.env` can be used locally or on a VPS.
+5. If you use Gmail SMTP, make sure you do not use your normal account password:
    - Enable 2-Step Verification in your Google Account
    - Generate an App Password: Google Account → Security → 2-Step Verification → App passwords
-   - Use the generated 16-character password as MAIL_PASSWORD
-5. Run with `mvn spring-boot:run` or the IDE run configuration.
+   - Use the generated 16-character password as `MAIL_PASSWORD`
+6. Run with `mvn spring-boot:run` or the IDE run configuration.
 6. Seed initial data (products, admin user) or create via admin UI.
 
 ## Recent updates
