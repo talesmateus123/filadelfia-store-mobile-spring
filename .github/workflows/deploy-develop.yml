@@ -202,17 +202,17 @@ jobs:
           
           # Atualizar arquivo de ambiente do systemd
           cat > /tmp/filadelfiastore.env <<ENV
-DATABASE_URL=${DATABASE_URL}
-DATABASE_USERNAME=${DATABASE_USERNAME}
-DATABASE_PASSWORD=${DATABASE_PASSWORD}
-DATABASE_DRIVER=${DATABASE_DRIVER}
-MAIL_HOST=${MAIL_HOST}
-MAIL_PORT=${MAIL_PORT}
-MAIL_USERNAME=${MAIL_USERNAME}
-MAIL_PASSWORD=${MAIL_PASSWORD}
-EMAIL_FROM=${EMAIL_FROM}
-BASE_URL=${BASE_URL}
-ENV
+          DATABASE_URL=${DATABASE_URL}
+          DATABASE_USERNAME=${DATABASE_USERNAME}
+          DATABASE_PASSWORD=${DATABASE_PASSWORD}
+          DATABASE_DRIVER=${DATABASE_DRIVER}
+          MAIL_HOST=${MAIL_HOST}
+          MAIL_PORT=${MAIL_PORT}
+          MAIL_USERNAME=${MAIL_USERNAME}
+          MAIL_PASSWORD=${MAIL_PASSWORD}
+          EMAIL_FROM=${EMAIL_FROM}
+          BASE_URL=${BASE_URL}
+          ENV
           sudo mv /tmp/filadelfiastore.env /etc/systemd/system/filadelfiastore.env
           sudo chmod 600 /etc/systemd/system/filadelfiastore.env
           echo "✅ Arquivo de ambiente criado em /etc/systemd/system/filadelfiastore.env"
