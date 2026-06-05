@@ -42,8 +42,11 @@ public class ForgotPasswordController {
                 try {
                     emailService.sendPasswordResetEmail(email, token);
                 } catch (Exception e) {
-                    // Log error but don't reveal to user
+                    // Log error and show a generic failure message
                     System.err.println("Failed to send password reset email: " + e.getMessage());
+                    redirectAttributes.addFlashAttribute("errorMessage", 
+                        "Não foi possível enviar o email de recuperação no momento. Tente novamente mais tarde.");
+                    return "redirect:/forgot-password";
                 }
             }
             

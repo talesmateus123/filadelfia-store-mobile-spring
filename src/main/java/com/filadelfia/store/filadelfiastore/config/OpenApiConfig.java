@@ -10,9 +10,22 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Spring configuration for OpenAPI documentation.
+ *
+ * This class creates and exposes an OpenAPI bean used by Swagger UI and
+ * other OpenAPI-compatible tools to generate interactive API documentation.
+ * It provides metadata such as title, version, contact information, license,
+ * and configured server URLs for both development and production environments.
+ */
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Builds the OpenAPI definition used by the application.
+     *
+     * @return configured OpenAPI instance for Filadelfia Store
+     */
     @Bean
     public OpenAPI filadelfiaStoreOpenAPI() {
         Server devServer = new Server();

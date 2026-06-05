@@ -18,7 +18,7 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
-    @Value("${app.email.from:noreply@filadelfiastore.com}")
+    @Value("${app.email.from:suporte@filadelfiastore.com}")
     private String fromEmail;
 
     @Value("${app.base-url:http://localhost:8080}")
