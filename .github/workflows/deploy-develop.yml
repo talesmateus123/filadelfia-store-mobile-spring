@@ -77,6 +77,15 @@ jobs:
         echo "VPS_USER: ${{ secrets.FILADELFIA_VPS_USER != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
         echo "VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT != '' && 'configurado' || 'NÃO CONFIGURADO (padrão: 22)' }}"
         echo "VPS_SSH_KEY: ${{ secrets.FILADELFIA_VPS_SSH_KEY != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "DATABASE_URL: ${{ secrets.FILADELFIA_DATABASE_URL != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "DATABASE_USERNAME: ${{ secrets.FILADELFIA_DATABASE_USERNAME != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "MAIL_HOST: ${{ secrets.FILADELFIA_MAIL_HOST != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "MAIL_PORT: ${{ secrets.FILADELFIA_MAIL_PORT != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "MAIL_USERNAME: ${{ secrets.FILADELFIA_MAIL_USERNAME != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "MAIL_PASSWORD: ${{ secrets.FILADELFIA_MAIL_PASSWORD != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "EMAIL_FROM: ${{ secrets.FILADELFIA_EMAIL_FROM != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
+        echo "BASE_URL: ${{ secrets.FILADELFIA_BASE_URL != '' && 'configurado' || 'NÃO CONFIGURADO' }}"
         
         # Mostrar valores mascarados para debug (não mostra valores reais)
         if [ -n "${{ secrets.FILADELFIA_VPS_HOST }}" ]; then
@@ -144,7 +153,16 @@ jobs:
         VPS_HOST: ${{ secrets.FILADELFIA_VPS_HOST }}
         VPS_USER: ${{ secrets.FILADELFIA_VPS_USER }}
         VPS_PORT: ${{ secrets.FILADELFIA_VPS_PORT }}
-        DATABASE_URL: jdbc:mysql://localhost:3306/filadelfia_prod
+        DATABASE_URL: ${{ secrets.FILADELFIA_DATABASE_URL }}
+        DATABASE_USERNAME: ${{ secrets.FILADELFIA_DATABASE_USERNAME }}
+        DATABASE_PASSWORD: ${{ secrets.FILADELFIA_DATABASE_PASSWORD }}
+        DATABASE_DRIVER: ${{ secrets.FILADELFIA_DATABASE_DRIVER }}
+        MAIL_HOST: ${{ secrets.FILADELFIA_MAIL_HOST }}
+        MAIL_PORT: ${{ secrets.FILADELFIA_MAIL_PORT }}
+        MAIL_USERNAME: ${{ secrets.FILADELFIA_MAIL_USERNAME }}
+        MAIL_PASSWORD: ${{ secrets.FILADELFIA_MAIL_PASSWORD }}
+        EMAIL_FROM: ${{ secrets.FILADELFIA_EMAIL_FROM }}
+        BASE_URL: ${{ secrets.FILADELFIA_BASE_URL }}
       run: |
         # Transferir JAR para o servidor
         scp -i ~/.ssh/filadelfia_key -P ${VPS_PORT:-22} -o StrictHostKeyChecking=no $JAR_FILE $VPS_USER@$VPS_HOST:/tmp/filadelfiastore.jar
@@ -181,11 +199,22 @@ jobs:
           # Configurar permissões
           chown filadelfia:filadelfia "$APP_DIR/filadelfiastore.jar"
           chmod 755 "$APP_DIR/filadelfiastore.jar"
-                    
-          # Recarregar systemd e iniciar serviço
-          echo "🔄 Recarregando systemd..."
-          sudo systemctl daemon-reload
           
+          # Atualizar arquivo de ambiente do systemd
+          cat > /tmp/filadelfiastore.env <<'ENV'
+DATABASE_URL=${DATABASE_URL}
+DATABASE_USERNAME=${DATABASE_USERNAME}
+DATABASE_PASSWORD=${DATABASE_PASSWORD}
+DATABASE_DRIVER=${DATABASE_DRIVER}
+MAIL_HOST=${MAIL_HOST}
+MAIL_PORT=${MAIL_PORT}
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
+EMAIL_FROM=${EMAIL_FROM}
+BASE_URL=${BASE_URL}
+ENV
+          sudo mv /tmp/filadelfiastore.env /etc/systemd/system/filadelfiastore.env
+          sudo chmod 600 /etc/systemd/system/filadelfiastore.env
           echo "🚀 Iniciando serviço $SERVICE_NAME..."
           sudo systemctl start $SERVICE_NAME
           sudo systemctl enable $SERVICE_NAME
